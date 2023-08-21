@@ -1,4 +1,4 @@
-/*	$NetBSD: time.h,v 1.80 2022/06/26 22:31:38 riastradh Exp $	*/
+/*	$NetBSD: time.h,v 1.5 2013/10/04 21:07:37 christos Exp $	*/
 
 /*
  * Copyright (c) 1982, 1986, 1993
@@ -37,6 +37,14 @@
 #include <sys/featuretest.h>
 #include <sys/types.h>
 
+#ifdef SEL4 // SEL4: time not needed, stubbed out
+typedef int time_t;
+typedef int suseconds_t;
+struct timeval {
+	time_t    	tv_sec;		/* seconds */
+	suseconds_t	tv_usec;	/* and microseconds */
+};
+#else
 /*
  * Structure returned by gettimeofday(2) system call,
  * and used in other calls.
@@ -346,4 +354,5 @@ __END_DECLS
 
 #endif	/* !_STANDALONE */
 #endif /* !_KERNEL */
+#endif /* SEL4 */
 #endif /* !_SYS_TIME_H_ */
