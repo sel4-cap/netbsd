@@ -619,7 +619,7 @@ void
 uhidev_get_report_desc(struct uhidev *scd, void **desc, int *size)
 {
 	struct uhidev_softc *sc = scd->sc_parent;
-
+	
 	*desc = sc->sc_repdesc;
 	*size = sc->sc_repdesc_size;
 }
