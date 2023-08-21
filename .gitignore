@@ -1,0 +1,4 @@
+external/*
+usr.bin/*
+tools/*
+tests/*

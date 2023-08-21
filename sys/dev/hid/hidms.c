@@ -249,8 +249,10 @@ hidms_attach(device_t self, struct hidms *ms,
 	a.accessops = ops;
 	a.accesscookie = device_private(self);
 
+#ifndef SEL4
 	ms->hidms_wsmousedev = config_found(self, &a, wsmousedevprint,
 	    CFARGS_NONE);
+#endif
 
 	return;
 }
@@ -288,11 +290,13 @@ hidms_intr(struct hidms *ms, void *ibuf, u_int len)
 		DPRINTFN(10, ("hidms_intr: x:%d y:%d z:%d w:%d buttons:0x%x\n",
 			dx, dy, dz, dw, buttons));
 		ms->hidms_buttons = buttons;
+#ifndef SEL4
 		if (ms->hidms_wsmousedev != NULL) {
 			s = spltty();
 			wsmouse_input(ms->hidms_wsmousedev, buttons, dx, dy, dz,
 			    dw, flags);
 			splx(s);
 		}
+#endif
 	}
 }

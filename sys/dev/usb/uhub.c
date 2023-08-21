@@ -50,11 +50,12 @@ __KERNEL_RCSID(0, "$NetBSD: uhub.c,v 1.161 2022/04/06 22:01:45 mlelstv Exp $");
 #include <sys/kernel.h>
 #include <sys/kmem.h>
 #include <sys/proc.h>
-#include <sys/sysctl.h>
+// #include <sys/sysctl.h>
 #include <sys/systm.h>
-#include <sys/kcov.h>
+// #include <sys/kcov.h>
 #include <sys/sdt.h>
 
+#include <dev/usb/uhub.h>
 #include <dev/usb/usb.h>
 #include <dev/usb/usb_sdt.h>
 #include <dev/usb/usbdi.h>
@@ -145,6 +146,7 @@ fail:
 #define UHUBHIST_CALLARGS(FMT,A,B,C,D) \
 				USBHIST_CALLARGS(uhubdebug,FMT,A,B,C,D)
 
+#ifndef SEL4 //SEL4 moved softc to usb.c
 struct uhub_softc {
 	device_t		 sc_dev;	/* base device */
 	struct usbd_device	*sc_hub;	/* USB device */
@@ -165,6 +167,7 @@ struct uhub_softc {
 
 	struct lwp		*sc_exploring;
 };
+#endif
 
 #define UHUB_IS_HIGH_SPEED(sc) \
     ((sc)->sc_proto == UDPROTO_HSHUBSTT || (sc)->sc_proto == UDPROTO_HSHUBMTT)
@@ -174,7 +177,7 @@ struct uhub_softc {
 	((sc)->sc_status[(port) / 8] & (1 << ((port) % 8)))
 
 Static usbd_status uhub_explore(struct usbd_device *);
-Static void uhub_intr(struct usbd_xfer *, void *, usbd_status);
+// Static void uhub_intr(struct usbd_xfer *, void *, usbd_status);
 
 
 /*
@@ -184,7 +187,7 @@ Static void uhub_intr(struct usbd_xfer *, void *, usbd_status);
  */
 
 static int uhub_match(device_t, cfdata_t, void *);
-static void uhub_attach(device_t, device_t, void *);
+// static void uhub_attach(device_t, device_t, void *);
 static int uhub_rescan(device_t, const char *, const int *);
 static void uhub_childdet(device_t, device_t);
 static int uhub_detach(device_t, int);
@@ -206,6 +209,9 @@ int uhub_ubermatch = 0;
 static usbd_status
 usbd_get_hub_desc(struct usbd_device *dev, usb_hub_descriptor_t *hd, int speed)
 {
+
+	printf("\nusbd_get_hub_desc called\n");
+
 	usb_device_request_t req;
 	usbd_status err;
 	int nports;
@@ -214,18 +220,20 @@ usbd_get_hub_desc(struct usbd_device *dev, usb_hub_descriptor_t *hd, int speed)
 
 	/* don't issue UDESC_HUB to SS hub, or it would stall */
 	if (dev->ud_depth != 0 && USB_IS_SS(dev->ud_speed)) {
-		usb_hub_ss_descriptor_t hssd;
+		usb_hub_ss_descriptor_t *hssd = kmem_zalloc(sizeof(usb_hub_ss_descriptor_t), 0);
 		int rmvlen;
 
+#ifndef SEL4
 		memset(&hssd, 0, sizeof(hssd));
+#endif
 		req.bmRequestType = UT_READ_CLASS_DEVICE;
 		req.bRequest = UR_GET_DESCRIPTOR;
 		USETW2(req.wValue, UDESC_SS_HUB, 0);
 		USETW(req.wIndex, 0);
 		USETW(req.wLength, USB_HUB_SS_DESCRIPTOR_SIZE);
 		DPRINTFN(1, "getting sshub descriptor", 0, 0, 0, 0);
-		err = usbd_do_request(dev, &req, &hssd);
-		nports = hssd.bNbrPorts;
+		err = usbd_do_request(dev, &req, hssd);
+		nports = hssd->bNbrPorts;
 		if (dev->ud_depth != 0 && nports > UHD_SS_NPORTS_MAX) {
 			DPRINTF("num of ports %jd exceeds maxports %jd",
 			    nports, UHD_SS_NPORTS_MAX, 0, 0);
@@ -234,20 +242,20 @@ usbd_get_hub_desc(struct usbd_device *dev, usb_hub_descriptor_t *hd, int speed)
 		rmvlen = (nports + 7) / 8;
 		hd->bDescLength = USB_HUB_DESCRIPTOR_SIZE +
 		    (rmvlen > 1 ? rmvlen : 1) - 1;
-		memcpy(hd->DeviceRemovable, hssd.DeviceRemovable, rmvlen);
-		hd->bDescriptorType		= hssd.bDescriptorType;
-		hd->bNbrPorts			= hssd.bNbrPorts;
-		hd->wHubCharacteristics[0]	= hssd.wHubCharacteristics[0];
-		hd->wHubCharacteristics[1]	= hssd.wHubCharacteristics[1];
-		hd->bPwrOn2PwrGood		= hssd.bPwrOn2PwrGood;
-		hd->bHubContrCurrent		= hssd.bHubContrCurrent;
+		memcpy(hd->DeviceRemovable, hssd->DeviceRemovable, rmvlen);
+		hd->bDescriptorType		= hssd->bDescriptorType;
+		hd->bNbrPorts			= hssd->bNbrPorts;
+		hd->wHubCharacteristics[0]	= hssd->wHubCharacteristics[0];
+		hd->wHubCharacteristics[1]	= hssd->wHubCharacteristics[1];
+		hd->bPwrOn2PwrGood		= hssd->bPwrOn2PwrGood;
+		hd->bHubContrCurrent		= hssd->bHubContrCurrent;
 	} else {
 		req.bmRequestType = UT_READ_CLASS_DEVICE;
 		req.bRequest = UR_GET_DESCRIPTOR;
 		USETW2(req.wValue, UDESC_HUB, 0);
 		USETW(req.wIndex, 0);
 		USETW(req.wLength, USB_HUB_DESCRIPTOR_SIZE);
-		DPRINTFN(1, "getting hub descriptor", 0, 0, 0, 0);
+		printf("getting hub descriptor");
 		err = usbd_do_request(dev, &req, hd);
 		nports = hd->bNbrPorts;
 		if (!err && nports > 7) {
@@ -291,21 +299,23 @@ uhub_match(device_t parent, cfdata_t match, void *aux)
 	 * The subclass for hubs seems to be 0 for some and 1 for others,
 	 * so we just ignore the subclass.
 	 */
+	printf("class is %d\n", uaa->uaa_class);
 	if (uaa->uaa_class == UDCLASS_HUB)
 		return matchvalue;
 	return UMATCH_NONE;
 }
 
-static void
+void
 uhub_attach(device_t parent, device_t self, void *aux)
 {
+	printf("\nuhub_attach called!\n");
 	struct uhub_softc *sc = device_private(self);
 	struct usb_attach_arg *uaa = aux;
 	struct usbd_device *dev = uaa->uaa_device;
 	char *devinfop;
 	usbd_status err;
 	struct usbd_hub *hub = NULL;
-	usb_hub_descriptor_t hubdesc;
+	usb_hub_descriptor_t *hubdesc = kmem_zalloc(sizeof(usb_hub_descriptor_t), 0);
 	int p, port, nports, nremov, pwrdly;
 	struct usbd_interface *iface;
 	usb_endpoint_descriptor_t *ed;
@@ -347,9 +357,11 @@ uhub_attach(device_t parent, device_t self, void *aux)
 	}
 
 	/* Get hub descriptor. */
+#ifndef SEL4
 	memset(&hubdesc, 0, sizeof(hubdesc));
-	err = usbd_get_hub_desc(dev, &hubdesc, dev->ud_speed);
-	nports = hubdesc.bNbrPorts;
+#endif
+	err = usbd_get_hub_desc(dev, hubdesc, dev->ud_speed);
+	nports = hubdesc->bNbrPorts;
 	if (err) {
 		DPRINTF("getting hub descriptor failed, uhub%jd error %jd",
 		    device_unit(self), err, 0, 0);
@@ -357,7 +369,7 @@ uhub_attach(device_t parent, device_t self, void *aux)
 	}
 
 	for (nremov = 0, port = 1; port <= nports; port++)
-		if (!UHD_NOT_REMOV(&hubdesc, port))
+		if (!UHD_NOT_REMOV(hubdesc, port))
 			nremov++;
 	aprint_verbose_dev(self, "%d port%s with %d removable, %s powered\n",
 	    nports, nports != 1 ? "s" : "", nremov,
@@ -373,7 +385,7 @@ uhub_attach(device_t parent, device_t self, void *aux)
 	dev->ud_hub = hub;
 	dev->ud_hub->uh_hubsoftc = sc;
 	hub->uh_explore = uhub_explore;
-	hub->uh_hubdesc = hubdesc;
+	hub->uh_hubdesc = *hubdesc;
 
 	if (USB_IS_SS(dev->ud_speed) && dev->ud_depth != 0) {
 		aprint_debug_dev(self, "setting hub depth %u\n",
@@ -422,7 +434,7 @@ uhub_attach(device_t parent, device_t self, void *aux)
 	err = usbd_open_pipe_intr(iface, ed->bEndpointAddress,
 		  USBD_SHORT_XFER_OK|USBD_MPSAFE, &sc->sc_ipipe, sc,
 		  sc->sc_statusbuf, sc->sc_statuslen,
-		  uhub_intr, USBD_DEFAULT_INTERVAL);
+		  intr_ptrs->uhub, USBD_DEFAULT_INTERVAL);
 	if (err) {
 		aprint_error_dev(self, "cannot open interrupt pipe\n");
 		goto bad;
@@ -571,16 +583,17 @@ uhub_explore(struct usbd_device *dev)
 	}
 
 	if (PORTSTAT_ISSET(sc, 0)) { /* hub status change */
-		usb_hub_status_t hs;
+		usb_hub_status_t *hs;
+		hs = kmem_zalloc(sizeof(*hs), 0);
 
-		err = usbd_get_hub_status(dev, &hs);
+		err = usbd_get_hub_status(dev, hs);
 		if (err) {
 			DPRINTF("uhub%jd get hub status failed, err %jd",
 			    device_unit(sc->sc_dev), err, 0, 0);
 		} else {
 			/* just acknowledge */
-			status = UGETW(hs.wHubStatus);
-			change = UGETW(hs.wHubChange);
+			status = UGETW(hs->wHubStatus);
+			change = UGETW(hs->wHubChange);
 			SDT_PROBE5(usb, hub, explore, portstat,
 			    dev, /*portno*/0, status, change, /*reattach*/0);
 			DPRINTF("uhub%jd s/c=%jx/%jx", device_unit(sc->sc_dev),
@@ -835,10 +848,12 @@ uhub_explore(struct usbd_device *dev)
 				    port);
 		}
 
+#ifndef SEL4 //not necessary, not implementing VHCI
 		if (dev->ud_bus->ub_hctype == USBHCTYPE_VHCI) {
 			kcov_remote_enter(KCOV_REMOTE_VHCI,
 			    KCOV_REMOTE_VHCI_ID(dev->ud_bus->ub_busnum, port));
 		}
+#endif
 
 		SDT_PROBE4(usb, hub, explore, connect,
 		    dev, port, up, speed);
@@ -847,10 +862,12 @@ uhub_explore(struct usbd_device *dev)
 		err = usbd_new_device(sc->sc_dev, dev->ud_bus,
 			  dev->ud_depth + 1, speed, port, up);
 
+#ifndef SEL4 //not necessary, not implementing VHCI
 		if (dev->ud_bus->ub_hctype == USBHCTYPE_VHCI) {
 			kcov_remote_leave(KCOV_REMOTE_VHCI,
 			    KCOV_REMOTE_VHCI_ID(dev->ud_bus->ub_busnum, port));
 		}
+#endif
 
 		/* XXX retry a few times? */
 		if (err) {

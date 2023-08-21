@@ -51,6 +51,7 @@ __KERNEL_RCSID(0, "$NetBSD: ums.c,v 1.103 2022/03/28 12:44:17 riastradh Exp $");
 #include <sys/proc.h>
 #include <sys/vnode.h>
 #include <sys/poll.h>
+#include <sys/kmem.h>
 
 #include <dev/usb/usb.h>
 #include <dev/usb/usbhid.h>
@@ -85,20 +86,20 @@ struct ums_softc {
 	char	sc_dying;
 };
 
-Static void ums_intr(void *, void *, u_int);
+//Static void ums_intr(void *, void *, u_int);
 
 Static int	ums_enable(void *);
-Static void	ums_disable(void *);
-Static int	ums_ioctl(void *, u_long, void *, int, struct lwp *);
+//Static void	ums_disable(void *);
+//Static int	ums_ioctl(void *, u_long, void *, int, struct lwp *);
 
 static const struct wsmouse_accessops ums_accessops = {
 	ums_enable,
-	ums_ioctl,
-	ums_disable,
+	//ums_ioctl,
+	//ums_disable,
 };
 
 static int ums_match(device_t, cfdata_t, void *);
-static void ums_attach(device_t, device_t, void *);
+//static void ums_attach(device_t, device_t, void *);
 static void ums_childdet(device_t, device_t);
 static int ums_detach(device_t, int);
 static int ums_activate(device_t, enum devact);
@@ -117,9 +118,12 @@ ums_match(device_t parent, cfdata_t match, void *aux)
 	 * Some (older) Griffin PowerMate knobs may masquerade as a
 	 * mouse, avoid treating them as such, they have only one axis.
 	 */
-	if (uha->uiaa->uiaa_vendor == USB_VENDOR_GRIFFIN &&
-	    uha->uiaa->uiaa_product == USB_PRODUCT_GRIFFIN_POWERMATE)
-		return UMATCH_NONE;
+    if (uha->uiaa) { //SEL4: added uiaa check to avoid crash
+        if (uha->uiaa->uiaa_vendor == USB_VENDOR_GRIFFIN &&
+                uha->uiaa->uiaa_product == USB_PRODUCT_GRIFFIN_POWERMATE) {
+            return UMATCH_NONE;
+        }
+    }
 
 	uhidev_get_report_desc(uha->parent, &desc, &size);
 	if (!hid_is_collection(desc, size, uha->reportid,
@@ -127,13 +131,14 @@ ums_match(device_t parent, cfdata_t match, void *aux)
 	    !hid_is_collection(desc, size, uha->reportid,
 			       HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_POINTER)) &&
 	    !hid_is_collection(desc, size, uha->reportid,
-			       HID_USAGE2(HUP_DIGITIZERS, 0x0002)))
+            HID_USAGE2(HUP_DIGITIZERS, 0x0002))) {
 		return UMATCH_NONE;
+    }
 
 	return UMATCH_IFACECLASS;
 }
 
-static void
+void
 ums_attach(device_t parent, device_t self, void *aux)
 {
 	struct ums_softc *sc = device_private(self);
@@ -202,7 +207,7 @@ ums_attach(device_t parent, device_t self, void *aux)
 		}
 	}
 
-	tpcalib_init(&sc->sc_ms.sc_tpcalib);
+//	tpcalib_init(&sc->sc_ms.sc_tpcalib);
 
 	/* calibrate the pointer if it reports absolute events */
 	if (sc->sc_ms.flags & HIDMS_ABS) {
@@ -228,14 +233,16 @@ ums_attach(device_t parent, device_t self, void *aux)
 			}
 			hid_end_parse(d);
 		}
+#ifndef SEL4
         	tpcalib_ioctl(&sc->sc_ms.sc_tpcalib, WSMOUSEIO_SCALIBCOORDS,
         	    (void *)&sc->sc_ms.sc_calibcoords, 0, 0);
+#endif
 	}
 
 	hidms_attach(self, &sc->sc_ms, &ums_accessops);
-
+	ums_enable(sc); //SEL4: moved out to enble mouse
 	if (sc->sc_alwayson) {
-		error = uhidev_open(sc->sc_hdev, &ums_intr, sc);
+		error = uhidev_open(sc->sc_hdev, intr_ptrs->ums, sc);
 		if (error != 0) {
 			aprint_error_dev(self,
 			    "WARNING: couldn't open always-on device\n");
@@ -279,15 +286,17 @@ ums_detach(device_t self, int flags)
 		uhidev_close(sc->sc_hdev);
 
 	/* No need to do reference counting of ums, wsmouse has all the goo. */
+#ifndef SEL4
 	if (sc->sc_ms.hidms_wsmousedev != NULL)
 		rv = config_detach(sc->sc_ms.hidms_wsmousedev, flags);
+#endif
 
 	pmf_device_deregister(self);
 
 	return rv;
 }
 
-Static void
+void
 ums_intr(void *cookie, void *ibuf, u_int len)
 {
 	struct ums_softc *sc = cookie;
@@ -314,7 +323,7 @@ ums_enable(void *v)
 	sc->sc_ms.hidms_buttons = 0;
 
 	if (!sc->sc_alwayson) {
-		error = uhidev_open(sc->sc_hdev, &ums_intr, sc);
+		error = uhidev_open(sc->sc_hdev, intr_ptrs->ums, sc);
 		if (error)
 			sc->sc_enabled = 0;
 	}
@@ -322,6 +331,7 @@ ums_enable(void *v)
 	return error;
 }
 
+#ifndef SEL4
 Static void
 ums_disable(void *v)
 {
@@ -368,3 +378,4 @@ ums_ioctl(void *v, u_long cmd, void *data, int flag,
 
 	return EPASSTHROUGH;
 }
+#endif
