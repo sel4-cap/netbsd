@@ -1,4 +1,4 @@
-/*	$NetBSD: mutex.h,v 1.27.4.1 2023/08/09 17:42:01 martin Exp $	*/
+/*	$NetBSD: mutex.h,v 1.27 2021/12/26 08:41:29 skrll Exp $	*/
 
 /*-
  * Copyright (c) 2002, 2007 The NetBSD Foundation, Inc.
@@ -75,6 +75,10 @@ struct kmutex {
 };
 
 #ifdef __MUTEX_PRIVATE
+
+// SEL4: noops
+#define mutex_init(d, f, i) NULL
+#define mutex_enter(d) NULL
 
 #define	mtx_owner		u.mtxa_owner
 #define	mtx_ipl			u.s.mtxs_ipl
