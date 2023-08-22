@@ -558,6 +558,11 @@ __do_atomic_store(volatile void *p, const void *q, size_t size)
 
 #endif	/* __STDC_VERSION__ */
 
+#elif defined SEL4
+#define atomic_cas_uint(...) 0
+#define	atomic_store_release(p,v) 0
+#define	atomic_load_acquire(p) 0
+#define	atomic_store_relaxed(p,v) 0
 #endif	/* _KERNEL */
 
 #endif /* ! _SYS_ATOMIC_H_ */
