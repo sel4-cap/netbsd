@@ -8,7 +8,7 @@
 #ifndef _LOCORE
 #include <sys/stdint.h>
 
-#include <machine/bswap.h>
+#include <evbarm/bswap.h>
 
 __BEGIN_DECLS
 /* Always declare the functions in case their address is taken (etc) */

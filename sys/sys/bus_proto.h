@@ -64,6 +64,8 @@
 #ifndef _SYS_BUS_PROTO_H_
 #define _SYS_BUS_PROTO_H_
 
+typedef unsigned long paddr_t;
+
 #ifdef _KERNEL_OPT
 #include "opt_kasan.h"
 #include "opt_kcsan.h"
