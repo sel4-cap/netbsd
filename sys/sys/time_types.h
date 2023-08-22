@@ -34,7 +34,7 @@
 #ifndef _COMPAT_SYS_TIME_TYPES_H_
 #define	_COMPAT_SYS_TIME_TYPES_H_
 
-#ifdef _KERNEL
+#if defined(_KERNEL) ||  defined(SEL4)
 #include <lib/libkern/libkern.h>
 #else
 #include <stddef.h>

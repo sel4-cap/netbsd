@@ -32,7 +32,7 @@
 #ifndef	_SYS_ANSI_H_
 #define	_SYS_ANSI_H_
 
-#include <evbarm/ansi.h>
+#include <machine/ansi.h>
 #include <sys/_types.h>
 
 typedef char *		__caddr_t;	/* core address */
@@ -44,7 +44,9 @@ typedef __uint16_t	__in_port_t;	/* "Internet" port number */
 typedef __uint32_t	__mode_t;	/* file permissions */
 typedef __uint32_t	__accmode_t;	/* access permissions */
 typedef __int64_t	__off_t;	/* file offset */
+#ifndef SEL4
 typedef __int32_t	__pid_t;	/* process id */
+#endif
 typedef __uint8_t	__sa_family_t;	/* socket address family */
 typedef unsigned int	__socklen_t;	/* socket-related datum length */
 #ifndef SEL4

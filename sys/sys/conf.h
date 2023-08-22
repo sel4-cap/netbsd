@@ -95,7 +95,9 @@ struct cdevsw {
 	void		(*d_stop)(struct tty *, int);
 	struct tty *	(*d_tty)(dev_t);
 	int		(*d_poll)(dev_t, int, struct lwp *);
+#ifndef SEL4
 	paddr_t		(*d_mmap)(dev_t, off_t, int);
+#endif
 	int		(*d_kqfilter)(dev_t, struct knote *);
 	int		(*d_discard)(dev_t, off_t, off_t);
 	int		(*d_devtounit)(dev_t);

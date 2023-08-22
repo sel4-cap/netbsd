@@ -1,3 +1,4 @@
+//TODO: vimdiff this file
 /* $NetBSD: imx8mq_usbphy.c,v 1.5 2021/01/27 03:10:20 thorpej Exp $ */
 
 /*-
@@ -53,12 +54,14 @@ __KERNEL_RCSID(0, "$NetBSD: imx8mq_usbphy.c,v 1.5 2021/01/27 03:10:20 thorpej Ex
 #define	 PHY_TXENABLEN0		__BIT(8)
 
 static int imx8mq_usbphy_match(device_t, cfdata_t, void *);
-static void imx8mq_usbphy_attach(device_t, device_t, void *);
+void imx8mq_usbphy_attach(device_t, device_t, void *);
 
+#ifndef SEL4
 static const struct device_compatible_entry compat_data[] = {
 	{ .compat = "fsl,imx8mq-usb-phy" },
 	DEVICE_COMPAT_EOL
 };
+#endif
 
 struct imx8mq_usbphy_softc {
 	device_t		sc_dev;
@@ -67,11 +70,23 @@ struct imx8mq_usbphy_softc {
 	int			sc_phandle;
 };
 
+// SEL4: bus read/write debug
+uint32_t imx8_read_print_4(bus_space_tag_t tag, bus_space_handle_t bsh, bus_size_t size){
+    uint32_t busval = bus_space_read_4(tag, bsh, size);
+    printf("imx8_phy: Read4: Handle: %lx, Offset: %lx. Result: %08x\n", bsh, size, busval);
+    return busval;
+}
+
+void imx8_write_print_4(bus_space_tag_t tag, bus_space_handle_t bsh, bus_size_t size, uint32_t val){
+    printf("imx8_phy: Wrte4: Handle: %lx, Offset: %lx.  Value: %08x\n", bsh, size, val);
+    bus_space_write_4(tag, bsh, size, val);
+}
+
 #define	PHY_READ(sc, reg)				\
 	bus_space_read_4((sc)->sc_bst, (sc)->sc_bsh, (reg))
 #define	PHY_WRITE(sc, reg, val)			\
 	bus_space_write_4((sc)->sc_bst, (sc)->sc_bsh, (reg), (val))
-
+	
 CFATTACH_DECL_NEW(imx8mqusbphy, sizeof(struct imx8mq_usbphy_softc),
 	imx8mq_usbphy_match, imx8mq_usbphy_attach, NULL, NULL);
 
@@ -89,7 +104,7 @@ imx8mq_usbphy_release(device_t dev, void *priv)
 {
 }
 
-static int
+int
 imx8mq_usbphy_enable(device_t dev, void *priv, bool enable)
 {
 	struct imx8mq_usbphy_softc * const sc = device_private(dev);
@@ -98,6 +113,7 @@ imx8mq_usbphy_enable(device_t dev, void *priv, bool enable)
 	int error;
 
 	if (enable) {
+#ifndef SEL4
 		if (of_hasprop(sc->sc_phandle, "vbus-supply")) {
 			reg = fdtbus_regulator_acquire(sc->sc_phandle, "vbus-supply");
 			if (reg != NULL) {
@@ -108,6 +124,7 @@ imx8mq_usbphy_enable(device_t dev, void *priv, bool enable)
 				device_printf(dev, "WARNING: couldn't acquire vbus-supply\n");
 			}
 		}
+#endif
 
 		val = PHY_READ(sc, PHY_CTL1_ADDR);
 		val &= ~PHY_VDATDATENB0;
@@ -143,17 +160,21 @@ const struct fdtbus_phy_controller_func imx8mq_usbphy_funcs = {
 static int
 imx8mq_usbphy_match(device_t parent, cfdata_t cf, void *aux)
 {
+#ifndef SEL4 //SEL4: match function not needed, called from init
 	struct fdt_attach_args * const faa = aux;
 
 	return of_compatible_match(faa->faa_phandle, compat_data);
+#else
+	return 0;
+#endif
 }
 
-static void
+void
 imx8mq_usbphy_attach(device_t parent, device_t self, void *aux)
 {
 	struct imx8mq_usbphy_softc * const sc = device_private(self);
 	struct fdt_attach_args * const faa = aux;
-	const int phandle = faa->faa_phandle;
+	const int phandle = 0x382f0000; //SEL4 hardcoded for MAAXBOARD
 	bus_addr_t addr;
 	bus_size_t size;
 
@@ -161,6 +182,7 @@ imx8mq_usbphy_attach(device_t parent, device_t self, void *aux)
 	sc->sc_bst = faa->faa_bst;
 	sc->sc_phandle = phandle;
 
+#ifndef SEL4
 	if (fdtbus_get_reg(phandle, 0, &addr, &size) != 0) {
 		aprint_error(": couldn't get registers\n");
 		return;
@@ -176,9 +198,12 @@ imx8mq_usbphy_attach(device_t parent, device_t self, void *aux)
 		aprint_error(": couldn't enable phy clock\n");
 		return;
 	}
+#endif
 
 	aprint_naive("\n");
 	aprint_normal(": USB PHY\n");
 
+#ifndef SEL4
 	fdtbus_register_phy_controller(self, phandle, &imx8mq_usbphy_funcs);
+#endif
 }
