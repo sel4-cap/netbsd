@@ -67,7 +67,7 @@
  *	2.99.9		(299000900)
  */
 
-#define	__NetBSD_Version__	1000000000	/* NetBSD 10.0_BETA */
+#define	__NetBSD_Version__	1099000200	/* NetBSD 10.99.2 */
 
 #define __NetBSD_Prereq__(M,m,p) (((((M) * 100000000) + \
     (m) * 1000000) + (p) * 100) <= __NetBSD_Version__)
@@ -155,9 +155,10 @@
 #endif
 
 /* More types and definitions used throughout the kernel. */
+#include <sys/errno.h>
 #ifdef _KERNEL
 #include <sys/cdefs.h>
-#include <sys/errno.h>
+
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/ucred.h>
@@ -187,7 +188,7 @@
 #endif /* _KERNEL */
 
 /* Signals. */
-#include <sys/signal.h>
+// #include <sys/signal.h>
 
 #define	DEV_BSHIFT	9			/* log2(DEV_BSIZE) */
 #define	DEV_BSIZE	(1 << DEV_BSHIFT)	/* 512 */
@@ -509,8 +510,9 @@
 #define	UBC_NWINS	1024
 #endif
 
-#ifdef _KERNEL
 extern int hz;
+#ifdef _KERNEL
+
 /*
  * macro to convert from milliseconds to hz without integer overflow
  * The 32 bit version uses only 32bit arithmetic; 0x20000 is safe for hz < 20000

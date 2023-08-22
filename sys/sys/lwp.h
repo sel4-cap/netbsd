@@ -590,6 +590,9 @@ curlwp_bindx(int bound)
 	curlwp->l_pflag ^= bound ^ LP_BOUND;
 }
 
+#elif defined(SEL4)
+#define kpreempt_enable() 0
+#define kpreempt_disable() 0
 #endif /* _KERNEL */
 
 /* Flags for _lwp_create(), as per Solaris. */

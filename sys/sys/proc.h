@@ -93,9 +93,7 @@
 #include <sys/event.h>
 #include <sys/specificdata.h>
 
-#ifdef _KERNEL
-#include <sys/resourcevar.h>
-#else
+#ifndef _KERNEL
 #include <sys/time.h>
 #include <sys/resource.h>
 #endif

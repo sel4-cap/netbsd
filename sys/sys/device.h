@@ -110,8 +110,8 @@
 #if defined(_KERNEL) || defined(_KMEMUSER)
 #include <sys/mutex.h>
 #include <sys/condvar.h>
-#include <sys/pmf.h>
 #endif
+#include <sys/pmf.h>
 
 #include <prop/proplib.h>
 
@@ -148,7 +148,6 @@ typedef struct cfdata *cfdata_t;
 typedef struct cfdriver *cfdriver_t;
 typedef struct cfattach *cfattach_t;
 
-#if defined(_KERNEL) || defined(_KMEMUSER) || defined(_STANDALONE)
 /*
  * devhandle_t --
  *
@@ -172,7 +171,6 @@ struct devhandle {
 	};
 };
 typedef struct devhandle devhandle_t;
-#endif
 
 #if defined(_KERNEL) || defined(_KMEMUSER) 
 struct device_compatible_entry {
@@ -345,9 +343,13 @@ struct cftable {
 	cfdata_t	ct_cfdata;	/* pointer to cfdata table */
 	TAILQ_ENTRY(cftable) ct_list;	/* list linkage */
 };
+TAILQ_HEAD(cftablelist, cftable);
 #ifdef _KERNEL
 TAILQ_HEAD(cftablelist, cftable);
 #endif
+
+#define	DVF_PRIV_ALLOC		0x0002	/* device private storage != device */
+#define	DVF_DETACH_SHUTDOWN	0x0080	/* device detaches safely at shutdown */
 
 typedef int (*cfsubmatch_t)(device_t, cfdata_t, const int *, void *);
 typedef int (*cfsearch_t)(device_t, cfdata_t, const int *, void *);
@@ -468,7 +470,7 @@ struct pdevinit {
 /* This allows us to wildcard a device unit. */
 #define	DVUNIT_ANY	-1
 
-#if defined(_KERNEL) || defined(_KMEMUSER) || defined(_STANDALONE)
+#if defined(_KERNEL) || defined(_KMEMUSER) || defined(_STANDALONE) || defined(SEL4)
 /*
  * Arguments passed to config_search() and config_found().
  */
@@ -505,6 +507,16 @@ struct cfargs {
 	})
 #endif /* _KERNEL || _KMEMUSER || _STANDALONE */
 
+//pulled from _KERNEL
+void * device_private(device_t);
+const char* device_xname(device_t dev);
+int device_unit(device_t dev);
+device_t	device_parent(device_t);
+bool		device_is_a(device_t, const char *);
+#define	DEVICE_XNAME_SIZE	16
+
+extern struct cfdriverlist allcfdrivers;/* list of all cfdrivers */
+extern struct cftablelist allcftables;	/* list of all cfdata tables */
 #ifdef _KERNEL
 
 extern struct cfdriverlist allcfdrivers;/* list of all cfdrivers */
@@ -715,6 +727,24 @@ int	device_call_generic(device_t, const struct device_call_generic *);
 #define	device_call(dev, call)						\
 	device_call_generic((dev), &(call)->generic)
 
+#else
+// #define config_found(...) 0
+// #define config_detach_children(...) 0
+// #define config_match(...) 0
+// #define config_detach(...) 0
+device_t config_found(device_t, void *, cfprint_t, const struct cfargs *);
+int	config_detach_children(device_t, int flags);
+int	config_match(device_t, cfdata_t, void *);
+int	config_detach(device_t, int);
+#define config_pending_incr(dev) 0;
+#define config_pending_decr(dev) 0;
+const char *cfdata_ifattr(const struct cfdata *);
+const struct cfiattrdata *cfiattr_lookup(const char *, const struct cfdriver *);
+int	config_stdsubmatch(device_t, cfdata_t, const int *, void *);
+void	config_init(void);
+prop_dictionary_t device_properties(device_t);
+int	config_cfdriver_attach(struct cfdriver *);
+int	config_cfattach_attach(const char *, struct cfattach *);
 #endif /* _KERNEL */
 
 #endif /* !_SYS_DEVICE_H_ */

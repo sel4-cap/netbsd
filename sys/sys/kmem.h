@@ -30,6 +30,7 @@
 #define	_SYS_KMEM_H_
 
 #include <sys/types.h>
+#include <sel4cp.h>
 
 typedef unsigned int km_flag_t;
 
@@ -39,6 +40,10 @@ size_t	kmem_roundup_size(size_t);
 void *	kmem_alloc(size_t, km_flag_t);
 void *	kmem_zalloc(size_t, km_flag_t);
 void	kmem_free(void *, size_t);
+
+#define kmem_zalloc(size, km_flag_t) (void*) sel4cp_msginfo_get_label(sel4cp_ppcall(31, seL4_MessageInfo_new(size, 1, 0, 0)));
+#define kmem_alloc(size, km_flag_t) (void*) sel4cp_msginfo_get_label(sel4cp_ppcall(30, seL4_MessageInfo_new(size, 1, 0, 0)));
+#define kmem_free(addr, size_t) sel4cp_msginfo_get_label(sel4cp_ppcall(32, seL4_MessageInfo_new((uintptr_t)addr, 1, 0, 0)));
 
 void *	kmem_intr_alloc(size_t, km_flag_t);
 void *	kmem_intr_zalloc(size_t, km_flag_t);

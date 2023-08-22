@@ -72,4 +72,11 @@ extern kcondvar_t lbolt;
 #define cv_broadcast(cv) 0
 #endif	/* _KERNEL */
 
+#define cv_init(cv, cmd) 0
+#define cv_destroy(cv) 0
+#define cv_wait(cv, cmd) 0
+#define cv_signal(cv) 0
+#define cv_broadcast(cv) 0
+#define cv_timedwait(...) 0
+
 #endif /* _SYS_CONDVAR_H_ */

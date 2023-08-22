@@ -29,7 +29,7 @@
 #ifndef _SYS_BUS_H_
 #define	_SYS_BUS_H_
 
-#include <sys/types.h>
+typedef unsigned long paddr_t;
 
 #include <dma.h>
 
@@ -149,7 +149,7 @@ struct bus_dma_overrides {
 	    bus_size_t, bus_size_t, int, bus_dmamap_t *);
 	void (*ov_dmamap_destroy)(void *, bus_dma_tag_t, bus_dmamap_t);
 	int (*ov_dmamap_load)(void *, bus_dma_tag_t, bus_dmamap_t, void *,
-	    bus_size_t, struct proc *, int);
+	     bus_size_t, struct proc *, int);
 	int (*ov_dmamap_load_mbuf)(void *, bus_dma_tag_t, bus_dmamap_t,
 	    struct mbuf *, int);
 	int (*ov_dmamap_load_uio)(void *, bus_dma_tag_t, bus_dmamap_t,
@@ -166,7 +166,7 @@ struct bus_dma_overrides {
 	    size_t, void **, int);
 	void (*ov_dmamem_unmap)(void *, bus_dma_tag_t, void *, size_t);
 	paddr_t (*ov_dmamem_mmap)(void *, bus_dma_tag_t, bus_dma_segment_t *,
-	    int, off_t, int, int);
+	     int, off_t, int, int);
 	int (*ov_dmatag_subregion)(void *, bus_dma_tag_t, bus_addr_t,
 	    bus_addr_t, bus_dma_tag_t *, int);
 	void (*ov_dmatag_destroy)(void *, bus_dma_tag_t);

@@ -178,12 +178,13 @@
 
 #define	ELAST		98		/* Must equal largest errno */
 
+#define	EPASSTHROUGH	-4		/* ioctl not handled by this layer */
+#define	EDUPFD		-5		/* Dup given fd */
 #if defined(_KERNEL) || defined(_KMEMUSER)
 /* pseudo-errors returned inside kernel to modify return to process */
 #define	EJUSTRETURN	-2		/* don't modify regs, just return */
 #define	ERESTART	-3		/* restart syscall */
-#define	EPASSTHROUGH	-4		/* ioctl not handled by this layer */
-#define	EDUPFD		-5		/* Dup given fd */
+
 #define	EMOVEFD		-6		/* Move given fd */
 #endif
 

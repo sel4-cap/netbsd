@@ -62,9 +62,10 @@ void	seldestroy(struct selinfo *);
 #else /* _KERNEL */
 
 #include <sys/sigtypes.h>
-#include <time.h>
+//#include <time.h>
 
 __BEGIN_DECLS
+#ifndef SEL4
 #ifndef __LIBC12_SOURCE__
 int	pselect(int, fd_set * __restrict, fd_set * __restrict,
     fd_set * __restrict, const struct timespec * __restrict,
@@ -74,5 +75,6 @@ int	select(int, fd_set * __restrict, fd_set * __restrict,
 #endif /* __LIBC12_SOURCE__ */
 __END_DECLS
 #endif /* _KERNEL */
+#endif /* SEL4 */
 
 #endif /* !_SYS_SELECT_H_ */
