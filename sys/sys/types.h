@@ -302,9 +302,11 @@ typedef	_BSD_SIZE_T_		size_t;
  #undef	_BSD_SSIZE_T_
  #endif
 
+#ifndef SEL4
 #ifdef	_BSD_TIME_T_
 typedef	_BSD_TIME_T_		time_t;
 #undef	_BSD_TIME_T_
+#endif
 #endif
 
 #ifdef	_BSD_CLOCKID_T_

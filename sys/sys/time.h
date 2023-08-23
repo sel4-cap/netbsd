@@ -361,6 +361,7 @@ int	__settimeofday50(const struct timeval * __restrict,
 #endif /* _NETBSD_SOURCE */
 __END_DECLS
 
+#endif
 #endif	/* !_STANDALONE */
 #endif /* !_KERNEL */
 #endif /* SEL4 */
