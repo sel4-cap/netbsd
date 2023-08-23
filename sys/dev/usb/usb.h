@@ -39,6 +39,9 @@
 
 #include <sys/ioctl.h>
 
+#ifdef SEL4
+#include <sys/device.h>
+#endif
 #if defined(_KERNEL)
 
 #include <sys/device.h>
@@ -959,7 +962,9 @@ struct usb_event {
 #define USB_EVENT_DRIVER_DETACH 6
 #define USB_EVENT_IS_ATTACH(n) ((n) == USB_EVENT_CTRLR_ATTACH || (n) == USB_EVENT_DEVICE_ATTACH || (n) == USB_EVENT_DRIVER_ATTACH)
 #define USB_EVENT_IS_DETACH(n) ((n) == USB_EVENT_CTRLR_DETACH || (n) == USB_EVENT_DEVICE_DETACH || (n) == USB_EVENT_DRIVER_DETACH)
+	#ifndef SEL4
 	struct timespec		ue_time;
+	#endif
 	union {
 		struct {
 			int			ue_bus;
@@ -975,7 +980,9 @@ struct usb_event {
 /* old <=3.0 compat event */
 struct usb_event_old {
 	int                     ue_type;
+	#ifndef SEL4
 	struct timespec         ue_time;
+	#endif
 	union {
 		struct {
 			int                     ue_bus;
@@ -1030,4 +1037,26 @@ struct usb_event_old {
 #define USB_GET_CM_OVER_DATA	_IOR ('U', 130, int)
 #define USB_SET_CM_OVER_DATA	_IOW ('U', 131, int)
 
+void	usb_event_thread(void *); //moved from usb.c
+
+void uhidev_attach(device_t, device_t, void *);
+void ukbd_attach(device_t, device_t, void *);
+void ums_attach(device_t, device_t, void *);
+void uts_attach(device_t, device_t, void *);
+void uhid_attach(device_t, device_t, void *);
+//void umass_attach()
+
+//SEL4: structure to hold memory addresses for interrupts
+struct intr_ptrs_holder {
+	void *ums;
+	void *uts;
+	void *ukbd;
+	void *uhidev;
+	void *uhub;
+	void *uhid;
+};
+
+extern struct intr_ptrs_holder *intr_ptrs;
+
 #endif /* _USB_H_ */
+
