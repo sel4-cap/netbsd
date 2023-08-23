@@ -430,6 +430,7 @@ size_t	 kmsan_strlen(const char *);
 #endif
 #endif
 size_t	 strnlen(const char *, size_t);
+size_t   strlcpy(char *, const char *, size_t);
 char	*strsep(char **, const char *);
 
 /* Functions for which we always use built-ins. */

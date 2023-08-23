@@ -1,4 +1,4 @@
-/*	$NetBSD: rndsource.h,v 1.7.20.1 2023/08/11 14:35:25 martin Exp $	*/
+/*	$NetBSD: rndsource.h,v 1.7 2020/04/30 03:28:19 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2019 The NetBSD Foundation, Inc.
