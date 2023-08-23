@@ -97,7 +97,7 @@ typedef	uint64_t	u_int64_t;
 
 #include <machine/endian.h>
 
-#if defined(_NETBSD_SOURCE)
+// #if defined(_NETBSD_SOURCE)
 typedef	unsigned char	u_char;
 typedef	unsigned short	u_short;
 typedef	unsigned int	u_int;
@@ -107,7 +107,7 @@ typedef unsigned char	unchar;		/* Sys V compatibility */
 typedef	unsigned short	ushort;		/* Sys V compatibility */
 typedef	unsigned int	uint;		/* Sys V compatibility */
 typedef unsigned long	ulong;		/* Sys V compatibility */
-#endif
+// #endif
 
 typedef	uint64_t	u_quad_t;	/* quads */
 typedef	int64_t		quad_t;
@@ -165,10 +165,10 @@ typedef	__gid_t		gid_t;		/* group id */
 typedef	uint32_t	id_t;		/* group id, process id or user id */
 #ifdef __ino_t
 /*
- * Some first stage bootloaders may want to avoid 64bit math, especially
- * when the firmware can only access small disks/partitions anyway.
- * Example: hppa/stand/xxboot
- */
+* Some first stage bootloaders may want to avoid 64bit math, especially
+* when the firmware can only access small disks/partitions anyway.
+* Example: hppa/stand/xxboot
+*/
 typedef	__ino_t		ino_t;
 #undef __ino_t
 #else
@@ -202,10 +202,10 @@ typedef uint64_t	rlim_t;		/* resource limit */
 typedef	int32_t		segsz_t;	/* segment size */
 typedef	int32_t		swblk_t;	/* swap offset */
 
-#ifndef	uid_t
-typedef	__uid_t		uid_t;		/* user id */
-#define	uid_t		__uid_t
-#endif
+ #ifndef	uid_t
+ typedef	__uid_t		uid_t;		/* user id */
+ #define	uid_t		__uid_t
+ #endif
 
 typedef int		mqd_t;
 
@@ -213,7 +213,9 @@ typedef	unsigned long	cpuid_t;
 
 typedef	int		psetid_t;
 
+#ifndef SEL4
 typedef volatile __cpu_simple_lock_nv_t __cpu_simple_lock_t;
+#endif
 
 #if defined(_KERNEL) || defined(_STANDALONE)
 
@@ -279,10 +281,10 @@ typedef int32_t __devmajor_t, __devminor_t;
 				 (((dev_t)(y) <<  0) & 0x000000ffU)))
 #endif
 
-#ifdef	_BSD_CLOCK_T_
-typedef	_BSD_CLOCK_T_		clock_t;
-#undef	_BSD_CLOCK_T_
-#endif
+ #ifdef	_BSD_CLOCK_T_
+ typedef	_BSD_CLOCK_T_		clock_t;
+ #undef	_BSD_CLOCK_T_
+ #endif
 
 #ifdef	_BSD_PTRDIFF_T_
 typedef	_BSD_PTRDIFF_T_		ptrdiff_t;
@@ -295,10 +297,10 @@ typedef	_BSD_SIZE_T_		size_t;
 #undef	_BSD_SIZE_T_
 #endif
 
-#ifdef	_BSD_SSIZE_T_
-typedef	_BSD_SSIZE_T_		ssize_t;
-#undef	_BSD_SSIZE_T_
-#endif
+ #ifdef	_BSD_SSIZE_T_
+ typedef	_BSD_SSIZE_T_		ssize_t;
+ #undef	_BSD_SSIZE_T_
+ #endif
 
 #ifdef	_BSD_TIME_T_
 typedef	_BSD_TIME_T_		time_t;
@@ -332,7 +334,7 @@ typedef	_BSD_USECONDS_T_	useconds_t;
 
 typedef struct kauth_cred *kauth_cred_t;
 
-typedef int pri_t;
+ typedef int pri_t;
 
 #endif
 
@@ -366,7 +368,9 @@ struct	uio;
 #if !defined(_KERNEL) && !defined(_STANDALONE)
 #if (_POSIX_C_SOURCE - 0L) >= 199506L || (_XOPEN_SOURCE - 0) >= 500 || \
     defined(_NETBSD_SOURCE)
+#ifndef SEL4
 #include <pthread_types.h>
+#endif
 #endif
 #endif
 
