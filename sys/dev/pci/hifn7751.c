@@ -1,4 +1,4 @@
-/*	$NetBSD: hifn7751.c,v 1.80.4.1 2023/08/11 14:35:24 martin Exp $	*/
+/*	$NetBSD: hifn7751.c,v 1.82 2023/08/04 07:38:53 riastradh Exp $	*/
 /*	$OpenBSD: hifn7751.c,v 1.179 2020/01/11 21:34:03 cheloha Exp $	*/
 
 /*
@@ -47,7 +47,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: hifn7751.c,v 1.80.4.1 2023/08/11 14:35:24 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: hifn7751.c,v 1.82 2023/08/04 07:38:53 riastradh Exp $");
 
 #include <sys/param.h>
 #include <sys/cprng.h>
@@ -752,7 +752,7 @@ hifn_set_retry(struct hifn_softc *sc)
 }
 
 /*
- * Resets the board.  Values in the regesters are left as is
+ * Resets the board.  Values in the registers are left as is
  * from the reset (i.e. initial values are assigned elsewhere).
  */
 static void

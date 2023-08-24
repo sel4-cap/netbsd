@@ -1,4 +1,4 @@
-/*	$NetBSD: cpu.h,v 1.50.26.2 2023/02/15 19:35:14 martin Exp $	*/
+/*	$NetBSD: cpu.h,v 1.52 2023/02/11 02:31:34 tsutsui Exp $	*/
 
 /*
  * Copyright (c) 1988 University of Utah.

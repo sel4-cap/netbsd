@@ -1,4 +1,4 @@
-/* $NetBSD: padvar.h,v 1.16.10.1 2023/05/02 17:39:54 martin Exp $ */
+/* $NetBSD: padvar.h,v 1.17 2023/01/24 08:17:11 mlelstv Exp $ */
 
 /*-
  * Copyright (c) 2007 Jared D. McNeill <jmcneill@invisible.ca>

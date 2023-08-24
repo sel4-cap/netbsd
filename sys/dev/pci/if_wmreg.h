@@ -1,4 +1,4 @@
-/*	$NetBSD: if_wmreg.h,v 1.128.2.1 2023/06/22 08:14:35 martin Exp $	*/
+/*	$NetBSD: if_wmreg.h,v 1.130 2023/05/11 07:19:02 msaitoh Exp $	*/
 
 /*
  * Copyright (c) 2001 Wasabi Systems, Inc.

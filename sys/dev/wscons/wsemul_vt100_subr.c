@@ -1,4 +1,4 @@
-/* $NetBSD: wsemul_vt100_subr.c,v 1.24.30.1 2023/07/30 11:47:08 martin Exp $ */
+/* $NetBSD: wsemul_vt100_subr.c,v 1.34 2023/08/03 22:11:41 uwe Exp $ */
 
 /*
  * Copyright (c) 1998
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: wsemul_vt100_subr.c,v 1.24.30.1 2023/07/30 11:47:08 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: wsemul_vt100_subr.c,v 1.34 2023/08/03 22:11:41 uwe Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>
@@ -396,11 +396,21 @@ wsemul_vt100_handle_csi(struct vt100base_data *vd, u_char c)
 		ERASECOLS(vd, vd->ccol, n, vd->bkgdattr);
 		break;
 	    case 'A': /* CUU */
-		vd->crow -= uimin(DEF1_ARG(vd, 0), ROWS_ABOVE(vd));
+		/* stop at the top scroll margin */
+		m = vd->scrreg_startrow;
+		if (vd->crow < m)/* but if already above the margin */
+			m = 0;	 /* then at the screen top */
+		help = vd->crow - m; /* rows above */
+		vd->crow -= uimin(DEF1_ARG(vd, 0), help);
 		CHECK_DW(vd);
 		break;
 	    case 'B': /* CUD */
-		vd->crow += uimin(DEF1_ARG(vd, 0), ROWS_BELOW(vd));
+		/* stop at the bottom scroll margin */
+		m = vd->scrreg_startrow + vd->scrreg_nrows - 1;
+		if (vd->crow > m) /* but if already below the margin */
+			m = vd->nrows - 1; /* then at the screen bottom */
+		help = m - vd->crow; /* rows below */
+		vd->crow += uimin(DEF1_ARG(vd, 0), help);
 		CHECK_DW(vd);
 		break;
 	    case 'C': /* CUF */
@@ -426,6 +436,10 @@ wsemul_vt100_handle_csi(struct vt100base_data *vd, u_char c)
 		break;
 	    case 'L': /* IL insert line */
 	    case 'M': /* DL delete line */
+		/* ignored when the cursor is outside the scrolling region */
+		if (vd->crow < vd->scrreg_startrow
+		    || vd->scrreg_startrow + vd->scrreg_nrows <= vd->crow)
+			break;
 		n = uimin(DEF1_ARG(vd, 0), ROWS_BELOW(vd) + 1);
 		{
 		int savscrstartrow, savscrnrows;
@@ -440,6 +454,7 @@ wsemul_vt100_handle_csi(struct vt100base_data *vd, u_char c)
 		vd->scrreg_startrow = savscrstartrow;
 		vd->scrreg_nrows = savscrnrows;
 		}
+		vd->ccol = 0;
 		break;
 	    case 'P': /* DCH delete character */
 		n = uimin(DEF1_ARG(vd, 0), COLS_LEFT(vd) + 1);
@@ -597,7 +612,7 @@ wsemul_vt100_handle_csi(struct vt100base_data *vd, u_char c)
 			/* 0 = OK, 3 = malfunction */
 			wsdisplay_emulinput(vd->cbcookie, "\033[0n", 4);
 			break;
-		    case 6: { /* DSR cursor position report */
+		    case 6: { /* CPR cursor position report */
 			char buf[20];
 			int row;
 			if (vd->flags & VTFL_DECOM)

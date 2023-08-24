@@ -1,4 +1,4 @@
-/*	$NetBSD: intr.h,v 1.13.78.1 2023/08/09 17:42:05 martin Exp $	*/
+/*	$NetBSD: intr.h,v 1.15 2023/07/11 10:55:02 riastradh Exp $	*/
 
 /*
  * Copyright (c) 1988 University of Utah.

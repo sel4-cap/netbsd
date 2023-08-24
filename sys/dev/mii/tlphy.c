@@ -1,4 +1,4 @@
-/*	$NetBSD: tlphy.c,v 1.71.20.1 2023/06/21 22:11:29 martin Exp $	*/
+/*	$NetBSD: tlphy.c,v 1.72 2023/02/22 08:09:09 msaitoh Exp $	*/
 
 /*-
  * Copyright (c) 1998, 1999, 2000 The NetBSD Foundation, Inc.
@@ -59,7 +59,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: tlphy.c,v 1.71.20.1 2023/06/21 22:11:29 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: tlphy.c,v 1.72 2023/02/22 08:09:09 msaitoh Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

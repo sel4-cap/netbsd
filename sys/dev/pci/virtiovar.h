@@ -1,4 +1,4 @@
-/*	$NetBSD: virtiovar.h,v 1.24.4.2 2023/06/03 14:40:25 martin Exp $	*/
+/*	$NetBSD: virtiovar.h,v 1.29 2023/04/19 00:23:45 yamaguchi Exp $	*/
 
 /*
  * Copyright (c) 2010 Minoura Makoto.

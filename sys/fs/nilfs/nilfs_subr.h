@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* $NetBSD: nilfs_subr.h,v 1.4.48.1 2023/06/27 18:42:39 martin Exp $ */
+=======
+/* $NetBSD: nilfs_subr.h,v 1.5 2023/01/29 16:07:14 reinoud Exp $ */
+>>>>>>> trunk
 
 /*
  * Copyright (c) 2008, 2009 Reinoud Zandijk

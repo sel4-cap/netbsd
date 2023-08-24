@@ -1,4 +1,4 @@
-/*	$NetBSD: uipc_domain.c,v 1.108.18.1 2023/07/31 16:20:14 martin Exp $	*/
+/*	$NetBSD: uipc_domain.c,v 1.109 2023/03/30 15:58:21 riastradh Exp $	*/
 
 /*
  * Copyright (c) 1982, 1986, 1993
@@ -32,7 +32,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: uipc_domain.c,v 1.108.18.1 2023/07/31 16:20:14 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: uipc_domain.c,v 1.109 2023/03/30 15:58:21 riastradh Exp $");
 
 #include <sys/param.h>
 #include <sys/socket.h>

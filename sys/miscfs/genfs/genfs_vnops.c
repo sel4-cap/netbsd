@@ -1,4 +1,4 @@
-/*	$NetBSD: genfs_vnops.c,v 1.219.4.1 2023/03/05 14:34:59 martin Exp $	*/
+/*	$NetBSD: genfs_vnops.c,v 1.220 2023/03/03 10:02:51 hannken Exp $	*/
 
 /*-
  * Copyright (c) 2008 The NetBSD Foundation, Inc.
@@ -57,7 +57,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: genfs_vnops.c,v 1.219.4.1 2023/03/05 14:34:59 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: genfs_vnops.c,v 1.220 2023/03/03 10:02:51 hannken Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

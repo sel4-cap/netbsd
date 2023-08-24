@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: dumpfs.c,v 1.66.2.2 2023/05/13 11:51:14 martin Exp $	*/
+=======
+/*	$NetBSD: dumpfs.c,v 1.68 2023/01/07 19:41:30 chs Exp $	*/
+>>>>>>> trunk
 
 /*
  * Copyright (c) 1983, 1992, 1993
@@ -39,7 +43,11 @@ __COPYRIGHT("@(#) Copyright (c) 1983, 1992, 1993\
 #if 0
 static char sccsid[] = "@(#)dumpfs.c	8.5 (Berkeley) 4/29/95";
 #else
+<<<<<<< HEAD
 __RCSID("$NetBSD: dumpfs.c,v 1.66.2.2 2023/05/13 11:51:14 martin Exp $");
+=======
+__RCSID("$NetBSD: dumpfs.c,v 1.68 2023/01/07 19:41:30 chs Exp $");
+>>>>>>> trunk
 #endif
 #endif /* not lint */
 

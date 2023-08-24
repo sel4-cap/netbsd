@@ -1,4 +1,4 @@
-/*	$NetBSD: nextrom.h,v 1.12.4.1 2023/02/15 19:35:14 martin Exp $	*/
+/*	$NetBSD: nextrom.h,v 1.13 2023/02/11 02:33:27 tsutsui Exp $	*/
 /*
  * Copyright (c) 1998 Darrin B. Jewell
  * All rights reserved.

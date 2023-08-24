@@ -1,4 +1,4 @@
-/*	$NetBSD: madt.c,v 1.5.2.1 2023/08/09 17:42:06 martin Exp $	*/
+/*	$NetBSD: madt.c,v 1.6 2023/07/13 18:43:34 mrg Exp $	*/
 /*-
  * Copyright (c) 2001 Doug Rabson
  * All rights reserved.

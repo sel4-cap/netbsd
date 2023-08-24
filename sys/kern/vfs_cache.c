@@ -1,4 +1,4 @@
-/*	$NetBSD: vfs_cache.c,v 1.152 2021/11/01 21:28:03 andvar Exp $	*/
+/*	$NetBSD: vfs_cache.c,v 1.154 2023/04/29 10:07:22 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2008, 2019, 2020 The NetBSD Foundation, Inc.
@@ -172,7 +172,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: vfs_cache.c,v 1.152 2021/11/01 21:28:03 andvar Exp $");
+__KERNEL_RCSID(0, "$NetBSD: vfs_cache.c,v 1.154 2023/04/29 10:07:22 riastradh Exp $");
 
 #define __NAMECACHE_PRIVATE
 #ifdef _KERNEL_OPT
@@ -292,8 +292,6 @@ static const rb_tree_ops_t cache_rbtree_ops = {
 /*
  * dtrace probes.
  */
-SDT_PROVIDER_DEFINE(vfs);
-
 SDT_PROBE_DEFINE1(vfs, namecache, invalidate, done, "struct vnode *");
 SDT_PROBE_DEFINE1(vfs, namecache, purge, parents, "struct vnode *");
 SDT_PROBE_DEFINE1(vfs, namecache, purge, children, "struct vnode *");
@@ -700,7 +698,8 @@ cache_lookup_linked(struct vnode *dvp, const char *name, size_t namelen,
 			}
 			return false;
 		}
-		KASSERT(dvi->vi_nc_uid != VNOVAL && dvi->vi_nc_gid != VNOVAL);
+		KASSERT(dvi->vi_nc_uid != VNOVAL);
+		KASSERT(dvi->vi_nc_gid != VNOVAL);
 		error = kauth_authorize_vnode(cred,
 		    KAUTH_ACCESS_ACTION(VEXEC,
 		    dvp->v_type, dvi->vi_nc_mode & ALLPERMS), dvp, NULL,
@@ -730,7 +729,8 @@ cache_lookup_linked(struct vnode *dvp, const char *name, size_t namelen,
 	}
 	if (ncp->nc_vp == NULL) {
 		/* found negative entry; vn is already null from above */
-		KASSERT(namelen != cache_mp_nlen && name != cache_mp_name);
+		KASSERT(namelen != cache_mp_nlen);
+		KASSERT(name != cache_mp_name);
 		COUNT(ncs_neghits);
 	} else {
 		COUNT(ncs_goodhits); /* XXX can be "badhits" */
@@ -796,7 +796,8 @@ cache_revlookup(struct vnode *vp, struct vnode **dvpp, char **bpp, char *bufp,
 			rw_exit(&vi->vi_nc_listlock);
 			return -1;
 		}
-		KASSERT(vi->vi_nc_uid != VNOVAL && vi->vi_nc_gid != VNOVAL);
+		KASSERT(vi->vi_nc_uid != VNOVAL);
+		KASSERT(vi->vi_nc_gid != VNOVAL);
 		error = kauth_authorize_vnode(kauth_cred_get(),
 		    KAUTH_ACCESS_ACTION(VEXEC, vp->v_type, vi->vi_nc_mode &
 		    ALLPERMS), vp, NULL, genfs_can_access(vp, curlwp->l_cred,

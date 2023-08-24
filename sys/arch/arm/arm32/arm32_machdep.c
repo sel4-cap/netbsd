@@ -1,4 +1,4 @@
-/*	$NetBSD: arm32_machdep.c,v 1.144 2022/07/28 09:14:23 riastradh Exp $	*/
+/*	$NetBSD: arm32_machdep.c,v 1.146 2023/04/07 08:55:30 skrll Exp $	*/
 
 /*
  * Copyright (c) 1994-1998 Mark Brinicombe.
@@ -42,7 +42,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: arm32_machdep.c,v 1.144 2022/07/28 09:14:23 riastradh Exp $");
+__KERNEL_RCSID(0, "$NetBSD: arm32_machdep.c,v 1.146 2023/04/07 08:55:30 skrll Exp $");
 
 #include "opt_arm_debug.h"
 #include "opt_arm_start.h"
@@ -85,6 +85,8 @@ __KERNEL_RCSID(0, "$NetBSD: arm32_machdep.c,v 1.144 2022/07/28 09:14:23 riastrad
 #include <machine/pcb.h>
 
 #if defined(FDT)
+#include <dev/fdt/fdtvar.h>
+
 #include <arm/fdt/arm_fdtvar.h>
 #include <arch/evbarm/fdt/platform.h>
 #endif
@@ -301,9 +303,9 @@ cpu_startup(void)
 	pmap_postinit();
 
 #ifdef FDT
-	const struct arm_platform * const plat = arm_fdt_platform();
-	if (plat->ap_startup != NULL)
-		plat->ap_startup();
+	const struct fdt_platform * const plat = fdt_platform_find();
+	if (plat->fp_startup != NULL)
+		plat->fp_startup();
 #endif
 
 	/*
@@ -575,6 +577,26 @@ parse_mi_bootargs(char *args)
 	    || get_bootconf_option(args, "-a", BOOTOPT_TYPE_BOOLEAN, &integer))
 		if (integer)
 			boothowto |= RB_ASKNAME;
+	if (get_bootconf_option(args, "userconf", BOOTOPT_TYPE_BOOLEAN, &integer)
+	    || get_bootconf_option(args, "-c", BOOTOPT_TYPE_BOOLEAN, &integer))
+		if (integer)
+			boothowto |= RB_USERCONF;
+	if (get_bootconf_option(args, "halt", BOOTOPT_TYPE_BOOLEAN, &integer)
+	    || get_bootconf_option(args, "-b", BOOTOPT_TYPE_BOOLEAN, &integer))
+		if (integer)
+			boothowto |= RB_HALT;
+	if (get_bootconf_option(args, "-1", BOOTOPT_TYPE_BOOLEAN, &integer))
+		if (integer)
+			boothowto |= RB_MD1;
+	if (get_bootconf_option(args, "-2", BOOTOPT_TYPE_BOOLEAN, &integer))
+		if (integer)
+			boothowto |= RB_MD2;
+	if (get_bootconf_option(args, "-3", BOOTOPT_TYPE_BOOLEAN, &integer))
+		if (integer)
+			boothowto |= RB_MD3;
+	if (get_bootconf_option(args, "-4", BOOTOPT_TYPE_BOOLEAN, &integer))
+		if (integer)
+			boothowto |= RB_MD4;
 
 /*	if (get_bootconf_option(args, "nbuf", BOOTOPT_TYPE_INT, &integer))
 		bufpages = integer;*/
@@ -603,6 +625,10 @@ parse_mi_bootargs(char *args)
 	    || get_bootconf_option(args, "-x", BOOTOPT_TYPE_BOOLEAN, &integer))
 		if (integer)
 			boothowto |= AB_DEBUG;
+	if (get_bootconf_option(args, "silent", BOOTOPT_TYPE_BOOLEAN, &integer)
+	    || get_bootconf_option(args, "-z", BOOTOPT_TYPE_BOOLEAN, &integer))
+		if (integer)
+			boothowto |= AB_SILENT;
 }
 
 #ifdef __HAVE_FAST_SOFTINTS
@@ -869,7 +895,7 @@ extern char KERNEL_BASE_phys[];
 void
 cpu_kernel_vm_init(paddr_t memory_start, psize_t memory_size)
 {
-	const struct arm_platform *plat = arm_fdt_platform();
+	const struct fdt_platform *plat = fdt_platform_find();
 
 #ifdef __HAVE_MM_MD_DIRECT_MAPPED_PHYS
 	const bool mapallmem_p = true;
@@ -890,7 +916,7 @@ cpu_kernel_vm_init(paddr_t memory_start, psize_t memory_size)
 
 	arm32_bootmem_init(memory_start, memory_size, KERNEL_BASE_PHYS);
 	arm32_kernel_vm_init(KERNEL_VM_BASE, ARM_VECTORS_HIGH, 0,
-	    plat->ap_devmap(), mapallmem_p);
+	    plat->fp_devmap(), mapallmem_p);
 }
 #endif
 

@@ -1,4 +1,4 @@
-/* $NetBSD: nextdisplayvar.h,v 1.5.68.1 2023/02/15 19:35:14 martin Exp $ */
+/* $NetBSD: nextdisplayvar.h,v 1.6 2023/02/03 23:13:00 tsutsui Exp $ */
 /*
  * Copyright (c) 1998 Matt DeBergalis
  * All rights reserved.

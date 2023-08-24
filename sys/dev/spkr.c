@@ -1,4 +1,4 @@
-/*	$NetBSD: spkr.c,v 1.24.4.1 2023/07/31 16:39:52 martin Exp $	*/
+/*	$NetBSD: spkr.c,v 1.25 2023/03/31 15:00:26 riastradh Exp $	*/
 
 /*
  * Copyright (c) 1990 Eric S. Raymond (esr@snark.thyrsus.com)
@@ -43,7 +43,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: spkr.c,v 1.24.4.1 2023/07/31 16:39:52 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: spkr.c,v 1.25 2023/03/31 15:00:26 riastradh Exp $");
 
 #if defined(_KERNEL_OPT)
 #include "wsmux.h"

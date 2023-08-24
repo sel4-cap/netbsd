@@ -1,4 +1,4 @@
-/*	$NetBSD: sched.h,v 1.91.2.1 2023/08/09 17:42:01 martin Exp $	*/
+/*	$NetBSD: sched.h,v 1.92 2023/07/13 12:06:20 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 1999, 2000, 2001, 2002, 2007, 2008, 2019, 2020

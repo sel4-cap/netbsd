@@ -1,4 +1,4 @@
-/*	$NetBSD: uvm_fault.c,v 1.231.2.1 2023/08/15 09:44:09 martin Exp $	*/
+/*	$NetBSD: uvm_fault.c,v 1.234 2023/08/13 23:06:07 chs Exp $	*/
 
 /*
  * Copyright (c) 1997 Charles D. Cranor and Washington University.
@@ -32,7 +32,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: uvm_fault.c,v 1.231.2.1 2023/08/15 09:44:09 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: uvm_fault.c,v 1.234 2023/08/13 23:06:07 chs Exp $");
 
 #include "opt_uvmhist.h"
 
@@ -44,6 +44,7 @@ __KERNEL_RCSID(0, "$NetBSD: uvm_fault.c,v 1.231.2.1 2023/08/15 09:44:09 martin E
 
 #include <uvm/uvm.h>
 #include <uvm/uvm_pdpolicy.h>
+#include <uvm/uvm_rndsource.h>
 
 /*
  *
@@ -874,7 +875,7 @@ uvm_fault_internal(struct vm_map *orig_map, vaddr_t vaddr,
 		/* Don't flood RNG subsystem with samples. */
 		if (++(ci->ci_faultrng) == 503) {
 			ci->ci_faultrng = 0;
-			rnd_add_uint32(&curcpu()->ci_data.cpu_uvm->rs,
+			rnd_add_uint32(&uvm_fault_rndsource,
 			    sizeof(vaddr_t) == sizeof(uint32_t) ?
 			    (uint32_t)vaddr : sizeof(vaddr_t) ==
 			    sizeof(uint64_t) ?
@@ -2679,7 +2680,8 @@ uvm_fault_unwire_locked(struct vm_map *map, vaddr_t start, vaddr_t end)
 	 * find the beginning map entry for the region.
 	 */
 
-	KASSERT(start >= vm_map_min(map) && end <= vm_map_max(map));
+	KASSERT(start >= vm_map_min(map));
+	KASSERT(end <= vm_map_max(map));
 	if (uvm_map_lookup_entry(map, start, &entry) == false)
 		panic("uvm_fault_unwire_locked: address not in map");
 
@@ -2692,8 +2694,8 @@ uvm_fault_unwire_locked(struct vm_map *map, vaddr_t start, vaddr_t end)
 
 		KASSERT(va >= entry->start);
 		while (va >= entry->end) {
-			KASSERT(entry->next != &map->header &&
-				entry->next->start <= entry->end);
+			KASSERT(entry->next != &map->header);
+			KASSERT(entry->next->start <= entry->end);
 			entry = entry->next;
 		}
 

@@ -1,4 +1,4 @@
-/*	$NetBSD: hypervisor.h,v 1.55.4.1 2023/07/31 15:23:02 martin Exp $	*/
+/*	$NetBSD: hypervisor.h,v 1.57 2023/02/25 00:34:48 riastradh Exp $	*/
 
 /*
  * Copyright (c) 2006 Manuel Bouyer.

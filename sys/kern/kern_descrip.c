@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: kern_descrip.c,v 1.251.10.1 2023/07/30 12:09:51 martin Exp $	*/
+=======
+/*	$NetBSD: kern_descrip.c,v 1.257 2023/04/22 14:23:59 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.
@@ -70,7 +74,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: kern_descrip.c,v 1.251.10.1 2023/07/30 12:09:51 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: kern_descrip.c,v 1.257 2023/04/22 14:23:59 riastradh Exp $");
+>>>>>>> trunk
 
 #include <sys/param.h>
 #include <sys/systm.h>
@@ -429,9 +437,13 @@ fd_getfile(unsigned fd)
 		 *	  will safely wait for references to drain.
 		 */
 		atomic_inc_uint(&ff->ff_refcnt);
+<<<<<<< HEAD
 #ifndef __HAVE_ATOMIC_AS_MEMBAR
 		membar_acquire();
 #endif
+=======
+		membar_acquire();
+>>>>>>> trunk
 	}
 
 	/*
@@ -485,9 +497,13 @@ fd_putfile(unsigned fd)
 	 * the file after it has been freed or recycled by another
 	 * CPU.
 	 */
+<<<<<<< HEAD
 #ifndef __HAVE_ATOMIC_AS_MEMBAR
 	membar_release();
 #endif
+=======
+	membar_release();
+>>>>>>> trunk
 
 	/*
 	 * Be optimistic and start out with the assumption that no other
@@ -637,9 +653,13 @@ fd_close(unsigned fd)
 		 * waiting for other users of the file to drain.  Release
 		 * our reference, and wake up the closer.
 		 */
+<<<<<<< HEAD
 #ifndef __HAVE_ATOMIC_AS_MEMBAR
 		membar_release();
 #endif
+=======
+		membar_release();
+>>>>>>> trunk
 		atomic_dec_uint(&ff->ff_refcnt);
 		cv_broadcast(&ff->ff_closing);
 		mutex_exit(&fdp->fd_lock);
@@ -674,6 +694,7 @@ fd_close(unsigned fd)
 		refcnt = --(ff->ff_refcnt);
 	} else {
 		/* Multi threaded. */
+<<<<<<< HEAD
 #ifndef __HAVE_ATOMIC_AS_MEMBAR
 		membar_release();
 #endif
@@ -681,6 +702,11 @@ fd_close(unsigned fd)
 #ifndef __HAVE_ATOMIC_AS_MEMBAR
 		membar_acquire();
 #endif
+=======
+		membar_release();
+		refcnt = atomic_dec_uint_nv(&ff->ff_refcnt);
+		membar_acquire();
+>>>>>>> trunk
 	}
 	if (__predict_false(refcnt != 0)) {
 		/*
@@ -737,14 +763,14 @@ fd_close(unsigned fd)
 	 * If the descriptor was in a message, POSIX-style locks
 	 * aren't passed with the descriptor.
 	 */
-	if (__predict_false((p->p_flag & PK_ADVLOCK) != 0 &&
-	    fp->f_type == DTYPE_VNODE)) {
+	if (__predict_false((p->p_flag & PK_ADVLOCK) != 0) &&
+	    fp->f_ops->fo_advlock != NULL) {
 		lf.l_whence = SEEK_SET;
 		lf.l_start = 0;
 		lf.l_len = 0;
 		lf.l_type = F_UNLCK;
 		mutex_exit(&fdp->fd_lock);
-		(void)VOP_ADVLOCK(fp->f_vnode, p, F_UNLCK, &lf, F_POSIX);
+		(void)(*fp->f_ops->fo_advlock)(fp, p, F_UNLCK, &lf, F_POSIX);
 		mutex_enter(&fdp->fd_lock);
 	}
 
@@ -862,12 +888,14 @@ closef(file_t *fp)
 	mutex_exit(&fp->f_lock);
 
 	/* We held the last reference - release locks, close and free. */
-	if ((fp->f_flag & FHASLOCK) && fp->f_type == DTYPE_VNODE) {
+	if (fp->f_ops->fo_advlock == NULL) {
+		KASSERT((fp->f_flag & FHASLOCK) == 0);
+	} else if (fp->f_flag & FHASLOCK) {
 		lf.l_whence = SEEK_SET;
 		lf.l_start = 0;
 		lf.l_len = 0;
 		lf.l_type = F_UNLCK;
-		(void)VOP_ADVLOCK(fp->f_vnode, fp, F_UNLCK, &lf, F_FLOCK);
+		(void)(*fp->f_ops->fo_advlock)(fp, fp, F_UNLCK, &lf, F_FLOCK);
 	}
 	if (fp->f_ops != NULL) {
 		error = (*fp->f_ops->fo_close)(fp);
@@ -1566,6 +1594,7 @@ fd_free(void)
 	KASSERT(fdp->fd_dtbuiltin.dt_nfiles == NDFILE);
 	KASSERT(fdp->fd_dtbuiltin.dt_link == NULL);
 
+<<<<<<< HEAD
 #ifndef __HAVE_ATOMIC_AS_MEMBAR
 	membar_release();
 #endif
@@ -1574,6 +1603,12 @@ fd_free(void)
 #ifndef __HAVE_ATOMIC_AS_MEMBAR
 	membar_acquire();
 #endif
+=======
+	membar_release();
+	if (atomic_dec_uint_nv(&fdp->fd_refcnt) > 0)
+		return;
+	membar_acquire();
+>>>>>>> trunk
 
 	/*
 	 * Close any files that the process holds open.

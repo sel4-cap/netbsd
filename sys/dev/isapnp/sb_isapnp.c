@@ -1,4 +1,4 @@
-/*	$NetBSD: sb_isapnp.c,v 1.53.28.1 2023/08/01 14:57:27 martin Exp $	*/
+/*	$NetBSD: sb_isapnp.c,v 1.54 2023/04/18 06:37:25 riastradh Exp $	*/
 
 /*
  * Copyright (c) 1991-1993 Regents of the University of California.
@@ -35,7 +35,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: sb_isapnp.c,v 1.53.28.1 2023/08/01 14:57:27 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: sb_isapnp.c,v 1.54 2023/04/18 06:37:25 riastradh Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

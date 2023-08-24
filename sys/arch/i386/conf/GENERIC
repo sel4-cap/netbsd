@@ -1,4 +1,4 @@
-# $NetBSD: GENERIC,v 1.1243.2.1 2023/08/01 16:07:19 martin Exp $
+# $NetBSD: GENERIC,v 1.1250 2023/07/16 10:20:07 riastradh Exp $
 #
 # GENERIC machine description file
 #
@@ -22,7 +22,7 @@ include 	"arch/i386/conf/std.i386"
 
 options 	INCLUDE_CONFIG_FILE	# embed config file in kernel binary
 
-#ident		"GENERIC-$Revision: 1.1243.2.1 $"
+#ident		"GENERIC-$Revision: 1.1250 $"
 
 maxusers	64		# estimated number of users
 
@@ -139,6 +139,10 @@ options 	KDTRACE_HOOKS	# kernel DTrace hooks
 # Kernel Code Coverage Driver.
 #makeoptions	KCOV=1
 #options 	KCOV
+
+# Heartbeat checks
+options 	HEARTBEAT
+options 	HEARTBEAT_MAX_PERIOD_DEFAULT=15
 
 # Compatibility options
 include 	"conf/compat_netbsd09.config"
@@ -1406,6 +1410,7 @@ ld* at virtio?				# Virtio disk device
 vioif* at virtio?			# Virtio network device
 viornd* at virtio?			# Virtio entropy device
 vioscsi* at virtio?			# Virtio SCSI device
+#vio9p*	at virtio?			# Virtio 9P device
 
 # Hyper-V devices
 vmbus*		at acpi?		# Hyper-V VMBus
@@ -1418,11 +1423,6 @@ hvheartbeat*	at vmbus?		# Hyper-V Heartbeat Service
 hvshutdown*	at vmbus?		# Hyper-V Guest Shutdown Service
 hvtimesync*	at vmbus?		# Hyper-V Time Synchronization Service
 #hvkvp*		at vmbus?		# Hyper-V Data Exchange Service
-
-
-# Pull in optional local configuration
-cinclude "arch/i386/conf/GENERIC.local"
-
 
 # Pseudo-Devices
 
@@ -1519,3 +1519,6 @@ options 	PAX_SEGVGUARD=0		# PaX Segmentation fault guard
 options 	PAX_MPROTECT=1		# PaX mprotect(2) restrictions
 options 	PAX_MPROTECT_DEBUG=1	# PaX mprotect debug
 options 	PAX_ASLR=1		# PaX Address Space Layout Randomization
+
+# Pull in optional local configuration - always at end
+cinclude	"arch/i386/conf/GENERIC.local"

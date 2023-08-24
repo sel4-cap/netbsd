@@ -1,4 +1,4 @@
-/*	$NetBSD: at_control.c,v 1.42.4.2 2023/07/31 16:37:18 martin Exp $	 */
+/*	$NetBSD: at_control.c,v 1.44 2023/03/30 15:58:10 riastradh Exp $	 */
 
 /*
  * Copyright (c) 1990,1994 Regents of The University of Michigan.
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: at_control.c,v 1.42.4.2 2023/07/31 16:37:18 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: at_control.c,v 1.44 2023/03/30 15:58:10 riastradh Exp $");
 
 #include "opt_atalk.h"
 

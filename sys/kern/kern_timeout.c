@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: kern_timeout.c,v 1.73.2.1 2023/06/27 18:51:47 martin Exp $	*/
+=======
+/*	$NetBSD: kern_timeout.c,v 1.76 2023/06/27 01:19:44 pho Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2003, 2006, 2007, 2008, 2009, 2019 The NetBSD Foundation, Inc.
@@ -59,7 +63,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: kern_timeout.c,v 1.73.2.1 2023/06/27 18:51:47 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: kern_timeout.c,v 1.76 2023/06/27 01:19:44 pho Exp $");
+>>>>>>> trunk
 
 /*
  * Timeouts are kept in a hierarchical timing wheel.  The c_time is the

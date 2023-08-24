@@ -1,4 +1,4 @@
-/*	$NetBSD: sdmmc_mem.c,v 1.74.8.1 2023/04/30 10:58:07 martin Exp $	*/
+/*	$NetBSD: sdmmc_mem.c,v 1.75 2023/04/29 13:21:31 jmcneill Exp $	*/
 /*	$OpenBSD: sdmmc_mem.c,v 1.10 2009/01/09 10:55:22 jsg Exp $	*/
 
 /*
@@ -45,7 +45,7 @@
 /* Routines for SD/MMC memory cards. */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: sdmmc_mem.c,v 1.74.8.1 2023/04/30 10:58:07 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: sdmmc_mem.c,v 1.75 2023/04/29 13:21:31 jmcneill Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_sdmmc.h"

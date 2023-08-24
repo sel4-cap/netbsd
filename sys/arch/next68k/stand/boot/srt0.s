@@ -1,4 +1,4 @@
-/*	$NetBSD: srt0.s,v 1.2.244.1 2023/02/12 12:18:24 martin Exp $	*/
+/*	$NetBSD: srt0.s,v 1.3 2023/02/04 14:38:09 tsutsui Exp $	*/
 /*
  * Copyright (c) 1994 Rolf Grossmann
  * All rights reserved.

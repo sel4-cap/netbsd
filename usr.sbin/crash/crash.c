@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: crash.c,v 1.14.6.1 2023/08/01 14:36:59 martin Exp $	*/
+=======
+/*	$NetBSD: crash.c,v 1.15 2023/04/12 17:53:32 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2009 The NetBSD Foundation, Inc.
@@ -31,7 +35,11 @@
 
 #include <sys/cdefs.h>
 #ifndef lint
+<<<<<<< HEAD
 __RCSID("$NetBSD: crash.c,v 1.14.6.1 2023/08/01 14:36:59 martin Exp $");
+=======
+__RCSID("$NetBSD: crash.c,v 1.15 2023/04/12 17:53:32 riastradh Exp $");
+>>>>>>> trunk
 #endif /* not lint */
 
 #include <sys/types.h>

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: tprof_top.c,v 1.7.2.2 2023/06/21 22:34:51 martin Exp $	*/
+=======
+/*	$NetBSD: tprof_top.c,v 1.9 2023/04/17 08:37:24 msaitoh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2022 Ryo Shimizu <ryo@nerv.org>
@@ -28,7 +32,11 @@
 
 #include <sys/cdefs.h>
 #ifndef lint
+<<<<<<< HEAD
 __RCSID("$NetBSD: tprof_top.c,v 1.7.2.2 2023/06/21 22:34:51 martin Exp $");
+=======
+__RCSID("$NetBSD: tprof_top.c,v 1.9 2023/04/17 08:37:24 msaitoh Exp $");
+>>>>>>> trunk
 #endif /* not lint */
 
 #include <sys/param.h>

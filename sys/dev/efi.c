@@ -1,4 +1,4 @@
-/* $NetBSD: efi.c,v 1.4.4.1 2023/08/01 16:05:12 martin Exp $ */
+/* $NetBSD: efi.c,v 1.9 2023/05/24 00:02:51 riastradh Exp $ */
 
 /*-
  * Copyright (c) 2021 Jared McNeill <jmcneill@invisible.ca>
@@ -32,7 +32,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: efi.c,v 1.4.4.1 2023/08/01 16:05:12 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: efi.c,v 1.9 2023/05/24 00:02:51 riastradh Exp $");
 
 #include <sys/param.h>
 #include <sys/conf.h>

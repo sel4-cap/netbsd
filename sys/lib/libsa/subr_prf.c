@@ -1,4 +1,4 @@
-/*	$NetBSD: subr_prf.c,v 1.29.20.1 2023/06/03 14:33:55 martin Exp $	*/
+/*	$NetBSD: subr_prf.c,v 1.30 2023/05/29 03:56:52 rin Exp $	*/
 
 /*-
  * Copyright (c) 1993

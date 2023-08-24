@@ -1,4 +1,4 @@
-/*	$NetBSD: virtioreg.h,v 1.11.2.1 2023/05/13 10:56:10 martin Exp $	*/
+/*	$NetBSD: virtioreg.h,v 1.12 2023/03/29 09:45:05 riastradh Exp $	*/
 
 /*
  * Copyright (c) 2010 Minoura Makoto.

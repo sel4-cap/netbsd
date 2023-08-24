@@ -1,4 +1,4 @@
-/* $NetBSD: pvh_consinit.c,v 1.2.20.1 2023/03/30 11:45:34 martin Exp $ */
+/* $NetBSD: pvh_consinit.c,v 1.4 2023/07/22 19:13:17 mrg Exp $ */
 
 /*
  * Copyright (c) 2020 Manuel Bouyer.
@@ -26,7 +26,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: pvh_consinit.c,v 1.2.20.1 2023/03/30 11:45:34 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: pvh_consinit.c,v 1.4 2023/07/22 19:13:17 mrg Exp $");
 
 #include "xencons.h"
 #include <sys/param.h>
@@ -40,6 +40,8 @@ __KERNEL_RCSID(0, "$NetBSD: pvh_consinit.c,v 1.2.20.1 2023/03/30 11:45:34 martin
 #include <xen/hypervisor.h>
 #include <xen/include/public/hvm/hvm_op.h>
 #include <xen/include/public/hvm/params.h>
+
+#include "xen_def_cons.h"
 
 static int pvh_xenconscn_getc(dev_t);
 static void pvh_xenconscn_putc(dev_t, int);

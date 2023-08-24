@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # $NetBSD: mi,v 1.224.2.1 2023/07/07 18:43:09 martin Exp $
+=======
+# $NetBSD: mi,v 1.225 2023/07/05 00:26:38 gutteridge Exp $
+>>>>>>> trunk
 #
 # Note: don't delete entries from here - mark them as "obsolete" instead.
 #

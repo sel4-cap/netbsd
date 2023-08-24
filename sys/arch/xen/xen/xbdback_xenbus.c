@@ -1,4 +1,4 @@
-/*      $NetBSD: xbdback_xenbus.c,v 1.101.4.1 2023/07/31 15:23:02 martin Exp $      */
+/*      $NetBSD: xbdback_xenbus.c,v 1.103 2023/02/25 00:35:28 riastradh Exp $      */
 
 /*
  * Copyright (c) 2006 Manuel Bouyer.
@@ -26,7 +26,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: xbdback_xenbus.c,v 1.101.4.1 2023/07/31 15:23:02 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: xbdback_xenbus.c,v 1.103 2023/02/25 00:35:28 riastradh Exp $");
 
 #include <sys/buf.h>
 #include <sys/condvar.h>

@@ -1,4 +1,4 @@
-/*	$NetBSD: imx6_ccm.c,v 1.2.4.1 2023/05/28 10:14:35 martin Exp $	*/
+/*	$NetBSD: imx6_ccm.c,v 1.4 2023/05/04 13:25:07 bouyer Exp $	*/
 
 /*
  * Copyright (c) 2010-2012, 2014  Genetec Corporation.  All rights reserved.
@@ -30,7 +30,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: imx6_ccm.c,v 1.2.4.1 2023/05/28 10:14:35 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: imx6_ccm.c,v 1.4 2023/05/04 13:25:07 bouyer Exp $");
 
 #include "opt_imx.h"
 #include "opt_cputypes.h"

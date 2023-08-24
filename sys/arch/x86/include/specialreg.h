@@ -1,4 +1,4 @@
-/*	$NetBSD: specialreg.h,v 1.198.2.4 2023/07/29 09:44:34 martin Exp $	*/
+/*	$NetBSD: specialreg.h,v 1.208 2023/07/27 00:34:07 msaitoh Exp $	*/
 
 /*
  * Copyright (c) 2014-2020 The NetBSD Foundation, Inc.

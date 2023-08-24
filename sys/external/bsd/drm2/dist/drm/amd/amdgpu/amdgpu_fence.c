@@ -1,4 +1,4 @@
-/*	$NetBSD: amdgpu_fence.c,v 1.10.4.1 2023/08/02 10:30:18 martin Exp $	*/
+/*	$NetBSD: amdgpu_fence.c,v 1.11 2023/07/20 18:02:45 mrg Exp $	*/
 
 /*
  * Copyright 2009 Jerome Glisse.
@@ -31,7 +31,7 @@
  *    Dave Airlie
  */
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: amdgpu_fence.c,v 1.10.4.1 2023/08/02 10:30:18 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: amdgpu_fence.c,v 1.11 2023/07/20 18:02:45 mrg Exp $");
 
 #include <linux/seq_file.h>
 #include <linux/atomic.h>

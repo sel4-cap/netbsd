@@ -1,5 +1,9 @@
 #! /bin/sh -m
+<<<<<<< HEAD
 # $NetBSD: install.sh,v 1.3.2.1 2023/02/24 13:48:28 martin Exp $
+=======
+# $NetBSD: install.sh,v 1.4 2023/01/16 15:00:03 abs Exp $
+>>>>>>> trunk
 #
 # -
 #  Copyright (c) 2010 The NetBSD Foundation, Inc.

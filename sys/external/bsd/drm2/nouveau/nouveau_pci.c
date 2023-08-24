@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: nouveau_pci.c,v 1.36.4.2 2023/08/11 14:48:34 martin Exp $	*/
+=======
+/*	$NetBSD: nouveau_pci.c,v 1.38 2023/08/07 16:34:57 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2015 The NetBSD Foundation, Inc.
@@ -30,7 +34,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: nouveau_pci.c,v 1.36.4.2 2023/08/11 14:48:34 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: nouveau_pci.c,v 1.38 2023/08/07 16:34:57 riastradh Exp $");
+>>>>>>> trunk
 
 #ifdef _KERNEL_OPT
 #include "genfb.h"

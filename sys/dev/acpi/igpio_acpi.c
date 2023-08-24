@@ -1,4 +1,4 @@
-/* $NetBSD: igpio_acpi.c,v 1.1.4.1 2023/03/12 17:52:13 martin Exp $ */
+/* $NetBSD: igpio_acpi.c,v 1.2 2023/02/27 15:41:41 msaitoh Exp $ */
 
 /*-
  * Copyright (c) 2021,2022 Emmanuel Dreyfus
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: igpio_acpi.c,v 1.1.4.1 2023/03/12 17:52:13 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: igpio_acpi.c,v 1.2 2023/02/27 15:41:41 msaitoh Exp $");
 
 #include <sys/param.h>
 #include <sys/kmem.h>

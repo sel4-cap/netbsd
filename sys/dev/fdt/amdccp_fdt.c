@@ -1,4 +1,4 @@
-/* $NetBSD: amdccp_fdt.c,v 1.6.18.1 2022/12/19 11:37:15 martin Exp $ */
+/* $NetBSD: amdccp_fdt.c,v 1.7 2022/12/18 15:50:32 reinoud Exp $ */
 
 /*
  * Copyright (c) 2018 Jonathan A. Kollasch
@@ -28,7 +28,7 @@
 
 #include <sys/cdefs.h>
 
-__KERNEL_RCSID(0, "$NetBSD: amdccp_fdt.c,v 1.6.18.1 2022/12/19 11:37:15 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: amdccp_fdt.c,v 1.7 2022/12/18 15:50:32 reinoud Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

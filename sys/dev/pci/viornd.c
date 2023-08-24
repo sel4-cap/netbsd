@@ -1,4 +1,4 @@
-/* 	$NetBSD: viornd.c,v 1.18.4.2 2023/08/11 14:35:24 martin Exp $ */
+/* 	$NetBSD: viornd.c,v 1.22 2023/08/04 07:38:53 riastradh Exp $ */
 /*	$OpenBSD: viornd.c,v 1.1 2014/01/21 21:14:58 sf Exp $	*/
 
 /*

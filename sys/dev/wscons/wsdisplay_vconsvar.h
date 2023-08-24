@@ -1,4 +1,4 @@
-/*	$NetBSD: wsdisplay_vconsvar.h,v 1.33.4.1 2023/07/05 16:09:50 martin Exp $ */
+/*	$NetBSD: wsdisplay_vconsvar.h,v 1.34 2023/02/14 08:22:02 macallan Exp $ */
 
 /*-
  * Copyright (c) 2005, 2006 Michael Lorenz

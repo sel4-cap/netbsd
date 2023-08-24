@@ -1,4 +1,4 @@
-/*	$NetBSD: autoconf.c,v 1.3 2021/05/01 07:11:12 skrll Exp $	*/
+/*	$NetBSD: autoconf.c,v 1.5 2023/07/10 07:04:20 rin Exp $	*/
 
 /*-
  * Copyright (c) 2014 The NetBSD Foundation, Inc.
@@ -31,23 +31,29 @@
 
 #include <sys/cdefs.h>
 
-__RCSID("$NetBSD: autoconf.c,v 1.3 2021/05/01 07:11:12 skrll Exp $");
+__RCSID("$NetBSD: autoconf.c,v 1.5 2023/07/10 07:04:20 rin Exp $");
 
 #include <sys/param.h>
-#include <sys/systm.h>
+
 #include <sys/buf.h>
 #include <sys/conf.h>
 #include <sys/cpu.h>
 #include <sys/device.h>
+#include <sys/reboot.h>
+#include <sys/systm.h>
+
+#include <machine/sysreg.h>
+
+#include <dev/fdt/fdt_boot.h>
 
 void
 cpu_configure(void)
 {
-	splhigh();
+	(void) splhigh();
 
-	if (config_rootfound("mainbus", NULL) == NULL)
-		panic("no mainbus found");
+	config_rootfound("mainbus", NULL);
 
+	/* Time to start taking interrupts so lets open the flood gates ... */
 	spl0();
 }
 
@@ -59,11 +65,10 @@ cpu_rootconf(void)
 }
 
 void
-device_register(device_t dv, void *aux)
+device_register(device_t self, void *aux)
 {
-}
 
-void
-consinit(void)
-{
+	if (device_is_a(self, "mainbus")) {
+		fdt_setup_initrd();
+	}
 }

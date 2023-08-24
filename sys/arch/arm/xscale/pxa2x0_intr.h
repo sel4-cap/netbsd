@@ -1,4 +1,4 @@
-/*	$NetBSD: pxa2x0_intr.h,v 1.15.34.1 2023/08/09 17:42:04 martin Exp $ */
+/*	$NetBSD: pxa2x0_intr.h,v 1.16 2023/07/13 19:42:24 riastradh Exp $ */
 
 /* Derived from i80321_intr.h */
 

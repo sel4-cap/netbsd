@@ -1,4 +1,4 @@
-#	$NetBSD: Makefile,v 1.274.2.1 2023/08/17 09:57:28 martin Exp $
+#	$NetBSD: Makefile,v 1.279 2023/08/09 09:36:26 andvar Exp $
 
 .include <bsd.own.mk>
 
@@ -10,7 +10,7 @@ SUBDIR+=	compat_util
 SUBDIR+=	compat_43   compat_sysctl_09_43
 SUBDIR+=	compat_09   compat_10   compat_12   compat_13   compat_14
 SUBDIR+=	compat_16   compat_20   compat_30   compat_40   compat_50
-SUBDIR+=	compat_60   compat_70   compat_80   compat_90
+SUBDIR+=	compat_60   compat_70   compat_80   compat_90   compat_100
 
 SUBDIR+=	compat_sysv_10 compat_sysv_14 compat_sysv_50
 
@@ -217,6 +217,7 @@ SUBDIR+=	exec_elf32
 .if ${MACHINE_CPU} == "aarch64" || \
     ${MACHINE_ARCH} == "alpha" || \
     ${MACHINE_ARCH} == "ia64" || \
+    ${MACHINE_ARCH} == "riscv64" || \
     ${MACHINE_ARCH} == "sparc64" || \
     ${MACHINE_ARCH} == "x86_64"
 SUBDIR+=	exec_elf64
@@ -313,7 +314,7 @@ SUBDIR+=	compat_netbsd32_13	compat_netbsd32_16
 SUBDIR+=	compat_netbsd32_20	compat_netbsd32_30
 SUBDIR+=	compat_netbsd32_40	compat_netbsd32_50
 SUBDIR+=	compat_netbsd32_60	compat_netbsd32_80
-SUBDIR+=	compat_netbsd32_90
+SUBDIR+=	compat_netbsd32_90	compat_netbsd32_100
 SUBDIR+=	compat_netbsd32_43
 SUBDIR+=	compat_netbsd32_coredump
 SUBDIR+=	compat_netbsd32_mqueue
@@ -349,16 +350,21 @@ SUBDIR+=	viac7temp
 .endif
 
 .if ${MACHINE_ARCH} == "i386" || \
-    ${MACHINE_ARCH} == "x86_64"
+    ${MACHINE_ARCH} == "x86_64" || \
+    ${MACHINE_CPU} == "aarch64"
 SUBDIR+=	amdgpu
-SUBDIR+=	compat_linux
-SUBDIR+=	drm
 SUBDIR+=	drmkms
-SUBDIR+=	drmkms_agp
 SUBDIR+=	drmkms_linux
 SUBDIR+=	drmkms_pci
 SUBDIR+=	drmkms_sched
 SUBDIR+=	drmkms_ttm
+.endif
+
+.if ${MACHINE_ARCH} == "i386" || \
+    ${MACHINE_ARCH} == "x86_64"
+SUBDIR+=	drm
+SUBDIR+=	compat_linux
+SUBDIR+=	drmkms_agp
 SUBDIR+=	i915drm
 SUBDIR+=	i915drmkms
 SUBDIR+=	viadrmums

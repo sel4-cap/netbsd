@@ -1,4 +1,4 @@
-/*      $NetBSD: trap.h,v 1.24.84.1 2023/06/21 19:09:07 martin Exp $     */
+/*      $NetBSD: trap.h,v 1.25 2023/03/26 12:23:42 ragge Exp $     */
 
 /*-
  * Copyright (c) 1990 The Regents of the University of California.

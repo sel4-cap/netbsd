@@ -1,5 +1,5 @@
 #
-#	$NetBSD: GENERIC.common,v 1.50.4.1 2023/02/08 16:38:01 martin Exp $
+#	$NetBSD: GENERIC.common,v 1.51 2023/02/06 12:59:13 simonb Exp $
 #
 #	GENERIC evbarm kernel config (template)
 #

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: kern_lock.c,v 1.181.2.1 2023/07/31 14:38:25 martin Exp $	*/
+=======
+/*	$NetBSD: kern_lock.c,v 1.186 2023/07/07 18:02:52 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2002, 2006, 2007, 2008, 2009, 2020 The NetBSD Foundation, Inc.
@@ -31,7 +35,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: kern_lock.c,v 1.181.2.1 2023/07/31 14:38:25 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: kern_lock.c,v 1.186 2023/07/07 18:02:52 riastradh Exp $");
+>>>>>>> trunk
 
 #ifdef _KERNEL_OPT
 #include "opt_lockdebug.h"
@@ -67,8 +75,9 @@ __cpu_simple_lock_t kernel_lock[CACHE_LINE_SIZE / sizeof(__cpu_simple_lock_t)]
 void
 assert_sleepable(void)
 {
+	struct lwp *l = curlwp;
 	const char *reason;
-	uint64_t pctr;
+	uint64_t ncsw;
 	bool idle;
 
 	if (__predict_false(panicstr != NULL)) {
@@ -82,30 +91,32 @@ assert_sleepable(void)
 	 * routine may be called in delicate situations.
 	 */
 	do {
-		pctr = lwp_pctr();
+		ncsw = l->l_ncsw;
 		__insn_barrier();
 		idle = CURCPU_IDLE_P();
 		__insn_barrier();
-	} while (pctr != lwp_pctr());
+	} while (__predict_false(ncsw != l->l_ncsw));
 
 	reason = NULL;
-	if (idle && !cold) {
+	if (__predict_false(idle) && !cold) {
 		reason = "idle";
+		goto panic;
 	}
-	if (cpu_intr_p()) {
+	if (__predict_false(cpu_intr_p())) {
 		reason = "interrupt";
+		goto panic;
 	}
-	if (cpu_softintr_p()) {
+	if (__predict_false(cpu_softintr_p())) {
 		reason = "softint";
+		goto panic;
 	}
-	if (!pserialize_not_in_read_section()) {
+	if (__predict_false(!pserialize_not_in_read_section())) {
 		reason = "pserialize";
+		goto panic;
 	}
+	return;
 
-	if (reason) {
-		panic("%s: %s caller=%p", __func__, reason,
-		    (void *)RETURN_ADDRESS);
-	}
+panic:	panic("%s: %s caller=%p", __func__, reason, (void *)RETURN_ADDRESS);
 }
 
 /*
@@ -235,10 +246,18 @@ _kernel_lock(int nlocks)
 	 * is required to ensure that the result of any mutex_exit()
 	 * by the current LWP becomes visible on the bus before the set
 	 * of ci->ci_biglock_wanted becomes visible.
+	 *
+	 * This membar_producer matches the membar_consumer in
+	 * mutex_vector_enter.
+	 *
+	 * That way, if l has just released a mutex, mutex_vector_enter
+	 * can't see this store ci->ci_biglock_wanted := l until it
+	 * will also see the mutex_exit store mtx->mtx_owner := 0 which
+	 * clears the has-waiters bit.
 	 */
 	membar_producer();
 	owant = ci->ci_biglock_wanted;
-	ci->ci_biglock_wanted = l;
+	atomic_store_relaxed(&ci->ci_biglock_wanted, l);
 #if defined(DIAGNOSTIC) && !defined(LOCKDEBUG)
 	l->l_ld_wanted = __builtin_return_address(0);
 #endif
@@ -286,22 +305,20 @@ _kernel_lock(int nlocks)
 
 	/*
 	 * Now that we have kernel_lock, reset ci_biglock_wanted.  This
-	 * store must be unbuffered (immediately visible on the bus) in
-	 * order for non-interlocked mutex release to work correctly.
-	 * It must be visible before a mutex_exit() can execute on this
-	 * processor.
+	 * store must be visible on other CPUs before a mutex_exit() on
+	 * this CPU can test the has-waiters bit.
 	 *
-	 * Note: only where CAS is available in hardware will this be
-	 * an unbuffered write, but non-interlocked release cannot be
-	 * done on CPUs without CAS in hardware.
+	 * This membar_enter matches the membar_enter in
+	 * mutex_vector_enter.  (Yes, not membar_exit -- the legacy
+	 * naming is confusing, but store-before-load usually pairs
+	 * with store-before-load, in the extremely rare cases where it
+	 * is used at all.)
+	 *
+	 * That way, mutex_vector_enter can't see this store
+	 * ci->ci_biglock_wanted := owant until it has set the
+	 * has-waiters bit.
 	 */
 	(void)atomic_swap_ptr(&ci->ci_biglock_wanted, owant);
-
-	/*
-	 * Issue a memory barrier as we have acquired a lock.  This also
-	 * prevents stores from a following mutex_exit() being reordered
-	 * to occur before our store to ci_biglock_wanted above.
-	 */
 #ifndef __HAVE_ATOMIC_AS_MEMBAR
 	membar_enter();
 #endif

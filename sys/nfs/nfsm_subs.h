@@ -1,4 +1,4 @@
-/*	$NetBSD: nfsm_subs.h,v 1.55.4.1 2023/03/30 11:57:26 martin Exp $	*/
+/*	$NetBSD: nfsm_subs.h,v 1.57 2023/03/23 19:52:52 riastradh Exp $	*/
 
 /*
  * Copyright (c) 1989, 1993

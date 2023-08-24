@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: i386.c,v 1.133.2.3 2023/07/29 10:07:59 martin Exp $	*/
+=======
+/*	$NetBSD: i386.c,v 1.139 2023/07/21 10:26:36 msaitoh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 1999, 2000, 2001, 2006, 2007, 2008 The NetBSD Foundation, Inc.
@@ -57,7 +61,11 @@
 
 #include <sys/cdefs.h>
 #ifndef lint
+<<<<<<< HEAD
 __RCSID("$NetBSD: i386.c,v 1.133.2.3 2023/07/29 10:07:59 martin Exp $");
+=======
+__RCSID("$NetBSD: i386.c,v 1.139 2023/07/21 10:26:36 msaitoh Exp $");
+>>>>>>> trunk
 #endif /* not lint */
 
 #include <sys/types.h>

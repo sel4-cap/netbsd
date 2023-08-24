@@ -1,4 +1,4 @@
-/*	$NetBSD: locore.s,v 1.283.4.1 2023/07/31 13:36:32 martin Exp $	*/
+/*	$NetBSD: locore.s,v 1.284 2023/02/23 14:56:37 riastradh Exp $	*/
 
 /*
  * Copyright (c) 1996 Paul Kranenburg

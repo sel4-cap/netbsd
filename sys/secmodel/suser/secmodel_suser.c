@@ -1,4 +1,4 @@
-/* $NetBSD: secmodel_suser.c,v 1.55.20.2 2023/01/13 19:14:13 martin Exp $ */
+/* $NetBSD: secmodel_suser.c,v 1.57 2023/01/05 18:29:45 jakllsch Exp $ */
 /*-
  * Copyright (c) 2006 Elad Efrat <elad@NetBSD.org>
  * All rights reserved.
@@ -38,7 +38,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: secmodel_suser.c,v 1.55.20.2 2023/01/13 19:14:13 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: secmodel_suser.c,v 1.57 2023/01/05 18:29:45 jakllsch Exp $");
 
 #include <sys/types.h>
 #include <sys/param.h>

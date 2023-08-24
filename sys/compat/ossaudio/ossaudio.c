@@ -1,4 +1,4 @@
-/*	$NetBSD: ossaudio.c,v 1.84.4.1 2023/06/21 21:22:53 martin Exp $	*/
+/*	$NetBSD: ossaudio.c,v 1.85 2023/06/20 15:22:04 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 1997, 2008 The NetBSD Foundation, Inc.
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: ossaudio.c,v 1.84.4.1 2023/06/21 21:22:53 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: ossaudio.c,v 1.85 2023/06/20 15:22:04 riastradh Exp $");
 
 #include <sys/param.h>
 #include <sys/proc.h>

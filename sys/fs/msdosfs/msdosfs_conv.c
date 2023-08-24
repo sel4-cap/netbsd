@@ -1,4 +1,4 @@
-/*	$NetBSD: msdosfs_conv.c,v 1.18 2021/10/23 16:58:17 thorpej Exp $	*/
+/*	$NetBSD: msdosfs_conv.c,v 1.20 2023/06/02 08:51:47 andvar Exp $	*/
 
 /*-
  * Copyright (C) 1995, 1997 Wolfgang Solfrank.
@@ -58,7 +58,7 @@
 #endif
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: msdosfs_conv.c,v 1.18 2021/10/23 16:58:17 thorpej Exp $");
+__KERNEL_RCSID(0, "$NetBSD: msdosfs_conv.c,v 1.20 2023/06/02 08:51:47 andvar Exp $");
 
 /*
  * System include files.
@@ -108,7 +108,7 @@ static int char8match(u_int16_t *, u_int16_t *, int n);
 #define	DOSBIASYEAR	1980
 #define	SECONDSTO1980	(((8 * 365) + (2 * 366)) * (24 * 60 * 60))
 /*
- * msdos fs can not store dates beyound the year 2234
+ * msdos fs can not store dates beyond the year 2234
  */
 #define DOSMAXYEAR	((DD_YEAR_MASK >> DD_YEAR_SHIFT) + DOSBIASYEAR)
 
@@ -866,7 +866,7 @@ ucs2utf8str(const u_int16_t *in, int n, u_int8_t *out, int m)
 
 /*
  * Convert UTF8 string into UCS-2 string
- * return total number of output chacters
+ * return total number of output characters
  */
 static int
 utf8ucs2str(const u_int8_t *in, int n, u_int16_t *out, int m)
@@ -920,7 +920,7 @@ ucs2char8str(const u_int16_t *in, int n, u_int8_t *out, int m)
 
 /*
  * Convert 8bit character string into UCS-2 string
- * return total number of output chacters
+ * return total number of output characters
  */
 static int
 char8ucs2str(const u_int8_t *in, int n, u_int16_t *out, int m)

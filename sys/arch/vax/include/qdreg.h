@@ -1,4 +1,4 @@
-/*	$NetBSD: qdreg.h,v 1.6.4.1 2023/02/12 12:27:26 martin Exp $	*/
+/*	$NetBSD: qdreg.h,v 1.7 2023/02/06 13:13:05 tsutsui Exp $	*/
 /*-
  * Copyright (c) 1982, 1986 The Regents of the University of California.
  * All rights reserved.

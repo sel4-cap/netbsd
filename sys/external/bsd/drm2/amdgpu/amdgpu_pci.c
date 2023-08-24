@@ -1,4 +1,4 @@
-/*	$NetBSD: amdgpu_pci.c,v 1.11.4.1 2023/08/11 14:48:34 martin Exp $	*/
+/*	$NetBSD: amdgpu_pci.c,v 1.12 2023/08/07 16:34:47 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2018 The NetBSD Foundation, Inc.
@@ -30,7 +30,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: amdgpu_pci.c,v 1.11.4.1 2023/08/11 14:48:34 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: amdgpu_pci.c,v 1.12 2023/08/07 16:34:47 riastradh Exp $");
 
 #include <sys/types.h>
 #include <sys/atomic.h>

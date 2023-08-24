@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: kern_mutex.c,v 1.101.2.1 2023/07/31 14:38:25 martin Exp $	*/
+=======
+/*	$NetBSD: kern_mutex.c,v 1.108 2023/07/17 12:54:29 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2002, 2006, 2007, 2008, 2019 The NetBSD Foundation, Inc.
@@ -40,7 +44,11 @@
 #define	__MUTEX_PRIVATE
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: kern_mutex.c,v 1.101.2.1 2023/07/31 14:38:25 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: kern_mutex.c,v 1.108 2023/07/17 12:54:29 riastradh Exp $");
+>>>>>>> trunk
 
 #include <sys/param.h>
 #include <sys/atomic.h>
@@ -167,12 +175,8 @@ do {									\
  */
 #ifdef __HAVE_ATOMIC_AS_MEMBAR
 #define	MUTEX_MEMBAR_ENTER()
-#define	MUTEX_MEMBAR_ACQUIRE()
-#define	MUTEX_MEMBAR_RELEASE()
 #else
 #define	MUTEX_MEMBAR_ENTER()		membar_enter()
-#define	MUTEX_MEMBAR_ACQUIRE()		membar_acquire()
-#define	MUTEX_MEMBAR_RELEASE()		membar_release()
 #endif
 
 /*
@@ -238,7 +242,7 @@ MUTEX_ACQUIRE(kmutex_t *mtx, uintptr_t curthread)
 	MUTEX_INHERITDEBUG(oldown, mtx->mtx_owner);
 	MUTEX_INHERITDEBUG(newown, oldown);
 	rv = MUTEX_CAS(&mtx->mtx_owner, oldown, newown);
-	MUTEX_MEMBAR_ACQUIRE();
+	membar_acquire();
 	return rv;
 }
 
@@ -246,6 +250,7 @@ static inline int
 MUTEX_SET_WAITERS(kmutex_t *mtx, uintptr_t owner)
 {
 	int rv;
+
 	rv = MUTEX_CAS(&mtx->mtx_owner, owner, owner | MUTEX_BIT_WAITERS);
 	MUTEX_MEMBAR_ENTER();
 	return rv;
@@ -256,10 +261,9 @@ MUTEX_RELEASE(kmutex_t *mtx)
 {
 	uintptr_t newown;
 
-	MUTEX_MEMBAR_RELEASE();
 	newown = 0;
 	MUTEX_INHERITDEBUG(newown, mtx->mtx_owner);
-	mtx->mtx_owner = newown;
+	atomic_store_release(&mtx->mtx_owner, newown);
 }
 #endif	/* __HAVE_SIMPLE_MUTEXES */
 
@@ -282,9 +286,10 @@ __strong_alias(mutex_spin_enter,mutex_vector_enter);
 __strong_alias(mutex_spin_exit,mutex_vector_exit);
 #endif
 
-static void	mutex_abort(const char *, size_t, const kmutex_t *,
-    const char *);
+static void	mutex_abort(const char *, size_t, volatile const kmutex_t *,
+		    const char *);
 static void	mutex_dump(const volatile void *, lockop_printer_t);
+static lwp_t	*mutex_owner(wchan_t);
 
 lockops_t mutex_spin_lockops = {
 	.lo_name = "Mutex",
@@ -299,11 +304,12 @@ lockops_t mutex_adaptive_lockops = {
 };
 
 syncobj_t mutex_syncobj = {
+	.sobj_name	= "mutex",
 	.sobj_flag	= SOBJ_SLEEPQ_SORTED,
 	.sobj_unsleep	= turnstile_unsleep,
 	.sobj_changepri	= turnstile_changepri,
 	.sobj_lendpri	= sleepq_lendpri,
-	.sobj_owner	= (void *)mutex_owner,
+	.sobj_owner	= mutex_owner,
 };
 
 /*
@@ -330,7 +336,8 @@ mutex_dump(const volatile void *cookie, lockop_printer_t pr)
  *	we ask the compiler to not inline it.
  */
 static void __noinline
-mutex_abort(const char *func, size_t line, const kmutex_t *mtx, const char *msg)
+mutex_abort(const char *func, size_t line, volatile const kmutex_t *mtx,
+    const char *msg)
 {
 
 	LOCKDEBUG_ABORT(func, line, mtx, (MUTEX_SPIN_P(mtx->mtx_owner) ?
@@ -427,7 +434,7 @@ mutex_oncpu(uintptr_t owner)
 
 	if (ci && ci->ci_curlwp == l) {
 		/* Target is running; do we need to block? */
-		return (ci->ci_biglock_wanted != l);
+		return (atomic_load_relaxed(&ci->ci_biglock_wanted) != l);
 	}
 
 	/* Not running.  It may be safe to block now. */
@@ -590,15 +597,10 @@ mutex_vector_enter(kmutex_t *mtx)
 		 *
 		 *  CPU 1: MUTEX_SET_WAITERS()      CPU2: mutex_exit()
 		 * ---------------------------- ----------------------------
-		 *		..		    acquire cache line
-		 *		..                   test for waiters
-		 *	acquire cache line    <-      lose cache line
-		 *	 lock cache line	           ..
-		 *     verify mutex is held                ..
-		 *	    set waiters  	           ..
-		 *	 unlock cache line		   ..
-		 *	  lose cache line     ->    acquire cache line
-		 *		..	          clear lock word, waiters
+		 *		..		load mtx->mtx_owner
+		 *		..		see has-waiters bit clear
+		 *	set has-waiters bit  	           ..
+		 *		..		store mtx->mtx_owner := 0
 		 *	  return success
 		 *
 		 * There is another race that can occur: a third CPU could
@@ -615,17 +617,13 @@ mutex_vector_enter(kmutex_t *mtx)
 		 *   be atomic on the local CPU, e.g. in case interrupted
 		 *   or preempted).
 		 *
-		 * o At any given time, MUTEX_SET_WAITERS() can only ever
-		 *   be in progress on one CPU in the system - guaranteed
-		 *   by the turnstile chain lock.
+		 * o At any given time on each mutex, MUTEX_SET_WAITERS()
+		 *   can only ever be in progress on one CPU in the
+		 *   system - guaranteed by the turnstile chain lock.
 		 *
 		 * o No other operations other than MUTEX_SET_WAITERS()
 		 *   and release can modify a mutex with a non-zero
 		 *   owner field.
-		 *
-		 * o The result of a successful MUTEX_SET_WAITERS() call
-		 *   is an unbuffered write that is immediately visible
-		 *   to all other processors in the system.
 		 *
 		 * o If the holding LWP switches away, it posts a store
 		 *   fence before changing curlwp, ensuring that any
@@ -642,9 +640,12 @@ mutex_vector_enter(kmutex_t *mtx)
 		 *   flag by mutex_exit() completes before the modification
 		 *   of ci_biglock_wanted becomes visible.
 		 *
-		 * We now post a read memory barrier (after setting the
-		 * waiters field) and check the lock holder's status again.
-		 * Some of the possible outcomes (not an exhaustive list):
+		 * After MUTEX_SET_WAITERS() succeeds, simultaneously
+		 * confirming that the same LWP still holds the mutex
+		 * since we took the turnstile lock and notifying it that
+		 * we're waiting, we check the lock holder's status again.
+		 * Some of the possible outcomes (not an exhaustive list;
+		 * XXX this should be made exhaustive):
 		 *
 		 * 1. The on-CPU check returns true: the holding LWP is
 		 *    running again.  The lock may be released soon and
@@ -676,7 +677,6 @@ mutex_vector_enter(kmutex_t *mtx)
 		 * If the waiters bit is not set it's unsafe to go asleep,
 		 * as we might never be awoken.
 		 */
-		membar_consumer();
 		if (mutex_oncpu(owner)) {
 			turnstile_exit(mtx);
 			owner = mtx->mtx_owner;
@@ -840,9 +840,10 @@ mutex_owned(const kmutex_t *mtx)
  *	Return the current owner of an adaptive mutex.  Used for
  *	priority inheritance.
  */
-lwp_t *
-mutex_owner(const kmutex_t *mtx)
+static lwp_t *
+mutex_owner(wchan_t wchan)
 {
+	volatile const kmutex_t *mtx = wchan;
 
 	MUTEX_ASSERT(mtx, MUTEX_ADAPTIVE_P(mtx->mtx_owner));
 	return (struct lwp *)MUTEX_OWNER(mtx->mtx_owner);

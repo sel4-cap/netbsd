@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #	$NetBSD: Makefile,v 1.39.2.1 2023/05/13 11:51:14 martin Exp $
+=======
+#	$NetBSD: Makefile,v 1.41 2023/06/03 09:09:21 lukem Exp $
+>>>>>>> trunk
 #
 
 .include <bsd.own.mk>
@@ -32,11 +36,11 @@ LDADD+=	-lm
 DPADD+= ${LIBUTIL} ${LIBM}
 LDADD+= -lutil -lm
 
-COPTS.cd9660.c+=		${GCC_NO_STRINGOP_TRUNCATION} ${GCC_NO_FORMAT_TRUNCATION}
-COPTS.cd9660_conversion.c+=	${GCC_NO_FORMAT_TRUNCATION}
-COPTS.udf.c+=			${GCC_NO_STRINGOP_TRUNCATION}
-COPTS.v7fs_estimate.c+=		${GCC_NO_STRINGOP_TRUNCATION}
-COPTS.v7fs_populate.c+=		${GCC_NO_STRINGOP_TRUNCATION} ${GCC_NO_FORMAT_TRUNCATION}
+COPTS.cd9660.c+=		${CC_WNO_STRINGOP_TRUNCATION} ${CC_WNO_FORMAT_TRUNCATION}
+COPTS.cd9660_conversion.c+=	${CC_WNO_FORMAT_TRUNCATION}
+COPTS.udf.c+=			${CC_WNO_STRINGOP_TRUNCATION}
+COPTS.v7fs_estimate.c+=		${CC_WNO_STRINGOP_TRUNCATION}
+COPTS.v7fs_populate.c+=		${CC_WNO_STRINGOP_TRUNCATION} ${CC_WNO_FORMAT_TRUNCATION}
 .endif
 
 .include <bsd.prog.mk>

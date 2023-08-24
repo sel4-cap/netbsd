@@ -1,4 +1,4 @@
-/*	$NetBSD: tprof.c,v 1.21.2.2 2023/06/21 22:34:51 martin Exp $	*/
+/*	$NetBSD: tprof.c,v 1.23 2023/04/11 10:07:12 msaitoh Exp $	*/
 
 /*-
  * Copyright (c)2008,2009,2010 YAMAMOTO Takashi,
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: tprof.c,v 1.21.2.2 2023/06/21 22:34:51 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: tprof.c,v 1.23 2023/04/11 10:07:12 msaitoh Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

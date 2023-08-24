@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: kern_core.c,v 1.37.4.1 2023/08/09 17:42:05 martin Exp $	*/
+=======
+/*	$NetBSD: kern_core.c,v 1.38 2023/07/11 09:48:56 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*
  * Copyright (c) 1982, 1986, 1989, 1991, 1993
@@ -37,7 +41,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: kern_core.c,v 1.37.4.1 2023/08/09 17:42:05 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: kern_core.c,v 1.38 2023/07/11 09:48:56 riastradh Exp $");
+>>>>>>> trunk
 
 #ifdef _KERNEL_OPT
 #include "opt_execfmt.h"

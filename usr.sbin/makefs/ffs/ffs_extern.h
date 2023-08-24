@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: ffs_extern.h,v 1.8.2.1 2023/05/13 11:51:13 martin Exp $	*/
+=======
+/*	$NetBSD: ffs_extern.h,v 1.9 2023/01/07 19:41:30 chs Exp $	*/
+>>>>>>> trunk
 /* From: NetBSD: ffs_extern.h,v 1.19 2001/08/17 02:18:48 lukem Exp */
 
 /*-

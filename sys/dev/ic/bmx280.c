@@ -1,4 +1,4 @@
-/*	$NetBSD: bmx280.c,v 1.1.2.1 2023/04/20 14:18:41 martin Exp $	*/
+/*	$NetBSD: bmx280.c,v 1.2 2023/04/16 17:16:45 brad Exp $	*/
 
 /*
  * Copyright (c) 2022 Brad Spencer <brad@anduin.eldar.org>
@@ -17,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: bmx280.c,v 1.1.2.1 2023/04/20 14:18:41 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: bmx280.c,v 1.2 2023/04/16 17:16:45 brad Exp $");
 
 /*
  * Common driver for the Bosch BMP280/BME280 temperature, humidity (sometimes) and

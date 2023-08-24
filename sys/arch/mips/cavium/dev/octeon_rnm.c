@@ -1,4 +1,4 @@
-/*	$NetBSD: octeon_rnm.c,v 1.15.4.1 2023/07/30 11:39:33 martin Exp $	*/
+/*	$NetBSD: octeon_rnm.c,v 1.16 2023/03/21 22:07:29 riastradh Exp $	*/
 
 /*
  * Copyright (c) 2007 Internet Initiative Japan, Inc.
@@ -99,7 +99,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: octeon_rnm.c,v 1.15.4.1 2023/07/30 11:39:33 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: octeon_rnm.c,v 1.16 2023/03/21 22:07:29 riastradh Exp $");
 
 #include <sys/param.h>
 #include <sys/device.h>

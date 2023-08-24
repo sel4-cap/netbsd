@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: tmpfs_subr.c,v 1.114.4.1 2023/08/01 15:29:23 martin Exp $	*/
+=======
+/*	$NetBSD: tmpfs_subr.c,v 1.117 2023/04/29 08:15:13 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*
  * Copyright (c) 2005-2020 The NetBSD Foundation, Inc.
@@ -73,7 +77,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: tmpfs_subr.c,v 1.114.4.1 2023/08/01 15:29:23 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: tmpfs_subr.c,v 1.117 2023/04/29 08:15:13 riastradh Exp $");
+>>>>>>> trunk
 
 #include <sys/param.h>
 #include <sys/cprng.h>
@@ -894,7 +902,7 @@ done:
 }
 
 /*
- * tmpfs_reg_resize: resize the underlying UVM object associated with the 
+ * tmpfs_reg_resize: resize the underlying UVM object associated with the
  * specified regular file.
  */
 int

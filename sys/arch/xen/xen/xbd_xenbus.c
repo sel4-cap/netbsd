@@ -1,4 +1,4 @@
-/*      $NetBSD: xbd_xenbus.c,v 1.129.20.2 2023/07/31 15:23:02 martin Exp $      */
+/*      $NetBSD: xbd_xenbus.c,v 1.134 2023/07/25 16:15:50 bouyer Exp $      */
 
 /*
  * Copyright (c) 2006 Manuel Bouyer.
@@ -50,7 +50,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: xbd_xenbus.c,v 1.129.20.2 2023/07/31 15:23:02 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: xbd_xenbus.c,v 1.134 2023/07/25 16:15:50 bouyer Exp $");
 
 #include "opt_xen.h"
 
@@ -759,6 +759,14 @@ xbd_connect(struct xbd_xenbus_softc *sc)
 		    sc->sc_xbusd->xbusd_otherend);
 	sc->sc_sectors = sectors * (uint64_t)XEN_BSIZE / sc->sc_secsize;
 
+	err = xenbus_read_ull(NULL,
+	    sc->sc_xbusd->xbusd_otherend, "sectors", &sectors, 10);
+	if (err)
+		panic("%s: can't read number from %s/sectors\n",
+		    device_xname(sc->sc_dksc.sc_dev),
+		    sc->sc_xbusd->xbusd_otherend);
+	sc->sc_sectors = sectors * (uint64_t)XEN_BSIZE / sc->sc_secsize;
+
 	xenbus_switch_state(sc->sc_xbusd, NULL, XenbusStateConnected);
 }
 
@@ -906,10 +914,9 @@ again:
 		}
 		SLIST_INSERT_HEAD(&sc->sc_xbdreq_head, xbdreq, req_next);
 	}
-
-	xen_rmb();
 	sc->sc_ring.rsp_cons = i;
 
+	xen_wmb();
 	RING_FINAL_CHECK_FOR_RESPONSES(&sc->sc_ring, more_to_do);
 	if (more_to_do)
 		goto again;

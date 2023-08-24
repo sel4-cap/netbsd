@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: subr_cprng.c,v 1.43.4.1 2023/08/11 14:35:25 martin Exp $	*/
+=======
+/*	$NetBSD: subr_cprng.c,v 1.44 2023/08/05 11:21:24 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2019 The NetBSD Foundation, Inc.
@@ -52,7 +56,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: subr_cprng.c,v 1.43.4.1 2023/08/11 14:35:25 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: subr_cprng.c,v 1.44 2023/08/05 11:21:24 riastradh Exp $");
+>>>>>>> trunk
 
 #include <sys/param.h>
 #include <sys/types.h>

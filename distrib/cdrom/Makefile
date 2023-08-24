@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # $NetBSD: Makefile,v 1.52.14.1 2023/05/28 09:58:41 martin Exp $
+=======
+# $NetBSD: Makefile,v 1.53 2023/05/19 14:47:16 hauke Exp $
+>>>>>>> trunk
 #
 # Consult "*.conf" for the configuration variables; this Makefile is typically
 # not edited for basic configuration changes.

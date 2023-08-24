@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # $NetBSD: display_manager,v 1.5.58.1 2023/06/21 21:33:02 martin Exp $
+=======
+# $NetBSD: display_manager,v 1.6 2023/06/20 22:00:00 riastradh Exp $
+>>>>>>> trunk
 #
 # PAM configuration for the display manager services.  Specific display
 # manager service configurations can include this one.

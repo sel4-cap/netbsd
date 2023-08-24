@@ -1,4 +1,4 @@
-/*      $NetBSD: scsi.c,v 1.10.122.2 2023/02/22 12:07:08 martin Exp $        */
+/*      $NetBSD: scsi.c,v 1.14 2023/02/12 10:04:56 tsutsui Exp $        */
 /*
  * Copyright (c) 1994, 1997 Rolf Grossmann
  * All rights reserved.

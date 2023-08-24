@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # $NetBSD: su,v 1.8.6.1 2023/06/21 21:33:02 martin Exp $
+=======
+# $NetBSD: su,v 1.9 2023/06/20 22:00:00 riastradh Exp $
+>>>>>>> trunk
 #
 # PAM configuration for the "su" service
 #

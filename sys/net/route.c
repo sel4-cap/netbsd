@@ -1,4 +1,4 @@
-/*	$NetBSD: route.c,v 1.235.2.2 2023/06/08 11:15:26 martin Exp $	*/
+/*	$NetBSD: route.c,v 1.237 2023/06/05 03:51:45 ozaki-r Exp $	*/
 
 /*-
  * Copyright (c) 1998, 2008 The NetBSD Foundation, Inc.
@@ -97,7 +97,7 @@
 #endif
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: route.c,v 1.235.2.2 2023/06/08 11:15:26 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: route.c,v 1.237 2023/06/05 03:51:45 ozaki-r Exp $");
 
 #include <sys/param.h>
 #ifdef RTFLUSH_DEBUG

@@ -1,4 +1,4 @@
-/*	$NetBSD: conf.c,v 1.68.48.1 2023/02/12 12:27:26 martin Exp $	*/
+/*	$NetBSD: conf.c,v 1.69 2023/02/06 13:13:05 tsutsui Exp $	*/
 
 /*-
  * Copyright (c) 1982, 1986 The Regents of the University of California.
@@ -32,7 +32,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: conf.c,v 1.68.48.1 2023/02/12 12:27:26 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: conf.c,v 1.69 2023/02/06 13:13:05 tsutsui Exp $");
 
 #include "opt_cputype.h"
 

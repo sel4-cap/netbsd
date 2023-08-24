@@ -1,4 +1,4 @@
-/*	$NetBSD: mvsoc_intr.h,v 1.8.4.1 2023/08/11 10:13:50 martin Exp $	*/
+/*	$NetBSD: mvsoc_intr.h,v 1.9 2023/07/13 16:51:33 riastradh Exp $	*/
 /*
  * Copyright (c) 2010 KIYOHARA Takashi
  * All rights reserved.

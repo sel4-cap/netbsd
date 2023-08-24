@@ -1,4 +1,4 @@
-/*	$NetBSD: if_enet_imx.c,v 1.6.18.1 2022/12/29 09:39:43 martin Exp $	*/
+/*	$NetBSD: if_enet_imx.c,v 1.7 2022/12/27 18:55:06 mrg Exp $	*/
 
 /*-
  * Copyright (c) 2019 Genetec Corporation.  All rights reserved.
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: if_enet_imx.c,v 1.6.18.1 2022/12/29 09:39:43 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: if_enet_imx.c,v 1.7 2022/12/27 18:55:06 mrg Exp $");
 
 #include "opt_fdt.h"
 

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #	$NetBSD: dot.profile,v 1.34.2.1 2023/06/27 18:39:47 martin Exp $
+=======
+#	$NetBSD: dot.profile,v 1.35 2022/12/25 23:58:50 nia Exp $
+>>>>>>> trunk
 
 case "${PATH}" in
 /rescue:*)	;; # leave it alone, user can change manually (if required)

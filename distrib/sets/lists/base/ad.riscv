@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # $NetBSD: ad.riscv,v 1.23.2.1 2023/08/11 13:42:53 martin Exp $
+=======
+# $NetBSD: ad.riscv,v 1.30 2023/05/27 02:28:46 riastradh Exp $
+>>>>>>> trunk
 ./libexec/ld.elf_so-rv32			base-compat-shlib	compat,pic,arch64
 ./usr/libexec/ld.elf_so-rv32			base-compat-shlib	compat,pic,arch64
 ./usr/lib/rv32/openssl				base-crypto-usr		compat

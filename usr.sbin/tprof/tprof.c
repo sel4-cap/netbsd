@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: tprof.c,v 1.18.2.2 2023/06/21 22:34:51 martin Exp $	*/
+=======
+/*	$NetBSD: tprof.c,v 1.21 2023/04/17 08:37:24 msaitoh Exp $	*/
+>>>>>>> trunk
 
 /*
  * Copyright (c) 2018 The NetBSD Foundation, Inc.
@@ -57,7 +61,11 @@
 
 #include <sys/cdefs.h>
 #ifndef lint
+<<<<<<< HEAD
 __RCSID("$NetBSD: tprof.c,v 1.18.2.2 2023/06/21 22:34:51 martin Exp $");
+=======
+__RCSID("$NetBSD: tprof.c,v 1.21 2023/04/17 08:37:24 msaitoh Exp $");
+>>>>>>> trunk
 #endif /* not lint */
 
 #include <sys/atomic.h>

@@ -1,4 +1,4 @@
-/*	$NetBSD: machdep.c,v 1.43.30.1 2023/07/31 13:36:30 martin Exp $	*/
+/*	$NetBSD: machdep.c,v 1.44 2023/02/23 14:55:47 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2003,2004 Marcel Moolenaar

@@ -1,4 +1,4 @@
-/*      $NetBSD: en.c,v 1.19.32.1 2023/02/22 12:07:08 martin Exp $        */
+/*      $NetBSD: en.c,v 1.20 2023/02/12 08:25:09 tsutsui Exp $        */
 /*
  * Copyright (c) 1996 Rolf Grossmann
  * All rights reserved.

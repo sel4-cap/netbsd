@@ -1,4 +1,4 @@
-#	$NetBSD: files,v 1.1304.2.1 2023/01/13 19:00:21 martin Exp $
+#	$NetBSD: files,v 1.1307 2023/04/16 16:51:38 jmcneill Exp $
 #	@(#)files.newconf	7.5 (Berkeley) 5/10/93
 
 version 	20171118
@@ -149,7 +149,8 @@ defflag opt_efi.h		EFI_RUNTIME
 # compatibility options
 #
 defflag opt_compat_netbsd.h	COMPAT_NETBSD
-defflag	opt_compat_netbsd.h	COMPAT_90: COMPAT_NETBSD
+defflag	opt_compat_netbsd.h	COMPAT_100: COMPAT_NETBSD
+defflag	opt_compat_netbsd.h	COMPAT_90: COMPAT_100, COMPAT_NETBSD
 defflag	opt_compat_netbsd.h	COMPAT_80: COMPAT_90, COMPAT_NETBSD
 defflag	opt_compat_netbsd.h	COMPAT_70: COMPAT_80, COMPAT_NETBSD
 defflag	opt_compat_netbsd.h	COMPAT_60: COMPAT_70, COMPAT_NETBSD
@@ -797,6 +798,10 @@ file	dev/ic/dwc_gmac.c		awge
 # Synopsys DesignWare Ethernet Quality-of-Service controller
 device	eqos: arp, ether, ifnet, mii
 file	dev/ic/dwc_eqos.c		eqos
+
+# Synopsys DesignWare Watchdog
+device	dwcwdt: sysmon_wdog
+file	dev/ic/dwc_wdt.c		dwcwdt
 
 # 8390-family Ethernet controllers
 #

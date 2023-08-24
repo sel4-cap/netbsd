@@ -1,4 +1,4 @@
-/* $NetBSD: ixgbe_type.h,v 1.55.4.1 2023/06/21 19:16:12 martin Exp $ */
+/* $NetBSD: ixgbe_type.h,v 1.56 2023/05/15 08:01:22 msaitoh Exp $ */
 
 /******************************************************************************
   SPDX-License-Identifier: BSD-3-Clause

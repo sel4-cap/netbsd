@@ -1,4 +1,4 @@
-$NetBSD: UPDATING,v 1.335 2022/11/17 06:40:38 chs Exp $
+$NetBSD: UPDATING,v 1.342 2023/07/19 17:49:40 martin Exp $
 
 This file (UPDATING) is intended to be a brief reference to recent
 changes that might cause problems in the build process, and a guide for
@@ -19,8 +19,45 @@ See also: BUILDING, build.sh, Makefile.
 Recent changes:
 ^^^^^^^^^^^^^^^
 
-20221116:
+20230718:
+	build.sh will use mk.conf in the same directory as build.sh instead
+	of /etc/mk.conf, unless MAKECONF is already defined in the environment.
 
+20230714:
+	Import of gcc 10.5 requires a clean build of at least tools/gcc
+	and external/gpl3/gcc* object directories. An update build
+	without cleaning will result in obscure failures in rare corner
+	cases.
+
+20230604:
+	Building native kernels with the installed make(1) instead of
+	the $TOOLDIR/bin/nbmake-${arch} wrapper will fail if userland
+	has not been updated. Note that this is an unsupported build
+	configuration (but usually works if userland is -current enough).
+
+20230523:
+	ctfmerge was fixed as macOS host tool. This may require a clean tools
+	rebuild to detect the update to tools/compat/configure.
+
+20230515:
+	New openssl build requires removal of the crypto/external/bsd/openssl
+	and tests/crypto/libcrypto subdirectories in the ${OBJDIR} hierachy.
+	Otherwise test results may be wrong due to wrong "golden" output
+	files being installed.
+
+20230322:
+	Fixes for moved /lib/libisns* mean that builds will complain about
+	./usr/lib/libisns* being missing until src/lib/libisns is forced
+	to (re)install the files, including the symlinks.  The simplest
+	way is to clean this subdir before building.
+
+20230112:
+	New binutils require an updated ld.elf_so. If you are doing
+	(unsupported) in-place self builds (with the -E flag to build.sh),
+	make sure to have installed latest ld.elf_so before you rebuild
+	userland.
+
+20221116:
 	The addition to NetBSD's version of UFS2 of support for extended
 	attributes broke backward compatibility with previous releases
 	of NetBSD, so UFS2 has been restored to being compatible with

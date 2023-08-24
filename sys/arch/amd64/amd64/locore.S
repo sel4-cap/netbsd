@@ -1,4 +1,4 @@
-/*	$NetBSD: locore.S,v 1.214.4.1 2023/05/13 13:26:57 martin Exp $	*/
+/*	$NetBSD: locore.S,v 1.223 2023/07/16 19:55:43 riastradh Exp $	*/
 
 /*
  * Copyright-o-rama!
@@ -313,7 +313,7 @@
 	ELFNOTE(Xen, XEN_ELFNOTE_FEATURES,       .asciz, "writable_descriptor_tables|auto_translated_physmap|supervisor_mode_kernel|hvm_callback_vector")
 	ELFNOTE(Xen, XEN_ELFNOTE_PAE_MODE,       .asciz, "yes")
 	ELFNOTE(Xen, XEN_ELFNOTE_L1_MFN_VALID,   .long,  PTE_P, PTE_P)\
-	ELFNOTE(Xen, XEN_ELFNOTE_LOADER,         .asciz, "generic")     
+	ELFNOTE(Xen, XEN_ELFNOTE_LOADER,         .asciz, "generic")
 	ELFNOTE(Xen, XEN_ELFNOTE_SUSPEND_CANCEL, .long,  0)
 #if NKSYMS > 0 || defined(DDB) || defined(MODULAR)
 	ELFNOTE(Xen, XEN_ELFNOTE_BSD_SYMTAB,     .asciz, "yes")
@@ -428,11 +428,11 @@ gdtdesc32:
 	.word	gdt32end - gdt32
 	.long	RELOC(gdt32)
 	.long	0
-gdt32:  
+gdt32:
 	.long	0			# null descriptor
 	.long	0
 	.long	0x0000ffff		# %cs
-	.long	0x00cf9a00 
+	.long	0x00cf9a00
 	.long	0x0000ffff		# %ds, %es, %ss
 	.long	0x00cf9200
 gdt32end:
@@ -460,7 +460,7 @@ ENTRY(start)
 #ifdef SELFRELOC
 	call	next
 next:	pop	%edi
-	sub     $(next - kernel_text), %edi 
+	sub     $(next - kernel_text), %edi
 
 	/* If not KERNBASE, reloc ourselves to KERNBASE */
 	cmpl	$(KERNTEXTOFF_LO - KERNBASE_LO), %edi
@@ -974,6 +974,20 @@ longmode_hi:
 
 	movl	$VM_GUEST_XENPV, _C_LABEL(vm_guest)
 
+	/*
+	 * Initialize cpu_info_primary.ci_self := &cpu_info_primary,
+	 * and initialize some MSRs with
+	 * cpu_init_msrs(&cpu_info_primary, full=true).  This sets up
+	 * SYSCALL/SYSRET (XXX why?) and %fs/%gs, which is needed for
+	 * the %gs-relative addressing used by CPUVAR(...), curcpu(),
+	 * and curlwp.
+	 *
+	 * XXX Is it necessary to set cpu_info_primary.ci_self here?
+	 * Isn't it statically initialized in x86/cpu.c?
+	 *
+	 * XXX Why do we immediately clear the segment registers just
+	 * afterward?
+	 */
 	movq	$cpu_info_primary,%rdi
 	movq	%rdi,CPU_INFO_SELF(%rdi) /* ci->ci_self = ci */
 	movq	$1,%rsi
@@ -1028,10 +1042,10 @@ ENTRY(start_xen32)
 	jmp     $GSEL(GCODE_SEL, SEL_KPL), $RELOC(.Lreload_cs)
 
 .Lreload_cs:
-	movw    $GSEL(GDATA_SEL, SEL_KPL), %ax          
+	movw    $GSEL(GDATA_SEL, SEL_KPL), %ax
 	movw    %ax, %ds
 	movw    %ax, %es
-	movw    %ax, %ss   
+	movw    %ax, %ss
 
 	/* we need a valid stack */
 	movl	$RELOC(tmpstk),%esp
@@ -1188,8 +1202,32 @@ ENTRY(cpu_switchto)
 	movq	PCB_RBP(%r14),%rbp
 
 	/*
-	 * Set curlwp.  This must be globally visible in order to permit
-	 * non-interlocked mutex release.
+	 * Issue XCHG, rather than MOV, to set ci_curlwp := newlwp in
+	 * order to coordinate mutex_exit on this CPU with
+	 * mutex_vector_enter on another CPU.
+	 *
+	 * 1. Any prior mutex_exit by oldlwp must be visible to other
+	 *    CPUs before we set ci_curlwp := newlwp on this one,
+	 *    requiring a store-before-store barrier.
+	 *
+	 *    (This is always guaranteed by the x86 memory model, TSO,
+	 *    but other architectures require a explicit barrier before
+	 *    the store to ci->ci_curlwp.)
+	 *
+	 * 2. ci_curlwp := newlwp must be visible on all other CPUs
+	 *    before any subsequent mutex_exit by newlwp can even test
+	 *    whether there might be waiters, requiring a
+	 *    store-before-load barrier.
+	 *
+	 *    (This is the only ordering x86 TSO ever requires any kind
+	 *    of barrier for -- in this case, we take advantage of the
+	 *    sequential consistency implied by XCHG to obviate the
+	 *    need for MFENCE or something.)
+	 *
+	 * See kern_mutex.c for details -- this is necessary for
+	 * adaptive mutexes to detect whether the lwp is on the CPU in
+	 * order to safely block without requiring atomic r/m/w in
+	 * mutex_exit.
 	 */
 	movq	%r12,%rcx
 	xchgq	%rcx,CPUVAR(CURLWP)
@@ -1538,7 +1576,7 @@ SYSCALL_ENTRY	syscall_svs,is_svs=1
 #endif
 
 IDTVEC(syscall32)
-	sysret		/* go away please */
+	sysretl		/* go away please */
 IDTVEC_END(syscall32)
 
 	TEXT_USER_END
@@ -1747,7 +1785,7 @@ LABEL(nomds_leave_end)
 
 #ifdef SELFRELOC
 /*
- * selfreloc(loadddr edi)
+ * selfreloc(loadaddr edi)
  * This is adapted from sys/arch/i386/i386/locore.S
  */
 	.code32
@@ -1760,7 +1798,7 @@ ENTRY(selfreloc_start)
 
 #if defined(NO_OVERLAP)
         movl    %ecx, %eax
-#else 
+#else
         movl    %edi, %eax
         subl    %esi, %eax
         cmpl    %ecx, %eax      /* overlapping? */

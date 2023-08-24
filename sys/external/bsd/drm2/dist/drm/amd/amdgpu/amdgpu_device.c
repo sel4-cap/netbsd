@@ -1,4 +1,4 @@
-/*	$NetBSD: amdgpu_device.c,v 1.17.4.2 2023/08/01 16:14:59 martin Exp $	*/
+/*	$NetBSD: amdgpu_device.c,v 1.19 2023/05/25 12:07:43 riastradh Exp $	*/
 
 /*
  * Copyright 2008 Advanced Micro Devices, Inc.
@@ -28,7 +28,7 @@
  *          Jerome Glisse
  */
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: amdgpu_device.c,v 1.17.4.2 2023/08/01 16:14:59 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: amdgpu_device.c,v 1.19 2023/05/25 12:07:43 riastradh Exp $");
 
 #include <linux/power_supply.h>
 #include <linux/kthread.h>

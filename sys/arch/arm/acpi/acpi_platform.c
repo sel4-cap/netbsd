@@ -1,4 +1,4 @@
-/* $NetBSD: acpi_platform.c,v 1.34 2022/11/16 11:54:26 skrll Exp $ */
+/* $NetBSD: acpi_platform.c,v 1.36 2023/04/07 08:55:29 skrll Exp $ */
 
 /*-
  * Copyright (c) 2018 The NetBSD Foundation, Inc.
@@ -35,7 +35,7 @@
 #include "opt_multiprocessor.h"
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: acpi_platform.c,v 1.34 2022/11/16 11:54:26 skrll Exp $");
+__KERNEL_RCSID(0, "$NetBSD: acpi_platform.c,v 1.36 2023/04/07 08:55:29 skrll Exp $");
 
 #include <sys/param.h>
 #include <sys/bus.h>
@@ -45,7 +45,6 @@ __KERNEL_RCSID(0, "$NetBSD: acpi_platform.c,v 1.34 2022/11/16 11:54:26 skrll Exp
 #include <sys/kprintf.h>
 
 #include <dev/fdt/fdtvar.h>
-#include <arm/fdt/arm_fdtvar.h>
 
 #include <uvm/uvm_extern.h>
 
@@ -188,7 +187,10 @@ acpi_platform_attach_uart(ACPI_TABLE_SPCR *spcr)
 	case ACPI_DBG2_ARM_PL011:
 	case ACPI_DBG2_ARM_SBSA_32BIT:
 	case ACPI_DBG2_ARM_SBSA_GENERIC:
-		plcom_console.pi_type = PLCOM_TYPE_PL011;
+		if (spcr->InterfaceType == ACPI_DBG2_ARM_PL011)
+			plcom_console.pi_type = PLCOM_TYPE_PL011;
+		else
+			plcom_console.pi_type = PLCOM_TYPE_GENERIC_UART;
 		plcom_console.pi_iot = &arm_generic_bs_tag;
 		plcom_console.pi_iobase = le64toh(spcr->SerialPort.Address);
 		plcom_console.pi_size = PL011COM_UART_SIZE;
@@ -405,15 +407,15 @@ acpi_platform_uart_freq(void)
 	return 0;
 }
 
-static const struct arm_platform acpi_platform = {
-	.ap_devmap = acpi_platform_devmap,
-	.ap_bootstrap = acpi_platform_bootstrap,
-	.ap_startup = acpi_platform_startup,
-	.ap_init_attach_args = acpi_platform_init_attach_args,
-	.ap_device_register = acpi_platform_device_register,
-	.ap_reset = acpi_platform_reset,
-	.ap_delay = gtmr_delay,
-	.ap_uart_freq = acpi_platform_uart_freq,
+static const struct fdt_platform acpi_platform = {
+	.fp_devmap = acpi_platform_devmap,
+	.fp_bootstrap = acpi_platform_bootstrap,
+	.fp_startup = acpi_platform_startup,
+	.fp_init_attach_args = acpi_platform_init_attach_args,
+	.fp_device_register = acpi_platform_device_register,
+	.fp_reset = acpi_platform_reset,
+	.fp_delay = gtmr_delay,
+	.fp_uart_freq = acpi_platform_uart_freq,
 };
 
-ARM_PLATFORM(acpi, "netbsd,generic-acpi", &acpi_platform);
+FDT_PLATFORM(acpi, "netbsd,generic-acpi", &acpi_platform);

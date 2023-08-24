@@ -1,4 +1,4 @@
-/*      $NetBSD: if_xennet_xenbus.c,v 1.128.20.1 2023/07/31 15:23:02 martin Exp $      */
+/*      $NetBSD: if_xennet_xenbus.c,v 1.129 2023/02/25 00:32:49 riastradh Exp $      */
 
 /*
  * Copyright (c) 2006 Manuel Bouyer.
@@ -81,7 +81,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: if_xennet_xenbus.c,v 1.128.20.1 2023/07/31 15:23:02 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: if_xennet_xenbus.c,v 1.129 2023/02/25 00:32:49 riastradh Exp $");
 
 #include "opt_xen.h"
 #include "opt_nfs_boot.h"

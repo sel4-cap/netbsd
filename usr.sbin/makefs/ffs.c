@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: ffs.c,v 1.73.2.1 2023/05/13 11:51:14 martin Exp $	*/
+=======
+/*	$NetBSD: ffs.c,v 1.74 2023/01/07 19:41:30 chs Exp $	*/
+>>>>>>> trunk
 
 /*
  * Copyright (c) 2001 Wasabi Systems, Inc.
@@ -71,7 +75,11 @@
 
 #include <sys/cdefs.h>
 #if defined(__RCSID) && !defined(__lint)
+<<<<<<< HEAD
 __RCSID("$NetBSD: ffs.c,v 1.73.2.1 2023/05/13 11:51:14 martin Exp $");
+=======
+__RCSID("$NetBSD: ffs.c,v 1.74 2023/01/07 19:41:30 chs Exp $");
+>>>>>>> trunk
 #endif	/* !__lint */
 
 #include <sys/param.h>

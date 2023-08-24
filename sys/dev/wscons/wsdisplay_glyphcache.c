@@ -1,4 +1,4 @@
-/*	$NetBSD: wsdisplay_glyphcache.c,v 1.11.30.1 2023/07/05 16:09:50 martin Exp $	*/
+/*	$NetBSD: wsdisplay_glyphcache.c,v 1.12 2023/06/08 05:48:41 macallan Exp $	*/
 
 /*
  * Copyright (c) 2012 Michael Lorenz

@@ -1,4 +1,4 @@
-/*	$NetBSD: ppp_tty.c,v 1.71.2.1 2022/12/21 19:58:15 martin Exp $	*/
+/*	$NetBSD: ppp_tty.c,v 1.72 2022/12/21 19:08:22 chs Exp $	*/
 /*	Id: ppp_tty.c,v 1.3 1996/07/01 01:04:11 paulus Exp 	*/
 
 /*
@@ -93,7 +93,7 @@
 /* from NetBSD: if_ppp.c,v 1.15.2.2 1994/07/28 05:17:58 cgd Exp */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: ppp_tty.c,v 1.71.2.1 2022/12/21 19:58:15 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: ppp_tty.c,v 1.72 2022/12/21 19:08:22 chs Exp $");
 
 #ifdef _KERNEL_OPT
 #include "ppp.h"

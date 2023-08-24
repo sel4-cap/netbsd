@@ -1,4 +1,4 @@
-/*	$NetBSD: exec.c,v 1.78.4.1 2023/05/13 13:26:57 martin Exp $	 */
+/*	$NetBSD: exec.c,v 1.79 2023/04/20 00:42:24 manu Exp $	 */
 
 /*
  * Copyright (c) 2008, 2009 The NetBSD Foundation, Inc.

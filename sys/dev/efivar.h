@@ -1,4 +1,4 @@
-/* $NetBSD: efivar.h,v 1.1.4.1 2023/08/01 16:05:12 martin Exp $ */
+/* $NetBSD: efivar.h,v 1.2 2023/05/22 16:27:58 riastradh Exp $ */
 
 /*-
  * Copyright (c) 2021 Jared McNeill <jmcneill@invisible.ca>

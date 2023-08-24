@@ -1,4 +1,4 @@
-/* $NetBSD: kauth.h,v 1.87.4.2 2023/01/13 19:14:13 martin Exp $ */
+/* $NetBSD: kauth.h,v 1.89 2023/01/05 18:29:45 jakllsch Exp $ */
 
 /*-
  * Copyright (c) 2005, 2006 Elad Efrat <elad@NetBSD.org>  

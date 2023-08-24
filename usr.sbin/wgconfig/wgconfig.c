@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: wgconfig.c,v 1.5.6.1 2023/06/08 11:12:22 martin Exp $	*/
+=======
+/*	$NetBSD: wgconfig.c,v 1.6 2023/05/07 16:05:07 oster Exp $	*/
+>>>>>>> trunk
 
 /*
  * Copyright (C) Ryota Ozaki <ozaki.ryota@gmail.com>
@@ -30,7 +34,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __RCSID("$NetBSD: wgconfig.c,v 1.5.6.1 2023/06/08 11:12:22 martin Exp $");
+=======
+__RCSID("$NetBSD: wgconfig.c,v 1.6 2023/05/07 16:05:07 oster Exp $");
+>>>>>>> trunk
 
 #include <sys/ioctl.h>
 

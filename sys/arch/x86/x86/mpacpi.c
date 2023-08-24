@@ -1,4 +1,4 @@
-/*	$NetBSD: mpacpi.c,v 1.109.4.1 2023/03/30 11:43:17 martin Exp $	*/
+/*	$NetBSD: mpacpi.c,v 1.110 2023/03/24 12:25:28 bouyer Exp $	*/
 
 /*
  * Copyright (c) 2003 Wasabi Systems, Inc.
@@ -36,7 +36,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: mpacpi.c,v 1.109.4.1 2023/03/30 11:43:17 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: mpacpi.c,v 1.110 2023/03/24 12:25:28 bouyer Exp $");
 
 #include "acpica.h"
 #include "opt_acpi.h"

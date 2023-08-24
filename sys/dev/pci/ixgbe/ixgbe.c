@@ -1,4 +1,4 @@
-/* $NetBSD: ixgbe.c,v 1.324.2.1 2023/06/21 19:16:12 martin Exp $ */
+/* $NetBSD: ixgbe.c,v 1.326 2023/05/15 08:01:22 msaitoh Exp $ */
 
 /******************************************************************************
 
@@ -64,7 +64,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: ixgbe.c,v 1.324.2.1 2023/06/21 19:16:12 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: ixgbe.c,v 1.326 2023/05/15 08:01:22 msaitoh Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_inet.h"

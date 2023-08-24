@@ -1,4 +1,4 @@
-/*	$NetBSD: acpi_func.h,v 1.6.30.1 2023/08/01 15:35:38 martin Exp $	*/
+/*	$NetBSD: acpi_func.h,v 1.7 2023/05/10 01:23:27 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2000 Michael Smith

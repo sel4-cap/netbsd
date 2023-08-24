@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: menus.mi,v 1.27.2.1 2023/02/24 13:48:28 martin Exp $	*/
+=======
+/*	$NetBSD: menus.mi,v 1.28 2023/02/12 20:14:32 abs Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2003 The NetBSD Foundation, Inc.

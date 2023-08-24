@@ -1,4 +1,4 @@
-/*	$NetBSD: amdgpu_gart.c,v 1.10.4.1 2023/03/20 17:24:14 martin Exp $	*/
+/*	$NetBSD: amdgpu_gart.c,v 1.11 2023/03/01 08:14:13 riastradh Exp $	*/
 
 /*
  * Copyright 2008 Advanced Micro Devices, Inc.
@@ -29,7 +29,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: amdgpu_gart.c,v 1.10.4.1 2023/03/20 17:24:14 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: amdgpu_gart.c,v 1.11 2023/03/01 08:14:13 riastradh Exp $");
 
 #include <linux/pci.h>
 #include <linux/vmalloc.h>

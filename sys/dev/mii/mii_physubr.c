@@ -1,4 +1,4 @@
-/*	$NetBSD: mii_physubr.c,v 1.101.4.2 2023/06/21 22:36:46 martin Exp $	*/
+/*	$NetBSD: mii_physubr.c,v 1.103 2023/05/22 02:12:13 msaitoh Exp $	*/
 
 /*-
  * Copyright (c) 1998, 1999, 2000, 2001 The NetBSD Foundation, Inc.
@@ -35,7 +35,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: mii_physubr.c,v 1.101.4.2 2023/06/21 22:36:46 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: mii_physubr.c,v 1.103 2023/05/22 02:12:13 msaitoh Exp $");
 
 #include <sys/param.h>
 #include <sys/device.h>

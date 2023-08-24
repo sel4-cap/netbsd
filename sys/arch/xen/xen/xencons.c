@@ -1,4 +1,4 @@
-/*	$NetBSD: xencons.c,v 1.50.20.1 2023/07/31 15:23:02 martin Exp $	*/
+/*	$NetBSD: xencons.c,v 1.53 2023/02/25 00:35:40 riastradh Exp $	*/
 
 /*
  * Copyright (c) 2006 Manuel Bouyer.
@@ -53,7 +53,7 @@
 
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: xencons.c,v 1.50.20.1 2023/07/31 15:23:02 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: xencons.c,v 1.53 2023/02/25 00:35:40 riastradh Exp $");
 
 #include "opt_xen.h"
 

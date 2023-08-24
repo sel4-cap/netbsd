@@ -1,4 +1,4 @@
-/*	$NetBSD: vm_machdep.c,v 1.107.70.1 2023/03/22 19:00:47 martin Exp $ */
+/*	$NetBSD: vm_machdep.c,v 1.108 2023/03/20 11:19:29 hannken Exp $ */
 
 /*
  * Copyright (c) 1996
@@ -49,7 +49,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: vm_machdep.c,v 1.107.70.1 2023/03/22 19:00:47 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: vm_machdep.c,v 1.108 2023/03/20 11:19:29 hannken Exp $");
 
 #include "opt_multiprocessor.h"
 

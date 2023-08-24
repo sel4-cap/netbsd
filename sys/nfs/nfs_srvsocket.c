@@ -1,4 +1,4 @@
-/*	$NetBSD: nfs_srvsocket.c,v 1.4.94.1 2022/12/20 09:54:11 martin Exp $	*/
+/*	$NetBSD: nfs_srvsocket.c,v 1.5 2022/12/20 09:40:09 hannken Exp $	*/
 
 /*
  * Copyright (c) 1989, 1991, 1993, 1995
@@ -39,7 +39,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: nfs_srvsocket.c,v 1.4.94.1 2022/12/20 09:54:11 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: nfs_srvsocket.c,v 1.5 2022/12/20 09:40:09 hannken Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

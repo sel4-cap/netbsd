@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #	$NetBSD: Makefile.inc,v 1.7.76.1 2023/02/22 12:59:17 martin Exp $
+=======
+#	$NetBSD: Makefile.inc,v 1.8 2023/02/11 19:12:31 tsutsui Exp $
+>>>>>>> trunk
 #
 #	etc.next68k/Makefile.inc -- next68k-specific etc Makefile targets
 #

@@ -1,4 +1,4 @@
-/* $NetBSD: igpio.c,v 1.4.4.1 2023/01/23 12:15:59 martin Exp $ */
+/* $NetBSD: igpio.c,v 1.5 2023/01/07 03:27:01 msaitoh Exp $ */
 
 /*
  * Copyright (c) 2021,2022 Emmanuel Dreyfus

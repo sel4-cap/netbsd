@@ -1,4 +1,4 @@
-/*	$NetBSD: mipssim_dma.c,v 1.1.20.1 2022/12/28 14:38:07 martin Exp $	*/
+/*	$NetBSD: mipssim_dma.c,v 1.2 2022/12/28 11:40:35 he Exp $	*/
 
 /*-
  * Copyright (c) 2021 The NetBSD Foundation, Inc.
@@ -34,7 +34,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: mipssim_dma.c,v 1.1.20.1 2022/12/28 14:38:07 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: mipssim_dma.c,v 1.2 2022/12/28 11:40:35 he Exp $");
 
 #include <sys/param.h>
 #include <sys/device.h>

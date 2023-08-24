@@ -1,4 +1,4 @@
-/*	$NetBSD: vm_machdep.c,v 1.17.4.1 2023/07/31 13:36:30 martin Exp $	*/
+/*	$NetBSD: vm_machdep.c,v 1.18 2023/02/23 14:55:47 riastradh Exp $	*/
 
 /*
  * Copyright (c) 2006 The NetBSD Foundation, Inc.

@@ -1,4 +1,4 @@
-/* $NetBSD: aarch64_machdep.c,v 1.66 2022/08/19 08:17:32 ryo Exp $ */
+/* $NetBSD: aarch64_machdep.c,v 1.70 2023/07/16 21:36:40 riastradh Exp $ */
 
 /*-
  * Copyright (c) 2014 The NetBSD Foundation, Inc.
@@ -30,7 +30,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(1, "$NetBSD: aarch64_machdep.c,v 1.66 2022/08/19 08:17:32 ryo Exp $");
+__KERNEL_RCSID(1, "$NetBSD: aarch64_machdep.c,v 1.70 2023/07/16 21:36:40 riastradh Exp $");
 
 #include "opt_arm_debug.h"
 #include "opt_cpuoptions.h"
@@ -74,6 +74,7 @@ __KERNEL_RCSID(1, "$NetBSD: aarch64_machdep.c,v 1.66 2022/08/19 08:17:32 ryo Exp
 #include <aarch64/kcore.h>
 
 #include <arm/fdt/arm_fdtvar.h>
+#include <dev/fdt/fdtvar.h>
 #include <dev/fdt/fdt_memory.h>
 
 #ifdef VERBOSE_INIT_ARM
@@ -288,7 +289,6 @@ initarm_common(vaddr_t kvm_base, vsize_t kvm_size,
 	paddr_t kernstart_phys __unused = KERN_VTOPHYS(kernstart);
 	paddr_t kernend_phys __unused = KERN_VTOPHYS(kernend);
 
-	/* XXX: arm/arm32/bus_dma.c refers physical_{start,end} */
 	physical_start = bootconfig.dram[0].address;
 	physical_end = bootconfig.dram[bootconfig.dramblocks - 1].address +
 		       ptoa(bootconfig.dram[bootconfig.dramblocks - 1].pages);
@@ -355,7 +355,7 @@ initarm_common(vaddr_t kvm_base, vsize_t kvm_size,
 	    module_end,
 #endif
 	    VM_KERNEL_VM_BASE,
-	    VM_KERNEL_IO_ADDRESS,
+	    VM_KERNEL_IO_BASE,
 	    VM_MAX_KERNEL_ADDRESS);
 
 #ifdef DDB
@@ -454,18 +454,17 @@ initarm_common(vaddr_t kvm_base, vsize_t kvm_size,
 /*
  * machine dependent system variables.
  */
-static xcfunc_t
+static void
 set_user_tagged_address(void *arg1, void *arg2)
 {
 	uint64_t enable = PTRTOUINT64(arg1);
 	uint64_t tcr = reg_tcr_el1_read();
+
 	if (enable)
 		tcr |= TCR_TBI0;
 	else
 		tcr &= ~TCR_TBI0;
 	reg_tcr_el1_write(tcr);
-
-	return 0;
 }
 
 static int
@@ -487,8 +486,8 @@ sysctl_machdep_tagged_address(SYSCTLFN_ARGS)
 		return EINVAL;
 
 	if (cur != val) {
-		uint64_t where = xc_broadcast(0,
-		    (xcfunc_t)set_user_tagged_address, UINT64TOPTR(val), NULL);
+		uint64_t where = xc_broadcast(0, set_user_tagged_address,
+		    UINT64TOPTR(val), NULL);
 		xc_wait(where);
 	}
 
@@ -677,9 +676,9 @@ cpu_startup(void)
 	consinit();
 
 #ifdef FDT
-	const struct arm_platform * const plat = arm_fdt_platform();
-	if (plat->ap_startup != NULL)
-		plat->ap_startup();
+	const struct fdt_platform * const plat = fdt_platform_find();
+	if (plat->fp_startup != NULL)
+		plat->fp_startup();
 #endif
 
 	/*

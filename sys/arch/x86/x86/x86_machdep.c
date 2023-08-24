@@ -1,4 +1,4 @@
-/*	$NetBSD: x86_machdep.c,v 1.152.4.1 2022/12/24 09:26:56 martin Exp $	*/
+/*	$NetBSD: x86_machdep.c,v 1.153 2022/12/23 16:05:44 bouyer Exp $	*/
 
 /*-
  * Copyright (c) 2002, 2006, 2007 YAMAMOTO Takashi,
@@ -31,7 +31,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: x86_machdep.c,v 1.152.4.1 2022/12/24 09:26:56 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: x86_machdep.c,v 1.153 2022/12/23 16:05:44 bouyer Exp $");
 
 #include "opt_modular.h"
 #include "opt_physmem.h"

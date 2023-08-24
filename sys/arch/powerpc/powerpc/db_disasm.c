@@ -1,8 +1,8 @@
-/*	$NetBSD: db_disasm.c,v 1.29.20.1 2023/08/01 14:36:59 martin Exp $	*/
+/*	$NetBSD: db_disasm.c,v 1.31 2023/04/12 19:47:41 riastradh Exp $	*/
 /*	$OpenBSD: db_disasm.c,v 1.2 1996/12/28 06:21:48 rahnds Exp $	*/
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: db_disasm.c,v 1.29.20.1 2023/08/01 14:36:59 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: db_disasm.c,v 1.31 2023/04/12 19:47:41 riastradh Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_ppcarch.h"

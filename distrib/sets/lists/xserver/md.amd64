@@ -1,4 +1,4 @@
-# $NetBSD: md.amd64,v 1.124 2022/07/15 04:47:56 mrg Exp $
+# $NetBSD: md.amd64,v 1.126 2023/06/19 08:32:39 mrg Exp $
 ./usr/X11R7/bin/X					xserver-xorg-server-bin	xorg
 ./usr/X11R7/bin/Xorg					xserver-xorg-server-bin	xorg
 ./usr/X11R7/bin/gtf					xserver-xorg-server-bin	xorg
@@ -50,7 +50,8 @@
 ./usr/X11R7/lib/modules/dri/unichrome_dri.so.0		xserver-obsolete	obsolete
 ./usr/X11R7/lib/modules/drivers/amdgpu_drv.so		xserver-xf86-video-amdgpu-drivers	xorg,xorg_server_ver=120
 ./usr/X11R7/lib/modules/drivers/amdgpu_drv.so.19	xserver-obsolete	obsolete
-./usr/X11R7/lib/modules/drivers/amdgpu_drv.so.21	xserver-xf86-video-amdgpu-drivers	xorg,xorg_server_ver=120
+./usr/X11R7/lib/modules/drivers/amdgpu_drv.so.21	xserver-obsolete	obsolete
+./usr/X11R7/lib/modules/drivers/amdgpu_drv.so.23	xserver-xf86-video-amdgpu-drivers	xorg,xorg_server_ver=120
 ./usr/X11R7/lib/modules/drivers/apm_drv.so		xserver-obsolete	xorg,xorg_server_ver=120,obsolete
 ./usr/X11R7/lib/modules/drivers/apm_drv.so		xserver-xf86-video-apm-drivers	xorg,xorg_server_ver=110
 ./usr/X11R7/lib/modules/drivers/apm_drv.so.1		xserver-obsolete	xorg,xorg_server_ver=120,obsolete
@@ -63,7 +64,8 @@
 ./usr/X11R7/lib/modules/drivers/ast_drv.so.1		xserver-xf86-video-ast-drivers	xorg
 ./usr/X11R7/lib/modules/drivers/ati_drv.so		xserver-xf86-video-ati-drivers	xorg
 ./usr/X11R7/lib/modules/drivers/ati_drv.so.6		xserver-obsolete	obsolete
-./usr/X11R7/lib/modules/drivers/ati_drv.so.19		xserver-xf86-video-ati-drivers	xorg
+./usr/X11R7/lib/modules/drivers/ati_drv.so.19		xserver-obsolete	obsolete
+./usr/X11R7/lib/modules/drivers/ati_drv.so.22		xserver-xf86-video-ati-drivers	xorg
 ./usr/X11R7/lib/modules/drivers/ch7017_drv.so		-unknown-	xorg,xorg_server_ver=110
 ./usr/X11R7/lib/modules/drivers/ch7017_drv.so		xserver-obsolete	xorg,xorg_server_ver=120,obsolete
 ./usr/X11R7/lib/modules/drivers/ch7017_drv.so.2		-unknown-	xorg,xorg_server_ver=110
@@ -127,7 +129,8 @@
 ./usr/X11R7/lib/modules/drivers/r128_drv.so		xserver-xf86-video-r128-drivers	xorg
 ./usr/X11R7/lib/modules/drivers/r128_drv.so.6		xserver-xf86-video-r128-drivers	xorg
 ./usr/X11R7/lib/modules/drivers/radeon_drv.so		xserver-xf86-video-radeon-kms-drivers	xorg
-./usr/X11R7/lib/modules/drivers/radeon_drv.so.19	xserver-xf86-video-radeon-kms-drivers	xorg
+./usr/X11R7/lib/modules/drivers/radeon_drv.so.19	xserver-obsolete	xorg,obsolete
+./usr/X11R7/lib/modules/drivers/radeon_drv.so.22	xserver-xf86-video-radeon-kms-drivers	xorg
 ./usr/X11R7/lib/modules/drivers/radeon_drv_old.so	xserver-xf86-video-radeon-kms-drivers	xorg
 ./usr/X11R7/lib/modules/drivers/radeon_drv_old.so.6	xserver-xf86-video-radeon-kms-drivers	xorg
 ./usr/X11R7/lib/modules/drivers/radeonhd_drv.so		xserver-obsolete	xorg,obsolete

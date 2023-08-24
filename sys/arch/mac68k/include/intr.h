@@ -1,4 +1,4 @@
-/*	$NetBSD: intr.h,v 1.31.112.1 2023/08/09 17:42:03 martin Exp $	*/
+/*	$NetBSD: intr.h,v 1.32 2023/07/11 17:55:04 riastradh Exp $	*/
 
 /*
  * Copyright (C) 1997 Scott Reynolds

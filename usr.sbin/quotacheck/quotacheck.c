@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: quotacheck.c,v 1.50.2.1 2023/05/13 11:51:14 martin Exp $	*/
+=======
+/*	$NetBSD: quotacheck.c,v 1.51 2023/01/07 19:41:30 chs Exp $	*/
+>>>>>>> trunk
 
 /*
  * Copyright (c) 1980, 1990, 1993
@@ -42,7 +46,11 @@ __COPYRIGHT("@(#) Copyright (c) 1980, 1990, 1993\
 #if 0
 static char sccsid[] = "@(#)quotacheck.c	8.6 (Berkeley) 4/28/95";
 #else
+<<<<<<< HEAD
 __RCSID("$NetBSD: quotacheck.c,v 1.50.2.1 2023/05/13 11:51:14 martin Exp $");
+=======
+__RCSID("$NetBSD: quotacheck.c,v 1.51 2023/01/07 19:41:30 chs Exp $");
+>>>>>>> trunk
 #endif
 #endif /* not lint */
 

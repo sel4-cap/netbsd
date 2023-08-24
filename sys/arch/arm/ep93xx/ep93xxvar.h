@@ -1,4 +1,4 @@
-/*	$NetBSD: ep93xxvar.h,v 1.6.68.1 2023/05/02 17:52:39 martin Exp $ */
+/*	$NetBSD: ep93xxvar.h,v 1.7 2023/05/02 09:49:33 jmcneill Exp $ */
 /*
  * Copyright (c) 2004 Jesse Off
  * All rights reserved.

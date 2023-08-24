@@ -1,4 +1,4 @@
-/*	$NetBSD: efi.h,v 1.2.4.1 2023/08/01 16:05:12 martin Exp $	*/
+/*	$NetBSD: efi.h,v 1.3 2023/05/22 16:27:49 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2004 Marcel Moolenaar

@@ -1,4 +1,4 @@
-/*	$NetBSD: consinit.c,v 1.35.4.1 2023/03/30 11:45:34 martin Exp $	*/
+/*	$NetBSD: consinit.c,v 1.36 2023/03/24 12:28:42 bouyer Exp $	*/
 
 /*
  * Copyright (c) 1998
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: consinit.c,v 1.35.4.1 2023/03/30 11:45:34 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: consinit.c,v 1.36 2023/03/24 12:28:42 bouyer Exp $");
 
 #include "opt_kgdb.h"
 #include "opt_puc.h"

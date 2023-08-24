@@ -1,4 +1,4 @@
-/*	$NetBSD: nfs_serv.c,v 1.183.4.1 2023/03/30 11:57:26 martin Exp $	*/
+/*	$NetBSD: nfs_serv.c,v 1.184 2023/03/23 19:53:01 riastradh Exp $	*/
 
 /*
  * Copyright (c) 1989, 1993
@@ -55,7 +55,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: nfs_serv.c,v 1.183.4.1 2023/03/30 11:57:26 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: nfs_serv.c,v 1.184 2023/03/23 19:53:01 riastradh Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

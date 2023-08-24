@@ -1,4 +1,4 @@
-/*	$NetBSD: pmap.c,v 1.195.2.1 2023/06/21 19:09:07 martin Exp $	   */
+/*	$NetBSD: pmap.c,v 1.196 2023/03/26 12:21:09 ragge Exp $	   */
 /*
  * Copyright (c) 1994, 1998, 1999, 2003 Ludd, University of Lule}, Sweden.
  * All rights reserved.
@@ -25,7 +25,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: pmap.c,v 1.195.2.1 2023/06/21 19:09:07 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: pmap.c,v 1.196 2023/03/26 12:21:09 ragge Exp $");
 
 #include "opt_ddb.h"
 #include "opt_cputype.h"

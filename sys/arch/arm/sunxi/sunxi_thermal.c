@@ -1,4 +1,4 @@
-/* $NetBSD: sunxi_thermal.c,v 1.14.4.1 2023/05/04 18:56:36 martin Exp $ */
+/* $NetBSD: sunxi_thermal.c,v 1.16 2023/05/02 23:08:58 jmcneill Exp $ */
 
 /*-
  * Copyright (c) 2016-2017 Jared McNeill <jmcneill@invisible.ca>
@@ -31,7 +31,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: sunxi_thermal.c,v 1.14.4.1 2023/05/04 18:56:36 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: sunxi_thermal.c,v 1.16 2023/05/02 23:08:58 jmcneill Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

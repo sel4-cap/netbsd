@@ -1,4 +1,4 @@
-/*	$NetBSD: null_vfsops.c,v 1.100.2.1 2023/02/06 16:57:24 martin Exp $	*/
+/*	$NetBSD: null_vfsops.c,v 1.101 2023/02/06 10:32:58 hannken Exp $	*/
 
 /*
  * Copyright (c) 1999 National Aeronautics & Space Administration
@@ -76,7 +76,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: null_vfsops.c,v 1.100.2.1 2023/02/06 16:57:24 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: null_vfsops.c,v 1.101 2023/02/06 10:32:58 hannken Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

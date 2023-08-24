@@ -1,4 +1,4 @@
-/*	$NetBSD: subr_kobj.c,v 1.75 2022/10/26 23:26:45 riastradh Exp $	*/
+/*	$NetBSD: subr_kobj.c,v 1.78 2023/04/28 07:33:57 skrll Exp $	*/
 
 /*
  * Copyright (c) 2008 The NetBSD Foundation, Inc.
@@ -63,7 +63,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: subr_kobj.c,v 1.75 2022/10/26 23:26:45 riastradh Exp $");
+__KERNEL_RCSID(0, "$NetBSD: subr_kobj.c,v 1.78 2023/04/28 07:33:57 skrll Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_modular.h"
@@ -74,11 +74,12 @@ __KERNEL_RCSID(0, "$NetBSD: subr_kobj.c,v 1.75 2022/10/26 23:26:45 riastradh Exp
 #ifdef MODULAR
 
 #include <sys/param.h>
+
 #include <sys/kernel.h>
 #include <sys/kmem.h>
-#include <sys/proc.h>
 #include <sys/ksyms.h>
 #include <sys/module.h>
+#include <sys/proc.h>
 
 #include <uvm/uvm_extern.h>
 
@@ -823,7 +824,7 @@ kobj_find_section(kobj_t ko, const char *name, void **addr, size_t *size)
 	KASSERT(ko->ko_progtab != NULL);
 
 	for (i = 0; i < ko->ko_nprogtab; i++) {
-		if (strcmp(ko->ko_progtab[i].name, name) == 0) { 
+		if (strcmp(ko->ko_progtab[i].name, name) == 0) {
 			if (addr != NULL) {
 				*addr = ko->ko_progtab[i].addr;
 			}
@@ -838,7 +839,7 @@ kobj_find_section(kobj_t ko, const char *name, void **addr, size_t *size)
 }
 
 /*
- * kobj_jettison: 
+ * kobj_jettison:
  *
  *	Release object data not needed after performing relocations.
  */
@@ -876,6 +877,14 @@ kobj_jettison(kobj_t ko)
 		ko->ko_shdr = NULL;
 	}
 }
+
+const Elf_Sym *
+kobj_symbol(kobj_t ko, uintptr_t symidx)
+{
+
+	return ko->ko_symtab + symidx;
+}
+
 
 /*
  * kobj_sym_lookup:
@@ -1079,7 +1088,8 @@ kobj_relocate(kobj_t ko, bool local)
 				continue;
 			}
 			sym = ko->ko_symtab + symidx;
-			if (local != (ELF_ST_BIND(sym->st_info) == STB_LOCAL)) {
+			/* Skip non-local symbols in the first pass (local == TRUE) */
+			if (local && (ELF_ST_BIND(sym->st_info) != STB_LOCAL)) {
 				continue;
 			}
 			error = kobj_reloc(ko, base, rel, false, local);
@@ -1115,7 +1125,8 @@ kobj_relocate(kobj_t ko, bool local)
 				continue;
 			}
 			sym = ko->ko_symtab + symidx;
-			if (local != (ELF_ST_BIND(sym->st_info) == STB_LOCAL)) {
+			/* Skip non-local symbols in the first pass (local == TRUE) */
+			if (local && (ELF_ST_BIND(sym->st_info) != STB_LOCAL)) {
 				continue;
 			}
 			error = kobj_reloc(ko, base, rela, true, local);

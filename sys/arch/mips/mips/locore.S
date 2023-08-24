@@ -1,4 +1,4 @@
-/*	$NetBSD: locore.S,v 1.228.12.1 2023/07/31 13:36:31 martin Exp $	*/
+/*	$NetBSD: locore.S,v 1.231 2023/06/24 05:31:04 msaitoh Exp $	*/
 
 /*
  * Copyright (c) 1992, 1993
@@ -63,7 +63,7 @@
 #include <mips/trap.h>
 #include <mips/locore.h>
 
-RCSID("$NetBSD: locore.S,v 1.228.12.1 2023/07/31 13:36:31 martin Exp $")
+RCSID("$NetBSD: locore.S,v 1.231 2023/06/24 05:31:04 msaitoh Exp $")
 
 #include "assym.h"
 
@@ -429,7 +429,13 @@ NESTED(softint_fast_dispatch, CALLFRAME_SIZ, ra)
 	nop					# patchable load delay slot
 	SYNC_PRODUCER /* XXX fixup */	/* for mutex_enter; see cpu_switchto */
 	PTR_S	MIPS_CURLWP, CPU_INFO_CURLWP(s1)	#    ...
-	SYNC_DEKKER /* XXX fixup */	/* for mutex_enter; see cpu_switchto */
+	/*
+	 * No need for barrier after ci->ci_curlwp = softlwp -- when we
+	 * enter a softint lwp, it can't be holding any mutexes, so it
+	 * can't release any until after it has acquired them, so we
+	 * need not participate in the protocol with mutex_vector_enter
+	 * barriers here.
+	 */
 	move	s2, sp					# remember sp
 	move	s3, t0					# remember curpcb
 
@@ -662,7 +668,7 @@ END(mips_cp0_status_write)
  * mips_fpu_trap --
  *
  *	Handle a floating point interrupt (r3k) or trap (r4k).
- *	the handlers are indentical, only the reporting mechanisms differ.
+ *	the handlers are identical, only the reporting mechanisms differ.
  *
  *	mips_fpu_intr(vaddr_t pc, struct trapframe *tf)
  *

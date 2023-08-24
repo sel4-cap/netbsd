@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: kern_ksyms.c,v 1.107.4.1 2023/02/24 14:12:51 martin Exp $	*/
+=======
+/*	$NetBSD: kern_ksyms.c,v 1.108 2023/02/21 11:40:00 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2008 The NetBSD Foundation, Inc.
@@ -73,7 +77,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: kern_ksyms.c,v 1.107.4.1 2023/02/24 14:12:51 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: kern_ksyms.c,v 1.108 2023/02/21 11:40:00 riastradh Exp $");
+>>>>>>> trunk
 
 #if defined(_KERNEL) && defined(_KERNEL_OPT)
 #include "opt_copy_symtab.h"

@@ -1,4 +1,4 @@
-/*      $NetBSD: sd.c,v 1.12.60.2 2023/02/22 12:07:08 martin Exp $        */
+/*      $NetBSD: sd.c,v 1.17 2023/02/12 08:25:09 tsutsui Exp $        */
 /*
  * Copyright (c) 1994 Rolf Grossmann
  * All rights reserved.

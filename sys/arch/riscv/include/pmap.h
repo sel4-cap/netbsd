@@ -1,4 +1,4 @@
-/* $NetBSD: pmap.h,v 1.13 2022/10/20 07:18:11 skrll Exp $ */
+/* $NetBSD: pmap.h,v 1.20 2023/08/12 07:48:11 skrll Exp $ */
 
 /*
  * Copyright (c) 2014, 2019, 2021 The NetBSD Foundation, Inc.
@@ -55,8 +55,11 @@
 
 #ifdef _LP64
 #define	PTPSHIFT	3
+/* This is SV57. */
+//#define	XSEGSHIFT	(SEGSHIFT + SEGLENGTH + SEGLENGTH + SEGLENGTH)
+
 /* This is SV48. */
-//#define SEGLENGTH + SEGSHIFT + SEGSHIFT */
+//#define	XSEGSHIFT	(SEGSHIFT + SEGLENGTH + SEGLENGTH)
 
 /* This is SV39. */
 #define	XSEGSHIFT	(SEGSHIFT + SEGLENGTH)
@@ -77,7 +80,7 @@
 #define	KERNEL_PID	0
 
 #define	PMAP_HWPAGEWALKER		1
-#define	PMAP_TLB_MAX			1
+#define	PMAP_TLB_MAX			MAXCPUS
 #ifdef _LP64
 #define	PMAP_INVALID_PDETAB_ADDRESS	((pmap_pdetab_t *)(VM_MIN_KERNEL_ADDRESS - PAGE_SIZE))
 #define	PMAP_INVALID_SEGTAB_ADDRESS	((pmap_segtab_t *)(VM_MIN_KERNEL_ADDRESS - PAGE_SIZE))
@@ -87,6 +90,8 @@
 #endif
 #define	PMAP_TLB_NUM_PIDS		(__SHIFTOUT_MASK(SATP_ASID) + 1)
 #define	PMAP_TLB_BITMAP_LENGTH          PMAP_TLB_NUM_PIDS
+// Should use SBI TLB ops
+#define	PMAP_TLB_NEED_SHOOTDOWN		1
 #define	PMAP_TLB_FLUSH_ASID_ON_RESET	false
 
 #define	pmap_phys_address(x)		(x)
@@ -108,7 +113,9 @@ pmap_procwr(struct proc *p, vaddr_t va, vsize_t len)
 }
 
 #include <uvm/pmap/tlb.h>
+#include <uvm/pmap/pmap_devmap.h>
 #include <uvm/pmap/pmap_tlb.h>
+#include <uvm/pmap/pmap_synci.h>
 
 #define	PMAP_GROWKERNEL
 #define	PMAP_STEAL_MEMORY
@@ -118,33 +125,61 @@ pmap_procwr(struct proc *p, vaddr_t va, vsize_t len)
 #define	__HAVE_PMAP_MD
 struct pmap_md {
 	paddr_t md_ppn;
-	pd_entry_t *md_pdetab;
 };
 
+static inline void
+pmap_md_icache_sync_all(void)
+{
+}
+
+static inline void
+pmap_md_icache_sync_range_index(vaddr_t va, vsize_t size)
+{
+}
+
 struct vm_page *
-	pmap_md_alloc_poolpage(int flags);
+	pmap_md_alloc_poolpage(int);
 vaddr_t	pmap_md_map_poolpage(paddr_t, vsize_t);
 void	pmap_md_unmap_poolpage(vaddr_t, vsize_t);
+
 bool	pmap_md_direct_mapped_vaddr_p(vaddr_t);
-bool	pmap_md_io_vaddr_p(vaddr_t);
 paddr_t	pmap_md_direct_mapped_vaddr_to_paddr(vaddr_t);
 vaddr_t	pmap_md_direct_map_paddr(paddr_t);
 void	pmap_md_init(void);
-
+bool	pmap_md_io_vaddr_p(vaddr_t);
+bool	pmap_md_ok_to_steal_p(const uvm_physseg_t, size_t);
+void	pmap_md_pdetab_init(struct pmap *);
+void	pmap_md_pdetab_fini(struct pmap *);
+void	pmap_md_tlb_info_attach(struct pmap_tlb_info *, struct cpu_info *);
 void	pmap_md_xtab_activate(struct pmap *, struct lwp *);
 void	pmap_md_xtab_deactivate(struct pmap *);
-void	pmap_md_pdetab_init(struct pmap *);
-bool	pmap_md_ok_to_steal_p(const uvm_physseg_t, size_t);
 
-void	pmap_bootstrap(vaddr_t kstart, vaddr_t kend);
+void	pmap_bootstrap(vaddr_t, vaddr_t);
 
+vsize_t	pmap_kenter_range(vaddr_t, paddr_t, vsize_t, vm_prot_t, u_int);
+
+#ifdef _LP64
 extern vaddr_t pmap_direct_base;
 extern vaddr_t pmap_direct_end;
-#define	PMAP_DIRECT_MAP(pa)	(pmap_direct_base + (pa))
-#define	PMAP_DIRECT_UNMAP(va)	((paddr_t)(va) - pmap_direct_base)
+#define	PMAP_DIRECT_MAP(pa)	RISCV_PA_TO_KVA(pa)
+#define	PMAP_DIRECT_UNMAP(va)	RISCV_KVA_TO_PA(va)
+
+/*
+ * Other hooks for the pool allocator.
+ */
+#define	POOL_PHYSTOV(pa)	RISCV_PA_TO_KVA((paddr_t)(pa))
+#define	POOL_VTOPHYS(va)	RISCV_KVA_TO_PA((vaddr_t)(va))
+
+#endif	/* _LP64 */
 
 #define	MEGAPAGE_TRUNC(x)	((x) & ~SEGOFSET)
 #define	MEGAPAGE_ROUND(x)	MEGAPAGE_TRUNC((x) + SEGOFSET)
+
+#define	PMAP_DEV		__BIT(29)	/* 0x2000_0000 */
+
+#define	DEVMAP_ALIGN(x)		MEGAPAGE_TRUNC((x))
+#define	DEVMAP_SIZE(x)		MEGAPAGE_ROUND((x))
+#define	DEVMAP_FLAGS		PMAP_DEV
 
 #ifdef __PMAP_PRIVATE
 
@@ -156,7 +191,7 @@ pmap_md_tlb_check_entry(void *ctx, vaddr_t va, tlb_asid_t asid, pt_entry_t pte)
 }
 
 static inline void
-pmap_md_page_syncicache(struct vm_page_md *mdpg, const kcpuset_t *kc)
+pmap_md_page_syncicache(struct vm_page_md *mdpg, const kcpuset_t *onproc)
 {
 	__asm __volatile("fence\trw,rw; fence.i" ::: "memory");
 }
@@ -184,6 +219,12 @@ static inline size_t
 pmap_md_tlb_asid_max(void)
 {
 	return PMAP_TLB_NUM_PIDS - 1;
+}
+
+static inline pt_entry_t *
+pmap_md_nptep(pt_entry_t *ptep)
+{
+	return ptep + 1;
 }
 
 #endif /* __PMAP_PRIVATE */

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # $NetBSD: md.sparc64,v 1.257.2.1 2023/08/11 13:42:53 martin Exp $
+=======
+# $NetBSD: md.sparc64,v 1.262 2023/08/05 08:55:48 riastradh Exp $
+>>>>>>> trunk
 ./libexec/ld.elf_so-sparc			base-sysutil-bin	compat,pic
 ./sbin/edlabel					base-obsolete	obsolete
 ./usr/bin/fdformat				base-util-bin

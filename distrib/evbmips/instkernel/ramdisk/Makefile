@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #	$NetBSD: Makefile,v 1.15.6.1 2023/07/27 18:01:37 martin Exp $
+=======
+#	$NetBSD: Makefile,v 1.18 2023/07/25 02:38:31 gutteridge Exp $
+>>>>>>> trunk
 
 .include <bsd.own.mk>
 .include "${NETBSDSRCDIR}/distrib/common/Makefile.distrib"

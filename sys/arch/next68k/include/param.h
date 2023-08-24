@@ -1,4 +1,4 @@
-/*	$NetBSD: param.h,v 1.12.78.1 2023/02/12 11:48:56 martin Exp $	*/
+/*	$NetBSD: param.h,v 1.13 2023/02/04 08:42:45 tsutsui Exp $	*/
 
 /*
  * Copyright (c) 1988 University of Utah.

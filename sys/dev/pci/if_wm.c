@@ -1,4 +1,4 @@
-/*	$NetBSD: if_wm.c,v 1.767.2.2 2023/06/27 18:24:18 martin Exp $	*/
+/*	$NetBSD: if_wm.c,v 1.782 2023/06/23 05:36:28 msaitoh Exp $	*/
 
 /*
  * Copyright (c) 2001, 2002, 2003, 2004 Wasabi Systems, Inc.
@@ -82,7 +82,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: if_wm.c,v 1.767.2.2 2023/06/27 18:24:18 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: if_wm.c,v 1.782 2023/06/23 05:36:28 msaitoh Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_if_wm.h"

@@ -1,4 +1,4 @@
-/*	$NetBSD: cryptodev.h,v 1.50.4.1 2023/08/09 17:42:03 martin Exp $ */
+/*	$NetBSD: cryptodev.h,v 1.51 2023/07/11 10:42:16 riastradh Exp $ */
 /*	$FreeBSD: src/sys/opencrypto/cryptodev.h,v 1.2.2.6 2003/07/02 17:04:50 sam Exp $	*/
 /*	$OpenBSD: cryptodev.h,v 1.33 2002/07/17 23:52:39 art Exp $	*/
 

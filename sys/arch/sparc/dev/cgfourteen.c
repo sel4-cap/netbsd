@@ -1,4 +1,4 @@
-/*	$NetBSD: cgfourteen.c,v 1.93.4.1 2023/07/05 16:09:50 martin Exp $ */
+/*	$NetBSD: cgfourteen.c,v 1.95 2023/06/13 10:11:17 macallan Exp $ */
 
 /*
  * Copyright (c) 1996

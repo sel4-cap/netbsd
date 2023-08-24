@@ -1,4 +1,4 @@
-/*	$NetBSD: ubsec.c,v 1.62.4.1 2023/08/11 14:35:24 martin Exp $	*/
+/*	$NetBSD: ubsec.c,v 1.64 2023/08/04 07:38:53 riastradh Exp $	*/
 /* $FreeBSD: src/sys/dev/ubsec/ubsec.c,v 1.6.2.6 2003/01/23 21:06:43 sam Exp $ */
 /*	$OpenBSD: ubsec.c,v 1.143 2009/03/27 13:31:30 reyk Exp$	*/
 
@@ -35,7 +35,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: ubsec.c,v 1.62.4.1 2023/08/11 14:35:24 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: ubsec.c,v 1.64 2023/08/04 07:38:53 riastradh Exp $");
 
 #undef UBSEC_DEBUG
 
@@ -2168,7 +2168,7 @@ ubsec_dma_free(struct ubsec_softc *sc, struct ubsec_dma_alloc *dma)
 }
 
 /*
- * Resets the board.  Values in the regesters are left as is
+ * Resets the board.  Values in the registers are left as is
  * from the reset (i.e. initial values are assigned elsewhere).
  */
 static void

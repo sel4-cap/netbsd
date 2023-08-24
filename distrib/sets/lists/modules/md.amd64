@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # $NetBSD: md.amd64,v 1.98.2.1 2023/08/17 09:57:28 martin Exp $
+=======
+# $NetBSD: md.amd64,v 1.100 2023/08/09 09:36:26 andvar Exp $
+>>>>>>> trunk
 #
 ./@MODULEDIR@/acpiacad				modules-base-kernel	kmod
 ./@MODULEDIR@/acpiacad/acpiacad.kmod		modules-base-kernel	kmod
@@ -82,6 +86,8 @@
 ./@MODULEDIR@/compat_netbsd32_80/compat_netbsd32_80.kmod modules-base-kernel	kmod
 ./@MODULEDIR@/compat_netbsd32_90		modules-base-kernel	kmod
 ./@MODULEDIR@/compat_netbsd32_90/compat_netbsd32_90.kmod modules-base-kernel	kmod
+./@MODULEDIR@/compat_netbsd32_100	modules-base-kernel	kmod
+./@MODULEDIR@/compat_netbsd32_100/compat_netbsd32_100.kmod modules-base-kernel	kmod
 ./@MODULEDIR@/compat_netbsd32_coredump		modules-base-kernel	kmod
 ./@MODULEDIR@/compat_netbsd32_coredump/compat_netbsd32_coredump.kmod	modules-base-kernel	kmod
 ./@MODULEDIR@/compat_netbsd32_mqueue		modules-base-kernel	kmod

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: tprof.h,v 1.4.2.1 2023/06/21 22:34:51 martin Exp $	*/
+=======
+/*	$NetBSD: tprof.h,v 1.5 2023/04/17 08:37:24 msaitoh Exp $	*/
+>>>>>>> trunk
 
 /*
  * Copyright (c) 2018 The NetBSD Foundation, Inc.

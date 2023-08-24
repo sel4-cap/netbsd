@@ -1,4 +1,4 @@
-/* $NetBSD: xenbus_comms.c,v 1.24.20.1 2023/07/31 15:23:02 martin Exp $ */
+/* $NetBSD: xenbus_comms.c,v 1.26 2023/02/25 00:37:34 riastradh Exp $ */
 /******************************************************************************
  * xenbus_comms.c
  *
@@ -29,7 +29,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: xenbus_comms.c,v 1.24.20.1 2023/07/31 15:23:02 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: xenbus_comms.c,v 1.26 2023/02/25 00:37:34 riastradh Exp $");
 
 #include <sys/types.h>
 #include <sys/null.h>

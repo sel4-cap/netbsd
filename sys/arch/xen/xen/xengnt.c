@@ -1,4 +1,4 @@
-/*      $NetBSD: xengnt.c,v 1.39.4.1 2023/07/31 15:23:02 martin Exp $      */
+/*      $NetBSD: xengnt.c,v 1.41 2023/02/25 00:35:52 riastradh Exp $      */
 
 /*
  * Copyright (c) 2006 Manuel Bouyer.
@@ -26,7 +26,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: xengnt.c,v 1.39.4.1 2023/07/31 15:23:02 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: xengnt.c,v 1.41 2023/02/25 00:35:52 riastradh Exp $");
 
 #include <sys/types.h>
 #include <sys/param.h>

@@ -1,4 +1,4 @@
-/*	$NetBSD: if_rge.c,v 1.24.4.1 2022/12/21 09:36:42 martin Exp $	*/
+/*	$NetBSD: if_rge.c,v 1.25 2022/12/21 05:19:15 nonaka Exp $	*/
 /*	$OpenBSD: if_rge.c,v 1.9 2020/12/12 11:48:53 jan Exp $	*/
 
 /*
@@ -18,7 +18,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: if_rge.c,v 1.24.4.1 2022/12/21 09:36:42 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: if_rge.c,v 1.25 2022/12/21 05:19:15 nonaka Exp $");
 
 #include <sys/types.h>
 

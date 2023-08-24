@@ -1,4 +1,4 @@
-/*	$NetBSD: imxusb.c,v 1.18.6.1 2023/05/28 10:14:36 martin Exp $	*/
+/*	$NetBSD: imxusb.c,v 1.19 2023/05/04 17:09:44 bouyer Exp $	*/
 /*
  * Copyright (c) 2009, 2010  Genetec Corporation.  All rights reserved.
  * Written by Hashimoto Kenichi and Hiroyuki Bessho for Genetec Corporation.
@@ -25,7 +25,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: imxusb.c,v 1.18.6.1 2023/05/28 10:14:36 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: imxusb.c,v 1.19 2023/05/04 17:09:44 bouyer Exp $");
 
 #include "locators.h"
 #include "opt_imx.h"

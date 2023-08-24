@@ -1,4 +1,4 @@
-#	$NetBSD: Makefile.inc,v 1.18.32.1 2023/02/01 18:59:02 martin Exp $
+#	$NetBSD: Makefile.inc,v 1.19 2023/01/29 17:00:12 tsutsui Exp $
 
 NOSSP=
 NOFORTIFY=

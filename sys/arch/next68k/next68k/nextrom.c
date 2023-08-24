@@ -1,4 +1,4 @@
-/*	$NetBSD: nextrom.c,v 1.27.30.1 2023/02/15 19:35:14 martin Exp $	*/
+/*	$NetBSD: nextrom.c,v 1.29 2023/02/11 02:33:27 tsutsui Exp $	*/
 /*
  * Copyright (c) 1998 Darrin B. Jewell
  * All rights reserved.
@@ -25,7 +25,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: nextrom.c,v 1.27.30.1 2023/02/15 19:35:14 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: nextrom.c,v 1.29 2023/02/11 02:33:27 tsutsui Exp $");
 
 #include "opt_ddb.h"
 #include "opt_serial.h"

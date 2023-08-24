@@ -1252,17 +1252,21 @@ config_search_internal(device_t parent, void *aux,
 //  * not configured, call the given `print' function and return NULL.
 //  */
 device_t
-config_found(device_t parent, void *aux, cfprint_t print,
+config_found_acquire(device_t parent, void *aux, cfprint_t print,
     const struct cfargs * const cfargs)
 {
 	cfdata_t cf;
 	struct cfargs_internal store;
 	const struct cfargs_internal * const args =
 	    cfargs_canonicalize(cfargs, &store);
+	device_t dev;
+
+	KERNEL_LOCK(1, NULL);
 
 	cf = config_search_internal(parent, aux, args);
 	if (cf != NULL) {
-		return config_attach_internal(parent, cf, aux, print, args);
+		dev = config_attach_internal(parent, cf, aux, print, args);
+		goto out;
 	}
 	printf("didn't find a match\n");
 	if (print) {
@@ -1277,7 +1281,39 @@ config_found(device_t parent, void *aux, cfprint_t print,
 		// aprint_normal("%s", msgs[pret]);
 	}
 
-	return NULL;
+	dev = NULL;
+
+out:	KERNEL_UNLOCK_ONE(NULL);
+	return dev;
+}
+
+/*
+ * config_found(parent, aux, print, cfargs)
+ *
+ *	Legacy entry point for callers whose use of the returned
+ *	device_t is not delimited by device_release.
+ *
+ *	The caller is required to hold the kernel lock as a fragile
+ *	defence against races.
+ *
+ *	Callers should ignore the return value or be converted to
+ *	config_found_acquire with a matching device_release once they
+ *	have finished with the returned device_t.
+ */
+device_t
+config_found(device_t parent, void *aux, cfprint_t print,
+    const struct cfargs * const cfargs)
+{
+	device_t dev;
+
+	KASSERT(KERNEL_LOCKED_P());
+
+	dev = config_found_acquire(parent, aux, print, cfargs);
+	if (dev == NULL)
+		return NULL;
+	// device_release(dev);
+
+	return dev;
 }
 
 // /*
@@ -1699,6 +1735,8 @@ config_devalloc(const device_t parent, const cfdata_t cf,
 
 /*
  * Attach a found device.
+ *
+ * Returns the device referenced, to be released with device_release.
  */
 static device_t
 config_attach_internal(device_t parent, cfdata_t cf, void *aux, cfprint_t print,
@@ -1769,6 +1807,12 @@ config_attach_internal(device_t parent, cfdata_t cf, void *aux, cfprint_t print,
 	 * deferred actions, have finished.
 	 */
 	// config_pending_incr(dev);
+
+	/*
+	 * Prevent concurrent detach from destroying the device_t until
+	 * the caller has released the device.
+	 */
+	// device_acquire(dev);
 
 	/* Call the driver's attach function.  */
 	(*dev->dv_cfattach->ca_attach)(parent, dev, aux);

@@ -1,4 +1,4 @@
-/*	$NetBSD: cpu.c,v 1.142.4.1 2023/07/31 15:23:02 martin Exp $	*/
+/*	$NetBSD: cpu.c,v 1.145 2023/02/25 00:35:01 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2000 The NetBSD Foundation, Inc.
@@ -65,7 +65,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: cpu.c,v 1.142.4.1 2023/07/31 15:23:02 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: cpu.c,v 1.145 2023/02/25 00:35:01 riastradh Exp $");
 
 #include "opt_ddb.h"
 #include "opt_multiprocessor.h"
@@ -1109,6 +1109,7 @@ cpu_load_pmap(struct pmap *pmap, struct pmap *oldpmap)
 	cpuid_t cid = cpu_index(ci);
 	int i;
 
+	KASSERT(kpreempt_disabled());
 	KASSERT(pmap != pmap_kernel());
 
 	mutex_enter(&ci->ci_kpm_mtx);

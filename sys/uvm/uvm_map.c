@@ -1,4 +1,4 @@
-/*	$NetBSD: uvm_map.c,v 1.403.2.1 2023/05/15 10:32:53 martin Exp $	*/
+/*	$NetBSD: uvm_map.c,v 1.407 2023/08/03 03:15:48 rin Exp $	*/
 
 /*
  * Copyright (c) 1997 Charles D. Cranor and Washington University.
@@ -66,7 +66,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: uvm_map.c,v 1.403.2.1 2023/05/15 10:32:53 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: uvm_map.c,v 1.407 2023/08/03 03:15:48 rin Exp $");
 
 #include "opt_ddb.h"
 #include "opt_pax.h"
@@ -1792,7 +1792,12 @@ uvm_findspace_invariants(struct vm_map *map, vaddr_t orig_hint, vaddr_t length,
 	    map, hint, orig_hint,
 	    length, uobj, (unsigned long long)uoffset, align,
 	    flags, entry, line);
+#ifndef __sh3__ /* XXXRO: kern/51254 */
 	KASSERTMSG(!topdown || hint <= orig_hint,
+#else
+	if (__predict_false(!(!topdown || hint <= orig_hint)))
+		printf(
+#endif
 	    "map=%p hint=%#"PRIxVADDR" orig_hint=%#"PRIxVADDR
 	    " length=%#"PRIxVSIZE" uobj=%p uoffset=%#llx align=%"PRIxVSIZE
 	    " flags=%#x entry=%p (uvm_map_findspace line %d)",
@@ -2123,7 +2128,10 @@ nextgap:
 	else
 		tmp = RIGHT_ENTRY(prev);
 	for (;;) {
-		KASSERT(tmp && tmp->maxgap >= length);
+		KASSERT(tmp);
+		KASSERTMSG(tmp->maxgap >= length,
+		    "tmp->maxgap=0x%"PRIxVSIZE" length=0x%"PRIxVSIZE,
+		    tmp->maxgap, length);
 		if (topdown)
 			child = RIGHT_ENTRY(tmp);
 		else
@@ -2381,8 +2389,7 @@ uvm_unmap_remove(struct vm_map *map, vaddr_t start, vaddr_t end,
 		}
 
 		if (VM_MAP_IS_KERNEL(map) && (flags & UVM_FLAG_NOWAIT) == 0) {
-			uvm_km_check_empty(map, entry->start,
-			    entry->end);
+			uvm_km_check_empty(map, entry->start, entry->end);
 		}
 #endif /* defined(UVMDEBUG) */
 
@@ -2685,7 +2692,8 @@ uvm_map_extract(struct vm_map *srcmap, vaddr_t start, vsize_t len,
 	 * REMOVE.
 	 */
 
-	KASSERT((start & PAGE_MASK) == 0 && (len & PAGE_MASK) == 0);
+	KASSERTMSG((start & PAGE_MASK) == 0, "start=0x%"PRIxVADDR, start);
+	KASSERTMSG((len & PAGE_MASK) == 0, "len=0x%"PRIxVADDR, len);
 	KASSERT((flags & UVM_EXTRACT_REMOVE) == 0 ||
 		(flags & (UVM_EXTRACT_CONTIG|UVM_EXTRACT_QREF)) == 0);
 

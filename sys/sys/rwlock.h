@@ -1,4 +1,4 @@
-/*	$NetBSD: rwlock.h,v 1.17.2.1 2023/08/09 17:42:01 martin Exp $	*/
+/*	$NetBSD: rwlock.h,v 1.18 2023/07/09 16:32:28 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2002, 2006, 2007, 2008, 2019, 2020 The NetBSD Foundation, Inc.

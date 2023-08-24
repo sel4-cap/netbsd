@@ -1,4 +1,4 @@
-/*	$NetBSD: tco.h,v 1.4.4.1 2023/08/01 14:06:36 martin Exp $	*/
+/*	$NetBSD: tco.h,v 1.5 2023/04/12 06:39:15 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2015 The NetBSD Foundation, Inc.

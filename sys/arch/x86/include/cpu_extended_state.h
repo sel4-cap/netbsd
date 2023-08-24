@@ -1,4 +1,4 @@
-/*	$NetBSD: cpu_extended_state.h,v 1.17.28.1 2023/07/25 11:41:42 martin Exp $	*/
+/*	$NetBSD: cpu_extended_state.h,v 1.18 2023/02/25 13:57:37 riastradh Exp $	*/
 
 #ifndef _X86_CPU_EXTENDED_STATE_H_
 #define _X86_CPU_EXTENDED_STATE_H_

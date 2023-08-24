@@ -1,4 +1,4 @@
-#	$NetBSD: vnode_if.src,v 1.84.4.1 2023/06/21 16:50:21 martin Exp $
+#	$NetBSD: vnode_if.src,v 1.85 2023/06/15 09:13:36 hannken Exp $
 #
 # Copyright (c) 1992, 1993
 #	The Regents of the University of California.  All rights reserved.

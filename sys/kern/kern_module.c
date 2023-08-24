@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: kern_module.c,v 1.160.2.1 2023/02/22 19:07:09 martin Exp $	*/
+=======
+/*	$NetBSD: kern_module.c,v 1.161 2023/01/31 13:21:37 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2008 The NetBSD Foundation, Inc.
@@ -34,7 +38,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: kern_module.c,v 1.160.2.1 2023/02/22 19:07:09 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: kern_module.c,v 1.161 2023/01/31 13:21:37 riastradh Exp $");
+>>>>>>> trunk
 
 #define _MODULE_INTERNAL
 

@@ -1,4 +1,4 @@
-/*	$NetBSD: disk.h,v 1.77.10.1 2023/08/01 14:49:06 martin Exp $	*/
+/*	$NetBSD: disk.h,v 1.78 2023/05/09 12:04:04 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 1996, 1997, 2004 The NetBSD Foundation, Inc.

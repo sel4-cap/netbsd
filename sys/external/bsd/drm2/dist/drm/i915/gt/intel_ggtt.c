@@ -1,4 +1,4 @@
-/*	$NetBSD: intel_ggtt.c,v 1.15.4.1 2023/08/04 13:30:57 martin Exp $	*/
+/*	$NetBSD: intel_ggtt.c,v 1.16 2023/07/09 20:24:06 riastradh Exp $	*/
 
 // SPDX-License-Identifier: MIT
 /*
@@ -6,7 +6,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: intel_ggtt.c,v 1.15.4.1 2023/08/04 13:30:57 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: intel_ggtt.c,v 1.16 2023/07/09 20:24:06 riastradh Exp $");
 
 #include <linux/stop_machine.h>
 

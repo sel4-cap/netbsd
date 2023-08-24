@@ -1,4 +1,4 @@
-/*	$NetBSD: ffs_subr.c,v 1.53.4.1 2023/05/13 11:51:14 martin Exp $	*/
+/*	$NetBSD: ffs_subr.c,v 1.54 2023/01/07 19:41:30 chs Exp $	*/
 
 /*
  * Copyright (c) 1982, 1986, 1989, 1993
@@ -36,7 +36,7 @@
 #endif
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: ffs_subr.c,v 1.53.4.1 2023/05/13 11:51:14 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: ffs_subr.c,v 1.54 2023/01/07 19:41:30 chs Exp $");
 
 #include <sys/param.h>
 

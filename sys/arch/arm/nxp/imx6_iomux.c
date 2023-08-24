@@ -1,4 +1,4 @@
-/*	$NetBSD: imx6_iomux.c,v 1.2.18.1 2023/05/28 10:14:35 martin Exp $	*/
+/*	$NetBSD: imx6_iomux.c,v 1.3 2023/05/04 13:29:33 bouyer Exp $	*/
 
 /*-
  * Copyright (c) 2019 Genetec Corporation.  All rights reserved.
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: imx6_iomux.c,v 1.2.18.1 2023/05/28 10:14:35 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: imx6_iomux.c,v 1.3 2023/05/04 13:29:33 bouyer Exp $");
 
 #include "opt_fdt.h"
 

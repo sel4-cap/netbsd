@@ -1,7 +1,7 @@
-/*	$NetBSD: immintrin_ext.h,v 1.1 2020/06/29 23:47:54 riastradh Exp $	*/
+/*	$NetBSD: uvm_rndsource.h,v 1.1 2023/07/17 12:55:37 riastradh Exp $	*/
 
 /*-
- * Copyright (c) 2020 The NetBSD Foundation, Inc.
+ * Copyright (c) 2023 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,23 +26,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef	_SYS_CRYPTO_AES_ARCH_X86_IMMINTRIN_EXT_H
-#define	_SYS_CRYPTO_AES_ARCH_X86_IMMINTRIN_EXT_H
+#ifndef	_UVM_UVM_RNDSOURCE_H
+#define	_UVM_UVM_RNDSOURCE_H
 
-#include "immintrin.h"
+#include <sys/rndsource.h>
 
-_INTRINSATTR
-static __inline __m128i
-_mm_loadu_epi8(const void *__p)
-{
-	return ((const struct { __m128i_u __v; } _PACKALIAS *)__p)->__v;
-}
+extern struct krndsource uvm_fault_rndsource;
 
-_INTRINSATTR
-static __inline void
-_mm_storeu_epi8(void *__p, __m128i __v)
-{
-	((struct { __m128i_u __v; } _PACKALIAS *)__p)->__v = __v;
-}
-
-#endif	/* _SYS_CRYPTO_AES_ARCH_X86_IMMINTRIN_EXT_H */
+#endif	/* _UVM_UVM_RNDSOURCE_H */

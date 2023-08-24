@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # $NetBSD: mi,v 1.394.2.3 2023/08/11 13:42:54 martin Exp $
+=======
+# $NetBSD: mi,v 1.416 2023/08/08 06:22:31 rin Exp $
+>>>>>>> trunk
 ./etc/mtree/set.debug                           comp-sys-root
 ./usr/lib					comp-sys-usr		compatdir
 ./usr/lib/i18n/libBIG5_g.a			comp-c-debuglib		debuglib,compatfile
@@ -26,7 +30,7 @@
 ./usr/lib/i18n/libmapper_zone_g.a		comp-c-debuglib		debuglib,compatfile
 ./usr/lib/libamu_g.a				comp-c-debuglib		debuglib,compatfile
 ./usr/lib/libarchive_g.a			comp-c-debuglib		debuglib,compatfile
-./usr/lib/libasan_g.a				comp-c-debuglib		debuglib,compatfile,cxx,gcc
+./usr/lib/libasan_g.a				comp-c-debuglib		debuglib,compatfile,cxx
 ./usr/lib/libasn1_g.a				comp-c-debuglib		debuglib,compatfile,kerberos
 ./usr/lib/libatf-c++_g.a			comp-c-debuglib		debuglib,compatfile,atf
 ./usr/lib/libatf-c_g.a				comp-c-debuglib		debuglib,compatfile,atf
@@ -68,11 +72,11 @@
 ./usr/lib/libfido2_g.a				comp-c-debuglib		debuglib,compatfile
 ./usr/lib/libfl_g.a				comp-c-debuglib		debuglib,compatfile
 ./usr/lib/libform_g.a				comp-c-debuglib		debuglib,compatfile
-./usr/lib/libgcc_eh_g.a				comp-c-debuglib		debuglib,compatfile,gcccmds
+./usr/lib/libgcc_eh_g.a				comp-c-debuglib		debuglib,compatfile,gcc
 ./usr/lib/libgcc_g.a				comp-c-debuglib		debuglib,compatfile,gcc
-./usr/lib/libgcc_s_g.a				comp-c-debuglib		debuglib,compatfile,gcccmds
+./usr/lib/libgcc_s_g.a				comp-c-debuglib		debuglib,compatfile,gcc
 ./usr/lib/libgcov_g.a				comp-c-debuglib		debuglib,compatfile,gcc
-./usr/lib/libgnuctf_g.a				comp-c-debuglib		debuglib,compatfile,binutils=234
+./usr/lib/libgnuctf_g.a				comp-c-debuglib		debuglib,compatfile,binutils
 ./usr/lib/libgnumalloc_g.a			comp-c-debuglib		debuglib,compatfile
 ./usr/lib/libgomp_g.a				comp-c-debuglib		debuglib,compatfile,gcc
 ./usr/lib/libgssapi_g.a				comp-c-debuglib		debuglib,compatfile,kerberos
@@ -100,7 +104,7 @@
 ./usr/lib/liblber_g.a				comp-c-debuglib		debuglib,ldap,compatfile
 ./usr/lib/libldap_g.a				comp-c-debuglib		debuglib,ldap,compatfile
 ./usr/lib/libldap_r_g.a				comp-c-debuglib		debuglib,ldap,compatfile
-./usr/lib/liblsan_g.a				comp-c-debuglib		debuglib,compatfile,cxx,gcc
+./usr/lib/liblsan_g.a				comp-c-debuglib		debuglib,compatfile,cxx
 ./usr/lib/liblua_g.a				comp-c-debuglib		debuglib,compatfile
 ./usr/lib/liblwres_g.a				comp-obsolete		obsolete
 ./usr/lib/liblzf_g.a				comp-c-debuglib		debuglib,compatfile
@@ -266,8 +270,6 @@
 ./usr/lib/libterminfo_g.a			comp-c-debuglib		debuglib,compatfile
 ./usr/lib/libtpm_unseal_g.a			comp-c-debuglib		debuglib,compatfile,tpm
 ./usr/lib/libtre_g.a				comp-c-debuglib		debuglib,compatfile
-./usr/lib/libtsan_g.a				comp-c-debuglib		debuglib,arch64,cxx,gcc=9,machine=amd64
-./usr/lib/libtsan_g.a				comp-c-debuglib		debuglib,arch64,cxx,gcc=10,machine=amd64
 ./usr/lib/libtspi_g.a				comp-c-debuglib		debuglib,compatfile,tpm
 ./usr/lib/libubsan_g.a				comp-c-debuglib		debuglib,compatfile,cxx,gcc
 ./usr/lib/libukfs_g.a				comp-c-debuglib		debuglib,compatfile,rump
@@ -666,7 +668,7 @@
 ./usr/libdata/debug/usr/bin/lpq.debug		comp-lpr-debug		debug
 ./usr/libdata/debug/usr/bin/lpr.debug		comp-lpr-debug		debug
 ./usr/libdata/debug/usr/bin/lprm.debug		comp-lpr-debug		debug
-./usr/libdata/debug/usr/bin/lto-dump.debug	comp-c-debug		gcccmds,gcc=10,debug
+./usr/libdata/debug/usr/bin/lto-dump.debug	comp-c-debug		gcccmds
 ./usr/libdata/debug/usr/bin/lua.debug		comp-util-debug		debug
 ./usr/libdata/debug/usr/bin/luac.debug		comp-util-debug		debug
 ./usr/libdata/debug/usr/bin/lzf.debug		comp-util-debug		debug
@@ -689,7 +691,7 @@
 ./usr/libdata/debug/usr/bin/mkesdb.debug	comp-util-debug		debug
 ./usr/libdata/debug/usr/bin/mkfifo.debug	comp-util-debug		debug
 ./usr/libdata/debug/usr/bin/mklocale.debug	comp-locale-debug	debug
-./usr/libdata/debug/usr/bin/mkstr.debug		comp-c-debug		debug
+./usr/libdata/debug/usr/bin/mkstr.debug		comp-obsolete		obsolete
 ./usr/libdata/debug/usr/bin/mktemp.debug	comp-util-debug		debug
 ./usr/libdata/debug/usr/bin/mkubootimage.debug	comp-util-debug		debug
 ./usr/libdata/debug/usr/bin/modstat.debug	comp-obsolete		obsolete
@@ -896,7 +898,7 @@
 ./usr/libdata/debug/usr/bin/xargs.debug		comp-util-debug		debug
 ./usr/libdata/debug/usr/bin/xgettext.debug	comp-c-debug		debug
 ./usr/libdata/debug/usr/bin/xmlwf.debug		comp-util-debug		debug
-./usr/libdata/debug/usr/bin/xstr.debug		comp-c-debug		debug
+./usr/libdata/debug/usr/bin/xstr.debug		comp-obsolete		obsolete
 ./usr/libdata/debug/usr/bin/xz.debug		comp-util-debug		debug
 ./usr/libdata/debug/usr/bin/yacc.debug		comp-c-debug		debug
 ./usr/libdata/debug/usr/bin/yes.debug		comp-util-debug		debug
@@ -966,7 +968,7 @@
 ./usr/libdata/debug/usr/libexec/bozohttpd.debug	comp-netutil-debug	debug
 ./usr/libdata/debug/usr/libexec/cc1.debug	comp-c-debug		gcccmds,debug
 ./usr/libdata/debug/usr/libexec/cc1obj.debug	comp-objc-debug		gcccmds,debug
-./usr/libdata/debug/usr/libexec/cc1objplus.debug	comp-objc-debug		gcccmds,gcc=10,debug
+./usr/libdata/debug/usr/libexec/cc1objplus.debug	comp-objc-debug		gcccmds,gcc,debug
 ./usr/libdata/debug/usr/libexec/cc1plus.debug	comp-cxx-debug		gcccmds,debug
 ./usr/libdata/debug/usr/libexec/ccom.debug	comp-c-debug		pcc,debug
 ./usr/libdata/debug/usr/libexec/ching/castching.debug	comp-games-debug	debug
@@ -1790,6 +1792,7 @@
 ./usr/libdata/debug/usr/tests/kernel/posix_spawn/t_fileactions.debug	tests-obsolete	obsolete,compattestfile
 ./usr/libdata/debug/usr/tests/kernel/posix_spawn/t_spawn.debug		tests-obsolete	obsolete,compattestfile
 ./usr/libdata/debug/usr/tests/kernel/posix_spawn/t_spawnattr.debug	tests-obsolete	obsolete,compattestfile
+./usr/libdata/debug/usr/tests/kernel/t_epoll.debug			tests-obsolete	obsolete,compattestfile
 ./usr/libdata/debug/usr/tests/kernel/t_extattrctl.debug			tests-kernel-tests	debug,atf,rump
 ./usr/libdata/debug/usr/tests/kernel/t_extent.debug			tests-kernel-tests	debug,atf,compattestfile
 ./usr/libdata/debug/usr/tests/kernel/t_fcntl.debug			tests-kernel-tests	debug,atf
@@ -1799,8 +1802,10 @@
 ./usr/libdata/debug/usr/tests/kernel/t_lock.debug			tests-kernel-tests	debug,atf,compattestfile
 ./usr/libdata/debug/usr/tests/kernel/t_lockf.debug			tests-kernel-tests	debug,atf,compattestfile
 ./usr/libdata/debug/usr/tests/kernel/t_lwpctl.debug			tests-obsolete		obsolete,compattestfile
+./usr/libdata/debug/usr/tests/kernel/t_memfd_create.debug		tests-kernel-tests	debug,atf,compattestfile
 ./usr/libdata/debug/usr/tests/kernel/t_mkdir.debug			tests-obsolete		obsolete,compattestfile
 ./usr/libdata/debug/usr/tests/kernel/t_mqueue.debug			tests-kernel-tests	debug,atf,compattestfile
+./usr/libdata/debug/usr/tests/kernel/t_open_pr_57260.debug		tests-kernel-tests	debug,atf,compattestfile
 ./usr/libdata/debug/usr/tests/kernel/t_pipe.debug			tests-obsolete		obsolete,compattestfile
 ./usr/libdata/debug/usr/tests/kernel/t_poll3w.debug			tests-obsolete		obsolete,compattestfile
 ./usr/libdata/debug/usr/tests/kernel/t_pollts.debug			tests-obsolete		obsolete,compattestfile
@@ -2155,6 +2160,7 @@
 ./usr/libdata/debug/usr/tests/lib/libc/string/t_popcount.debug		tests-lib-debug		debug,atf,compattestfile
 ./usr/libdata/debug/usr/tests/lib/libc/string/t_strcat.debug		tests-lib-debug		debug,atf,compattestfile
 ./usr/libdata/debug/usr/tests/lib/libc/string/t_strchr.debug		tests-lib-debug		debug,atf,compattestfile
+./usr/libdata/debug/usr/tests/lib/libc/string/t_strchrnul.debug		tests-lib-debug		debug,atf,compattestfile
 ./usr/libdata/debug/usr/tests/lib/libc/string/t_strcmp.debug		tests-lib-debug		debug,atf,compattestfile
 ./usr/libdata/debug/usr/tests/lib/libc/string/t_strcoll.debug		tests-lib-debug		debug,atf,compattestfile
 ./usr/libdata/debug/usr/tests/lib/libc/string/t_strcpy.debug		tests-lib-debug		debug,atf,compattestfile

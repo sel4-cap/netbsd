@@ -1,4 +1,4 @@
-/*	$NetBSD: bpf.c,v 1.249.2.1 2023/02/24 13:10:53 martin Exp $	*/
+/*	$NetBSD: bpf.c,v 1.252 2023/07/31 17:41:18 christos Exp $	*/
 
 /*
  * Copyright (c) 1990, 1991, 1993
@@ -39,7 +39,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: bpf.c,v 1.249.2.1 2023/02/24 13:10:53 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: bpf.c,v 1.252 2023/07/31 17:41:18 christos Exp $");
 
 #if defined(_KERNEL_OPT)
 #include "opt_bpf.h"
@@ -417,7 +417,7 @@ bpf_movein(struct ifnet *ifp, struct uio *uio, int linktype, uint64_t mtu, struc
 		}
 	}
 
-	/* Insure the data is properly aligned */
+	/* Ensure the data is properly aligned */
 	if (align > 0)
 		m->m_data += align;
 
@@ -1257,9 +1257,9 @@ bpf_ioctl(struct file *fp, u_long cmd, void *addr)
 			break;
 		}
 
-	case BIOCGSTATSOLD:
+	case BIOCGSTATS_30:
 		{
-			struct bpf_stat_old *bs = addr;
+			struct bpf_stat30 *bs = addr;
 
 			bs->bs_recv = d->bd_rcount;
 			bs->bs_drop = d->bd_dcount;
@@ -1764,7 +1764,7 @@ _bpf_mtap2(struct bpf_if *bp, void *data, u_int dlen, struct mbuf *m,
 
 	/*
 	 * Craft on-stack mbuf suitable for passing to bpf_filter.
-	 * Note that we cut corners here; we only setup what's
+	 * Note that we cut corners here; we only set up what's
 	 * absolutely needed--this mbuf should never go anywhere else.
 	 */
 	(void)memset(&mb, 0, sizeof(mb));
@@ -1839,7 +1839,7 @@ _bpf_mtap_af(struct bpf_if *bp, uint32_t af, struct mbuf *m, u_int direction)
 /*
  * Put the SLIP pseudo-"link header" in place.
  * Note this M_PREPEND() should never fail,
- * swince we know we always have enough space
+ * since we know we always have enough space
  * in the input buffer.
  */
 static void
@@ -1990,7 +1990,7 @@ bpf_hdrlen(struct bpf_d *d)
 
 /*
  * Move the packet data from interface memory (pkt) into the
- * store buffer. Call the wakeup functions if it's time to wakeup
+ * store buffer. Call the wakeup functions if it's time to wake up
  * a listener (buffer full), "cpfn" is the routine called to do the
  * actual data transfer. memcpy is passed in to copy contiguous chunks,
  * while bpf_mcpy is passed in to copy mbuf chains.  In the latter case,

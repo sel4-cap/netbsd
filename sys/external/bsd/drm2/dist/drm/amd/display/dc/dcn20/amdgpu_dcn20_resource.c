@@ -1,4 +1,4 @@
-/*	$NetBSD: amdgpu_dcn20_resource.c,v 1.4.4.1 2023/08/02 10:34:25 martin Exp $	*/
+/*	$NetBSD: amdgpu_dcn20_resource.c,v 1.5 2023/07/20 21:48:49 riastradh Exp $	*/
 
 /*
 * Copyright 2016 Advanced Micro Devices, Inc.
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: amdgpu_dcn20_resource.c,v 1.4.4.1 2023/08/02 10:34:25 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: amdgpu_dcn20_resource.c,v 1.5 2023/07/20 21:48:49 riastradh Exp $");
 
 #include <linux/slab.h>
 

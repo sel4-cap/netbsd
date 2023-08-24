@@ -1,4 +1,4 @@
-/*	$NetBSD: uvm_km.c,v 1.162 2022/08/06 05:55:37 chs Exp $	*/
+/*	$NetBSD: uvm_km.c,v 1.165 2023/04/09 09:00:56 riastradh Exp $	*/
 
 /*
  * Copyright (c) 1997 Charles D. Cranor and Washington University.
@@ -152,7 +152,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: uvm_km.c,v 1.162 2022/08/06 05:55:37 chs Exp $");
+__KERNEL_RCSID(0, "$NetBSD: uvm_km.c,v 1.165 2023/04/09 09:00:56 riastradh Exp $");
 
 #include "opt_uvmhist.h"
 
@@ -194,14 +194,14 @@ __KERNEL_RCSID(0, "$NetBSD: uvm_km.c,v 1.162 2022/08/06 05:55:37 chs Exp $");
 struct vm_map *kernel_map = NULL;
 
 /*
- * local data structues
+ * local data structures
  */
 
 static struct vm_map		kernel_map_store;
 static struct vm_map_entry	kernel_image_mapent_store;
 static struct vm_map_entry	kernel_kmem_mapent_store;
 
-int nkmempages = 0;
+size_t nkmempages = 0;
 vaddr_t kmembase;
 vsize_t kmemsize;
 
@@ -216,7 +216,7 @@ vmem_t *kmem_va_arena;
 void
 kmeminit_nkmempages(void)
 {
-	int npages;
+	size_t npages;
 
 	if (nkmempages != 0) {
 		/*
@@ -537,7 +537,8 @@ uvm_km_pgremove_intrsafe(struct vm_map *map, vaddr_t start, vaddr_t end)
 		for (i = 0; i < npgrm; i++) {
 			pg = PHYS_TO_VM_PAGE(pa[i]);
 			KASSERT(pg);
-			KASSERT(pg->uobject == NULL && pg->uanon == NULL);
+			KASSERT(pg->uobject == NULL);
+			KASSERT(pg->uanon == NULL);
 			KASSERT((pg->flags & PG_BUSY) == 0);
 			uvm_pagefree(pg);
 		}

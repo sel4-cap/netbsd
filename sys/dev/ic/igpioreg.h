@@ -1,4 +1,4 @@
-/* $NetBSD: igpioreg.h,v 1.2.4.1 2023/01/23 12:15:59 martin Exp $ */
+/* $NetBSD: igpioreg.h,v 1.8 2023/01/07 11:15:00 msaitoh Exp $ */
 
 /*
  * Copyright (c) 2021 Emmanuel Dreyfus

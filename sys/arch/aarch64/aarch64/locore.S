@@ -1,4 +1,4 @@
-/*	$NetBSD: locore.S,v 1.89.2.1 2023/07/31 13:36:30 martin Exp $	*/
+/*	$NetBSD: locore.S,v 1.92 2023/04/16 14:01:51 skrll Exp $	*/
 
 /*
  * Copyright (c) 2017 Ryo Shimizu <ryo@nerv.org>
@@ -569,7 +569,7 @@ mp_vstart:
 END(cpu_mpstart)
 
 toomanycpus:
-	CPU_DPRINT("too many cpus, or MPIDR not exists in cpu_mpidr[]\n")
+	CPU_DPRINT("too many cpus, or MPIDR does not exist in cpu_mpidr[]\n")
 1:	wfi
 	b	1b
 
@@ -1037,7 +1037,7 @@ sctlr_pac:
 	    0)
 
 .L_devmap_addr:
-	.quad	VM_KERNEL_IO_ADDRESS
+	.quad	VM_KERNEL_IO_BASE
 
 	.data
 

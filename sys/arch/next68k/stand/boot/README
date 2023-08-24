@@ -1,4 +1,4 @@
-$NetBSD: README,v 1.1.1.1.268.1 2023/02/12 12:18:24 martin Exp $
+$NetBSD: README,v 1.2 2023/02/04 14:38:09 tsutsui Exp $
 
 NeXT standalone bootblocks.
 Rolf Grossmann, Dec 1994

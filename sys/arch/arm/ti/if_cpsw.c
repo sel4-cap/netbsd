@@ -1,4 +1,4 @@
-/*	$NetBSD: if_cpsw.c,v 1.16.4.1 2023/03/03 17:02:43 martin Exp $	*/
+/*	$NetBSD: if_cpsw.c,v 1.17 2023/02/27 21:15:09 sekiya Exp $	*/
 
 /*
  * Copyright (c) 2013 Jonathan A. Kollasch
@@ -53,7 +53,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(1, "$NetBSD: if_cpsw.c,v 1.16.4.1 2023/03/03 17:02:43 martin Exp $");
+__KERNEL_RCSID(1, "$NetBSD: if_cpsw.c,v 1.17 2023/02/27 21:15:09 sekiya Exp $");
 
 #include <sys/param.h>
 #include <sys/bus.h>

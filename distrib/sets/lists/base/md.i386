@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # $NetBSD: md.i386,v 1.157.2.1 2023/08/11 13:42:53 martin Exp $
+=======
+# $NetBSD: md.i386,v 1.158 2023/05/27 00:08:30 riastradh Exp $
+>>>>>>> trunk
 ./dev/lms0					base-obsolete		obsolete
 ./dev/mms0					base-obsolete		obsolete
 ./dev/pms0					base-obsolete		obsolete

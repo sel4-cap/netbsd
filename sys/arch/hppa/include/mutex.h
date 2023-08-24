@@ -1,4 +1,4 @@
-/*	$NetBSD: mutex.h,v 1.15.26.1 2023/08/09 17:42:02 martin Exp $	*/
+/*	$NetBSD: mutex.h,v 1.19 2023/07/13 07:46:43 mrg Exp $	*/
 
 /*-
  * Copyright (c) 2002, 2007 The NetBSD Foundation, Inc.

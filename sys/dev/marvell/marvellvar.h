@@ -1,4 +1,4 @@
-/*	$NetBSD: marvellvar.h,v 1.6.48.1 2023/08/11 10:13:50 martin Exp $	*/
+/*	$NetBSD: marvellvar.h,v 1.7 2023/07/13 16:51:33 riastradh Exp $	*/
 /*
  * Copyright (c) 2009 KIYOHARA Takashi
  * All rights reserved.

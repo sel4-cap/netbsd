@@ -1,4 +1,4 @@
-/* $NetBSD: igpiovar.h,v 1.1.4.1 2023/01/23 12:15:59 martin Exp $ */
+/* $NetBSD: igpiovar.h,v 1.2 2023/01/07 03:27:01 msaitoh Exp $ */
 
 /*
  * Copyright (c) 2021 Emmanuel Dreyfus

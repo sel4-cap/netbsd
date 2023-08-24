@@ -1,4 +1,4 @@
-/*	$NetBSD: sacc_obio.c,v 1.15.6.1 2023/08/09 17:42:05 martin Exp $ */
+/*	$NetBSD: sacc_obio.c,v 1.17 2023/07/13 21:29:49 riastradh Exp $ */
 
 /*-
  * Copyright (c) 2001 The NetBSD Foundation, Inc.
@@ -34,7 +34,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: sacc_obio.c,v 1.15.6.1 2023/08/09 17:42:05 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: sacc_obio.c,v 1.17 2023/07/13 21:29:49 riastradh Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

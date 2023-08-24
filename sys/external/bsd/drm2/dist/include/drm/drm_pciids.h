@@ -1,4 +1,4 @@
-/*	$NetBSD: drm_pciids.h,v 1.4.4.1 2023/08/17 09:57:28 martin Exp $	*/
+/*	$NetBSD: drm_pciids.h,v 1.5 2023/08/09 09:36:26 andvar Exp $	*/
 
 /* SPDX-License-Identifier: MIT */
 #define radeon_PCI_IDS \

@@ -1,4 +1,4 @@
-/*	$NetBSD: ffs_snapshot.c,v 1.154.4.1 2023/05/13 12:20:49 martin Exp $	*/
+/*	$NetBSD: ffs_snapshot.c,v 1.155 2023/05/11 23:11:25 chs Exp $	*/
 
 /*
  * Copyright 2000 Marshall Kirk McKusick. All Rights Reserved.
@@ -38,7 +38,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: ffs_snapshot.c,v 1.154.4.1 2023/05/13 12:20:49 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: ffs_snapshot.c,v 1.155 2023/05/11 23:11:25 chs Exp $");
 
 #if defined(_KERNEL_OPT)
 #include "opt_ffs.h"

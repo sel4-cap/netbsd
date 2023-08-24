@@ -1,4 +1,4 @@
-/*	$NetBSD: ld_virtio.c,v 1.30.4.1 2023/05/13 10:56:10 martin Exp $	*/
+/*	$NetBSD: ld_virtio.c,v 1.32 2023/03/23 03:55:11 yamaguchi Exp $	*/
 
 /*
  * Copyright (c) 2010 Minoura Makoto.
@@ -26,7 +26,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: ld_virtio.c,v 1.30.4.1 2023/05/13 10:56:10 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: ld_virtio.c,v 1.32 2023/03/23 03:55:11 yamaguchi Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

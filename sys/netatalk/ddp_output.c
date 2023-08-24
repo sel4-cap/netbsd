@@ -1,4 +1,4 @@
-/*	$NetBSD: ddp_output.c,v 1.21.34.1 2023/07/31 16:37:18 martin Exp $	 */
+/*	$NetBSD: ddp_output.c,v 1.22 2023/03/30 17:48:10 riastradh Exp $	 */
 
 /*
  * Copyright (c) 1990,1991 Regents of The University of Michigan.
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: ddp_output.c,v 1.21.34.1 2023/07/31 16:37:18 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: ddp_output.c,v 1.22 2023/03/30 17:48:10 riastradh Exp $");
 #include "opt_atalk.h"
 
 #include <sys/param.h>

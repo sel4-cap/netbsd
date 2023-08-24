@@ -1,4 +1,4 @@
-/*	$NetBSD: pmap_bootstrap.c,v 1.44.46.2 2023/02/15 19:35:14 martin Exp $	*/
+/*	$NetBSD: pmap_bootstrap.c,v 1.47 2023/02/11 02:31:34 tsutsui Exp $	*/
 
 /*
  * This file was taken from mvme68k/mvme68k/pmap_bootstrap.c
@@ -45,7 +45,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: pmap_bootstrap.c,v 1.44.46.2 2023/02/15 19:35:14 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: pmap_bootstrap.c,v 1.47 2023/02/11 02:31:34 tsutsui Exp $");
 
 #include "opt_m68k_arch.h"
 

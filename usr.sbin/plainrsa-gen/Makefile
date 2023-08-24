@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # $NetBSD: Makefile,v 1.1.2.1 2023/08/11 13:43:43 martin Exp $
+=======
+# $NetBSD: Makefile,v 1.2 2023/05/09 20:14:37 christos Exp $
+>>>>>>> trunk
 
 WARNS?=	0	# XXX third-party program, many issues
 NOCLANGERROR=	# defined

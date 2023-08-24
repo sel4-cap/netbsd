@@ -1,4 +1,4 @@
-/*	$NetBSD: cpu.h,v 1.133.4.1 2023/08/09 17:42:01 martin Exp $	*/
+/*	$NetBSD: cpu.h,v 1.136 2023/08/01 19:36:57 riastradh Exp $	*/
 
 /*
  * Copyright (c) 1990 The Regents of the University of California.
@@ -325,6 +325,8 @@ struct cpu_info {
 	struct evcnt	ci_xen_raw_systime_backwards_evcnt;
 	struct evcnt	ci_xen_systime_backwards_hardclock_evcnt;
 	struct evcnt	ci_xen_missed_hardclock_evcnt;
+	struct evcnt	ci_xen_timecounter_backwards_evcnt;
+	struct evcnt	ci_xen_timecounter_jump_evcnt;
 #endif	/* XEN */
 
 #if defined(GPROF) && defined(MULTIPROCESSOR)

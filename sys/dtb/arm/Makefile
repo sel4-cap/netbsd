@@ -1,4 +1,4 @@
-#	$NetBSD: Makefile,v 1.5.4.1 2023/05/28 10:14:36 martin Exp $
+#	$NetBSD: Makefile,v 1.6 2023/05/04 13:31:36 bouyer Exp $
 
 DTSARCH=	arm
 DTSGNUARCH=	arm

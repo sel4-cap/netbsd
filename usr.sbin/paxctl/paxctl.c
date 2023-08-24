@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* $NetBSD: paxctl.c,v 1.12.56.1 2023/06/27 18:20:18 martin Exp $ */
+=======
+/* $NetBSD: paxctl.c,v 1.13 2023/06/23 01:56:21 rin Exp $ */
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2006 Elad Efrat <elad@NetBSD.org>
@@ -34,7 +38,11 @@
 #include <sys/cdefs.h>
 #ifndef lint
 #ifdef __RCSID
+<<<<<<< HEAD
 __RCSID("$NetBSD: paxctl.c,v 1.12.56.1 2023/06/27 18:20:18 martin Exp $");
+=======
+__RCSID("$NetBSD: paxctl.c,v 1.13 2023/06/23 01:56:21 rin Exp $");
+>>>>>>> trunk
 #endif
 #endif /* not lint */
 

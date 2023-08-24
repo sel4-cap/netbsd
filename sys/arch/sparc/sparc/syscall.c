@@ -1,4 +1,4 @@
-/*	$NetBSD: syscall.c,v 1.31.30.1 2023/03/22 19:00:47 martin Exp $ */
+/*	$NetBSD: syscall.c,v 1.32 2023/03/20 11:19:29 hannken Exp $ */
 
 /*
  * Copyright (c) 1996
@@ -49,7 +49,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: syscall.c,v 1.31.30.1 2023/03/22 19:00:47 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: syscall.c,v 1.32 2023/03/20 11:19:29 hannken Exp $");
 
 #include "opt_sparc_arch.h"
 #include "opt_multiprocessor.h"

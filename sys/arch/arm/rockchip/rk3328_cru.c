@@ -1,4 +1,4 @@
-/* $NetBSD: rk3328_cru.c,v 1.9.4.1 2023/05/02 21:31:56 martin Exp $ */
+/* $NetBSD: rk3328_cru.c,v 1.10 2023/04/24 05:16:01 mrg Exp $ */
 
 /*-
  * Copyright (c) 2018 Jared McNeill <jmcneill@invisible.ca>
@@ -28,7 +28,7 @@
 
 #include <sys/cdefs.h>
 
-__KERNEL_RCSID(1, "$NetBSD: rk3328_cru.c,v 1.9.4.1 2023/05/02 21:31:56 martin Exp $");
+__KERNEL_RCSID(1, "$NetBSD: rk3328_cru.c,v 1.10 2023/04/24 05:16:01 mrg Exp $");
 
 #include <sys/param.h>
 #include <sys/bus.h>

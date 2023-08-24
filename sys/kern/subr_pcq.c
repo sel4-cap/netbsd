@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: subr_pcq.c,v 1.13.18.1 2023/07/30 12:13:02 martin Exp $	*/
+=======
+/*	$NetBSD: subr_pcq.c,v 1.20 2023/02/24 11:02:27 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2009, 2019 The NetBSD Foundation, Inc.
@@ -118,7 +122,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: subr_pcq.c,v 1.13.18.1 2023/07/30 12:13:02 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: subr_pcq.c,v 1.20 2023/02/24 11:02:27 riastradh Exp $");
+>>>>>>> trunk
 
 #include <sys/param.h>
 #include <sys/types.h>
@@ -273,9 +281,7 @@ pcq_get(pcq_t *pcq)
 	 * it is at the same memory location.  Yes, this is a bare
 	 * membar_producer with no matching membar_consumer.
 	 */
-#ifndef __HAVE_ATOMIC_AS_MEMBAR
 	membar_producer();
-#endif
 	while (__predict_false(atomic_cas_32(&pcq->pcq_pc, v, nv) != v)) {
 		v = atomic_load_relaxed(&pcq->pcq_pc);
 		pcq_split(v, &p, &c);

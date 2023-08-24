@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: libhfs.h,v 1.8.30.1 2023/07/31 15:47:20 martin Exp $	*/
+=======
+/*	$NetBSD: libhfs.h,v 1.9 2023/03/01 16:21:14 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2005, 2007 The NetBSD Foundation, Inc.

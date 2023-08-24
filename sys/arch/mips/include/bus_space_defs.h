@@ -1,4 +1,4 @@
-/*	$NetBSD: bus_space_defs.h,v 1.4.20.1 2023/04/03 18:30:41 martin Exp $	*/
+/*	$NetBSD: bus_space_defs.h,v 1.5 2023/03/28 10:54:13 nakayama Exp $	*/
 
 /*-
  * Copyright (c) 1997, 1998, 2000, 2001 The NetBSD Foundation, Inc.

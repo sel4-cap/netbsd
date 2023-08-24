@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: linux_ww_mutex.c,v 1.14.4.2 2023/08/01 16:55:03 martin Exp $	*/
+=======
+/*	$NetBSD: linux_ww_mutex.c,v 1.16 2023/07/29 23:50:03 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2014 The NetBSD Foundation, Inc.
@@ -30,7 +34,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: linux_ww_mutex.c,v 1.14.4.2 2023/08/01 16:55:03 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: linux_ww_mutex.c,v 1.16 2023/07/29 23:50:03 riastradh Exp $");
+>>>>>>> trunk
 
 #include <sys/types.h>
 #include <sys/atomic.h>

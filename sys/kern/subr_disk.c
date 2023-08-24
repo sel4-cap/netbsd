@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: subr_disk.c,v 1.134.4.1 2023/08/01 14:49:06 martin Exp $	*/
+=======
+/*	$NetBSD: subr_disk.c,v 1.137 2023/05/09 12:04:04 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 1996, 1997, 1999, 2000, 2009 The NetBSD Foundation, Inc.
@@ -67,7 +71,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: subr_disk.c,v 1.134.4.1 2023/08/01 14:49:06 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: subr_disk.c,v 1.137 2023/05/09 12:04:04 riastradh Exp $");
+>>>>>>> trunk
 
 #include <sys/param.h>
 #include <sys/kernel.h>

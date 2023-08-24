@@ -1,4 +1,4 @@
-/*	$NetBSD: psl.h,v 1.50.4.1 2023/08/09 17:42:02 martin Exp $ */
+/*	$NetBSD: psl.h,v 1.52 2023/07/11 13:10:08 martin Exp $ */
 
 /*
  * Copyright (c) 1992, 1993

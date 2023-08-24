@@ -1,4 +1,4 @@
-/* $NetBSD: pad.c,v 1.78.4.1 2023/05/02 17:39:54 martin Exp $ */
+/* $NetBSD: pad.c,v 1.85 2023/05/27 14:51:47 nat Exp $ */
 
 /*-
  * Copyright (c) 2007 Jared D. McNeill <jmcneill@invisible.ca>
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: pad.c,v 1.78.4.1 2023/05/02 17:39:54 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: pad.c,v 1.85 2023/05/27 14:51:47 nat Exp $");
 
 #include <sys/param.h>
 #include <sys/types.h>

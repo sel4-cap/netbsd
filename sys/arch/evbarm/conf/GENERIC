@@ -1,5 +1,5 @@
 #
-#	$NetBSD: GENERIC,v 1.115.2.1 2023/05/28 10:14:36 martin Exp $
+#	$NetBSD: GENERIC,v 1.120 2023/07/15 22:30:19 riastradh Exp $
 #
 #	GENERIC ARM (aarch32) kernel
 #
@@ -42,6 +42,10 @@ pseudo-device 	openfirm	# /dev/openfirm
 #options 	UVMHIST		# kernhist for uvm/pmap subsystems
 #options 	PCI_CONFIG_DUMP	# verbosely dump PCI config space
 
+# Heartbeat checks
+options 	HEARTBEAT
+options 	HEARTBEAT_MAX_PERIOD_DEFAULT=15
+
 options 	MSGBUFSIZE=32768
 
 #options 	VERBOSE_INIT_ARM # verbose bootstrapping messages
@@ -79,9 +83,11 @@ options 	MSGBUFSIZE=32768
 #options 	EARLYCONS=tegra, CONSADDR=0x70006300
 
 #options 	EARLYCONS=vexpress, CONSADDR=0x1c090000
-#options 	EARLYCONS=virt, CONSADDR=0x09000000
 #options 	EARLYCONS=zynq, CONSADDR=0xe0001000
 #options 	EARLYCONS=rk3288, CONSADDR=0xff690000
+
+# The QEMU virt machine
+#options 	EARLYCONS=plcom, CONSADDR=0x09000000
 
 # Kernel Undefined Behavior Sanitizer (kUBSan). Use UBSAN_ALWAYS_FATAL
 # if you want panics instead of warnings.
@@ -629,4 +635,5 @@ bthub* at ubt?
 
 include "dev/bluetooth/bluetoothdevices.config"
 
-cinclude "arch/evbarm/conf/GENERIC.local"
+# Pull in optional local configuration - always at end
+cinclude	"arch/evbarm/conf/GENERIC.local"

@@ -1,4 +1,4 @@
-/*	$NetBSD: obio.c,v 1.12.6.1 2023/08/09 17:42:05 martin Exp $ */
+/*	$NetBSD: obio.c,v 1.13 2023/07/13 19:42:24 riastradh Exp $ */
 
 /*
  * Copyright (c) 2002, 2003  Genetec Corporation.  All rights reserved.
@@ -35,7 +35,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: obio.c,v 1.12.6.1 2023/08/09 17:42:05 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: obio.c,v 1.13 2023/07/13 19:42:24 riastradh Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

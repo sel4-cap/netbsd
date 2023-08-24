@@ -1,4 +1,4 @@
-/*	$NetBSD: machdep.c,v 1.116.4.2 2023/02/12 11:48:56 martin Exp $	*/
+/*	$NetBSD: machdep.c,v 1.120 2023/02/04 14:38:09 tsutsui Exp $	*/
 
 /*
  * Copyright (c) 1998 Darrin B. Jewell
@@ -40,7 +40,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: machdep.c,v 1.116.4.2 2023/02/12 11:48:56 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: machdep.c,v 1.120 2023/02/04 14:38:09 tsutsui Exp $");
 
 #include "opt_ddb.h"
 #include "opt_kgdb.h"
@@ -124,7 +124,7 @@ extern char *esym;
 /* the following is used externally (sysctl_hw) */
 char	machine[] = MACHINE;	/* from <machine/param.h> */
 
-/* Our exported CPU info; we can have only one. */  
+/* Our exported CPU info; we can have only one. */
 struct cpu_info cpu_info_store;
 
 struct vm_map *phys_map = NULL;
@@ -525,7 +525,7 @@ cpu_init_kcore_hdr(void)
 	/*
 	 * Initialize pointer to kernel segment table.
 	 */
-	m->sysseg_pa = (u_int32_t)(pmap_kernel()->pm_stpa);
+	m->sysseg_pa = (uint32_t)(pmap_kernel()->pm_stpa);
 
 	/*
 	 * Initialize relocation value such that:
@@ -537,7 +537,7 @@ cpu_init_kcore_hdr(void)
 	/*
 	 * Define the end of the relocatable range.
 	 */
-	m->relocend = (u_int32_t)end;
+	m->relocend = (uint32_t)end;
 
 	/*
 	 * The next68k has multiple memory segments.
@@ -591,7 +591,7 @@ cpu_dump(int (*dump)(dev_t, daddr_t, void *, size_t), daddr_t *blknop)
 /*
  * These variables are needed by /sbin/savecore
  */
-u_int32_t dumpmag = 0x8fca0101;	/* magic number */
+uint32_t dumpmag = 0x8fca0101;	/* magic number */
 int	dumpsize = 0;		/* pages */
 long	dumplo = 0;		/* blocks */
 
@@ -810,7 +810,7 @@ nmihand(void *frame)
 #endif /* DDB */
 
 	INTR_ENABLE(NEXT_I_NMI);
-  
+
 	innmihand = 0;
 
 	return 0;
@@ -820,7 +820,7 @@ nmihand(void *frame)
 /*
  * cpu_exec_aout_makecmds():
  *	CPU-dependent a.out format hook for execve().
- * 
+ *
  * Determine of the given exec package refers to something which we
  * understand and, if so, set up the vmcmds for it.
  */

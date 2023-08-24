@@ -1,4 +1,4 @@
-/*	$NetBSD: vnd.c,v 1.287.4.2 2023/08/17 10:00:01 martin Exp $	*/
+/*	$NetBSD: vnd.c,v 1.289 2023/05/19 15:42:43 mlelstv Exp $	*/
 
 /*-
  * Copyright (c) 1996, 1997, 1998, 2008, 2020 The NetBSD Foundation, Inc.
@@ -91,7 +91,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: vnd.c,v 1.287.4.2 2023/08/17 10:00:01 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: vnd.c,v 1.289 2023/05/19 15:42:43 mlelstv Exp $");
 
 #if defined(_KERNEL_OPT)
 #include "opt_vnd.h"

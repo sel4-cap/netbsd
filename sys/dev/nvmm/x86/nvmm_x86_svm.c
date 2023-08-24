@@ -1,4 +1,4 @@
-/*	$NetBSD: nvmm_x86_svm.c,v 1.84.4.1 2023/07/25 15:30:27 martin Exp $	*/
+/*	$NetBSD: nvmm_x86_svm.c,v 1.85 2023/02/23 02:54:02 riastradh Exp $	*/
 
 /*
  * Copyright (c) 2018-2020 Maxime Villard, m00nbsd.net
@@ -29,7 +29,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: nvmm_x86_svm.c,v 1.84.4.1 2023/07/25 15:30:27 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: nvmm_x86_svm.c,v 1.85 2023/02/23 02:54:02 riastradh Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

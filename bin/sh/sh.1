@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 .\"	$NetBSD: sh.1,v 1.252.2.1 2022/12/20 09:51:47 martin Exp $
+=======
+.\"	$NetBSD: sh.1,v 1.256 2023/08/04 15:31:40 jschauma Exp $
+>>>>>>> trunk
 .\" Copyright (c) 1991, 1993
 .\"	The Regents of the University of California.  All rights reserved.
 .\"
@@ -122,7 +126,7 @@ When first starting,
 if neither the
 .Fl l
 nor
-.Cm \+l
+.Cm \&+l
 options were given on the command line,
 the shell inspects argument 0, and if it begins with a dash
 .Sq \- ,
@@ -424,7 +428,7 @@ a login shell.
 When reset on the command line
 .Po Cm \&+l
 or
-.Cm Cm \&+o Em login Pc ,
+.Cm \&+o Em login Pc ,
 the shell will not be
 considered a login shell, even if the command name parameter
 .Po Va argv[0] Pc
@@ -1000,7 +1004,7 @@ If not explicitly present,
 .Ar n
 will be 0 (standard input)
 or 1 (standard output)
-depending upon the redicection operator used.
+depending upon the redirection operator used.
 If file descriptor
 .Ar n
 was open prior to the redirection, its previous use is closed.
@@ -1782,7 +1786,7 @@ field with the value of each parameter separated by the first character of
 the
 .Ev IFS
 variable (possibly nothing if
-.EV IFS
+.Ev IFS
 has a null value), or by a
 .Aq space
 if
@@ -3632,7 +3636,7 @@ which is processed as if it had been part of the original line.
 This includes reading yet more input if necessary,
 until a line is read that contains or ends with an unescaped
 copy of the delimiter character.
-If the end delimiter (when it is not a newline) is escaoed,
+If the end delimiter (when it is not a newline) is escaped,
 it is treated as a normal character, and
 .Ic read
 continues looking for an unescaped end delimiter character.

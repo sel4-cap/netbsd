@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: kern_rwlock.c,v 1.66.4.2 2023/07/31 14:45:59 martin Exp $	*/
+=======
+/*	$NetBSD: kern_rwlock.c,v 1.71 2023/07/17 12:54:29 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2002, 2006, 2007, 2008, 2009, 2019, 2020
@@ -45,7 +49,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: kern_rwlock.c,v 1.66.4.2 2023/07/31 14:45:59 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: kern_rwlock.c,v 1.71 2023/07/17 12:54:29 riastradh Exp $");
+>>>>>>> trunk
 
 #include "opt_lockdebug.h"
 
@@ -98,6 +106,7 @@ do { \
 #endif	/* DIAGNOSTIC */
 
 /*
+<<<<<<< HEAD
  * Memory barriers.
  */
 #ifdef __HAVE_ATOMIC_AS_MEMBAR
@@ -109,6 +118,8 @@ do { \
 #endif
 
 /*
+=======
+>>>>>>> trunk
  * For platforms that do not provide stubs, or for the LOCKDEBUG case.
  */
 #ifdef LOCKDEBUG
@@ -132,6 +143,7 @@ lockops_t rwlock_lockops = {
 };
 
 syncobj_t rw_syncobj = {
+	.sobj_name	= "rw",
 	.sobj_flag	= SOBJ_SLEEPQ_SORTED,
 	.sobj_unsleep	= turnstile_unsleep,
 	.sobj_changepri	= turnstile_changepri,
@@ -342,7 +354,7 @@ rw_vector_enter(krwlock_t *rw, const krw_t op)
 			    ~RW_WRITE_WANTED);
 			if (__predict_true(next == owner)) {
 				/* Got it! */
-				RW_MEMBAR_ACQUIRE();
+				membar_acquire();
 				break;
 			}
 
@@ -470,7 +482,7 @@ rw_vector_exit(krwlock_t *rw)
 	 * proceed to do direct handoff if there are waiters, and if the
 	 * lock would become unowned.
 	 */
-	RW_MEMBAR_RELEASE();
+	membar_release();
 	for (;;) {
 		newown = (owner - decr);
 		if ((newown & (RW_THREAD | RW_HAS_WAITERS)) == RW_HAS_WAITERS)
@@ -584,7 +596,7 @@ rw_vector_tryenter(krwlock_t *rw, const krw_t op)
 	RW_ASSERT(rw, (op != RW_READER && RW_OWNER(rw) == curthread) ||
 	    (op == RW_READER && RW_COUNT(rw) != 0));
 
-	RW_MEMBAR_ACQUIRE();
+	membar_acquire();
 	return 1;
 }
 
@@ -611,8 +623,12 @@ rw_downgrade(krwlock_t *rw)
 	__USE(curthread);
 #endif
 
+<<<<<<< HEAD
 	RW_MEMBAR_RELEASE();
 
+=======
+	membar_release();
+>>>>>>> trunk
 	for (owner = rw->rw_owner;; owner = next) {
 		/*
 		 * If there are no waiters we can do this the easy way.  Try
@@ -710,7 +726,11 @@ rw_tryupgrade(krwlock_t *rw)
 		newown = curthread | RW_WRITE_LOCKED | (owner & ~RW_THREAD);
 		next = rw_cas(rw, owner, newown);
 		if (__predict_true(next == owner)) {
+<<<<<<< HEAD
 			RW_MEMBAR_ACQUIRE();
+=======
+			membar_acquire();
+>>>>>>> trunk
 			break;
 		}
 		RW_ASSERT(rw, (next & RW_WRITE_LOCKED) == 0);

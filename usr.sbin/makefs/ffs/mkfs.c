@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: mkfs.c,v 1.41.2.1 2023/05/13 11:51:13 martin Exp $	*/
+=======
+/*	$NetBSD: mkfs.c,v 1.42 2023/01/07 19:41:30 chs Exp $	*/
+>>>>>>> trunk
 
 /*
  * Copyright (c) 2002 Networks Associates Technology, Inc.
@@ -48,7 +52,11 @@
 static char sccsid[] = "@(#)mkfs.c	8.11 (Berkeley) 5/3/95";
 #else
 #ifdef __RCSID
+<<<<<<< HEAD
 __RCSID("$NetBSD: mkfs.c,v 1.41.2.1 2023/05/13 11:51:13 martin Exp $");
+=======
+__RCSID("$NetBSD: mkfs.c,v 1.42 2023/01/07 19:41:30 chs Exp $");
+>>>>>>> trunk
 #endif
 #endif
 #endif /* not lint */

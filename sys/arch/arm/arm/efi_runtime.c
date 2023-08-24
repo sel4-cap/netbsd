@@ -1,4 +1,4 @@
-/* $NetBSD: efi_runtime.c,v 1.10.2.1 2023/08/01 16:05:11 martin Exp $ */
+/* $NetBSD: efi_runtime.c,v 1.11 2023/05/22 16:27:48 riastradh Exp $ */
 
 /*-
  * Copyright (c) 2018 The NetBSD Foundation, Inc.
@@ -32,7 +32,7 @@
 #include "efi.h"
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: efi_runtime.c,v 1.10.2.1 2023/08/01 16:05:11 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: efi_runtime.c,v 1.11 2023/05/22 16:27:48 riastradh Exp $");
 
 #include <sys/param.h>
 #include <sys/mutex.h>

@@ -1,4 +1,4 @@
-/* $NetBSD: wsdisplay.c,v 1.165.4.1 2023/03/20 17:24:15 martin Exp $ */
+/* $NetBSD: wsdisplay.c,v 1.166 2023/03/01 08:42:33 riastradh Exp $ */
 
 /*
  * Copyright (c) 1996, 1997 Christopher G. Demetriou.  All rights reserved.
@@ -31,7 +31,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: wsdisplay.c,v 1.165.4.1 2023/03/20 17:24:15 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: wsdisplay.c,v 1.166 2023/03/01 08:42:33 riastradh Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_wsdisplay_compat.h"

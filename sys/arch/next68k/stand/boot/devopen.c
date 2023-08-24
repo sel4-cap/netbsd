@@ -1,4 +1,4 @@
-/*	$NetBSD: devopen.c,v 1.6.58.2 2023/02/22 12:07:08 martin Exp $	*/
+/*	$NetBSD: devopen.c,v 1.8 2023/02/12 08:25:09 tsutsui Exp $	*/
 /*
  * Copyright (c) 1994 Rolf Grossmann
  * All rights reserved.

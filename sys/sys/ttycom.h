@@ -1,4 +1,4 @@
-/*	$NetBSD: ttycom.h,v 1.21.34.1 2022/12/21 19:58:15 martin Exp $	*/
+/*	$NetBSD: ttycom.h,v 1.22 2022/12/21 19:08:22 chs Exp $	*/
 
 /*-
  * Copyright (c) 1982, 1986, 1990, 1993, 1994

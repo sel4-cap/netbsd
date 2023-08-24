@@ -1,4 +1,4 @@
-/*	$NetBSD: i915_gem_busy.c,v 1.3.4.1 2023/08/01 16:00:57 martin Exp $	*/
+/*	$NetBSD: i915_gem_busy.c,v 1.4 2023/05/12 10:13:37 riastradh Exp $	*/
 
 /*
  * SPDX-License-Identifier: MIT
@@ -7,7 +7,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: i915_gem_busy.c,v 1.3.4.1 2023/08/01 16:00:57 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: i915_gem_busy.c,v 1.4 2023/05/12 10:13:37 riastradh Exp $");
 
 #include "gt/intel_engine.h"
 

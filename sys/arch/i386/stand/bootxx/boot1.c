@@ -1,4 +1,4 @@
-/*	$NetBSD: boot1.c,v 1.21.10.1 2023/06/30 17:20:28 martin Exp $	*/
+/*	$NetBSD: boot1.c,v 1.22 2023/06/29 14:18:58 manu Exp $	*/
 
 /*-
  * Copyright (c) 2003 The NetBSD Foundation, Inc.
@@ -30,7 +30,7 @@
  */
 
 #include <sys/cdefs.h>
-__RCSID("$NetBSD: boot1.c,v 1.21.10.1 2023/06/30 17:20:28 martin Exp $");
+__RCSID("$NetBSD: boot1.c,v 1.22 2023/06/29 14:18:58 manu Exp $");
 
 #include <lib/libsa/stand.h>
 #include <lib/libkern/libkern.h>

@@ -1,4 +1,4 @@
-/*	$NetBSD: urlphy.c,v 1.39.4.1 2023/06/21 22:11:29 martin Exp $	*/
+/*	$NetBSD: urlphy.c,v 1.40 2023/02/22 08:09:09 msaitoh Exp $	*/
 /*
  * Copyright (c) 2001, 2002
  *     Shingo WATANABE <nabe@nabechan.org>.  All rights reserved.
@@ -34,7 +34,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: urlphy.c,v 1.39.4.1 2023/06/21 22:11:29 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: urlphy.c,v 1.40 2023/02/22 08:09:09 msaitoh Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

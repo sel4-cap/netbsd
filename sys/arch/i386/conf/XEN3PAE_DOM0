@@ -1,4 +1,4 @@
-#	$NetBSD: XEN3PAE_DOM0,v 1.36 2022/08/07 02:52:26 simonb Exp $
+#	$NetBSD: XEN3PAE_DOM0,v 1.40 2023/08/05 14:38:43 riastradh Exp $
 #
 #	XEN3_0: Xen 3.0 domain0 kernel
 
@@ -74,8 +74,13 @@ options 	DDB_ONPANIC=1	# see also sysctl(7): `ddb.onpanic'
 options 	DDB_HISTORY_SIZE=512	# enable history editing in DDB
 #options 	KGDB		# remote debugger
 #options 	KGDB_DEVNAME="\"com\"",KGDB_DEVADDR=0x2f8,KGDB_DEVRATE=57600
-#makeoptions	DEBUG="-g"	# compile full symbol table
+makeoptions	DEBUG="-g"	# compile full symbol table
 options DDB_COMMANDONENTER="show registers"
+options 	KDTRACE_HOOKS	# kernel DTrace hooks
+
+# Heartbeat checks
+options 	HEARTBEAT
+options 	HEARTBEAT_MAX_PERIOD_DEFAULT=15
 
 # Compatibility options
 include 	"conf/compat_netbsd09.config"
@@ -769,9 +774,6 @@ btsco* at bthub?
 hifn*	at pci? dev ? function ?	# Hifn 7755/7811/795x
 ubsec*	at pci? dev ? function ?	# Broadcom 5501/5601/580x/582x
 
-cinclude "arch/i386/conf/GENERIC.local"
-cinclude "arch/i386/conf/XEN3_DOM0.local"
-
 # Pseudo-Devices
 
 pseudo-device	crypto		# /dev/crypto device
@@ -884,3 +886,7 @@ acpiecdt*	at acpi?		# ACPI Embedded Controller (early binding)
 acpilid*	at acpi?		# ACPI Lid Switch
 aibs*		at acpi?		# ASUSTeK AI Booster hardware monitor
 hpqlb*		at acpi?		# HP Quick Launch Buttons
+
+# Pull in optional local configuration - always at end
+cinclude	"arch/i386/conf/GENERIC.local"
+cinclude	"arch/i386/conf/XEN3_DOM0.local"

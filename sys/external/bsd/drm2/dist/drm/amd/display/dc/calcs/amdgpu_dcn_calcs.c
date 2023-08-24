@@ -1,4 +1,4 @@
-/*	$NetBSD: amdgpu_dcn_calcs.c,v 1.3.4.1 2023/08/02 10:34:25 martin Exp $	*/
+/*	$NetBSD: amdgpu_dcn_calcs.c,v 1.4 2023/07/20 21:48:49 riastradh Exp $	*/
 
 /*
  * Copyright 2017 Advanced Micro Devices, Inc.
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: amdgpu_dcn_calcs.c,v 1.3.4.1 2023/08/02 10:34:25 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: amdgpu_dcn_calcs.c,v 1.4 2023/07/20 21:48:49 riastradh Exp $");
 
 #include "dm_services.h"
 #include "dc.h"

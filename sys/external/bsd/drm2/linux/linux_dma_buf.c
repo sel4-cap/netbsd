@@ -1,4 +1,4 @@
-/*	$NetBSD: linux_dma_buf.c,v 1.15.4.1 2023/02/24 14:14:16 martin Exp $	*/
+/*	$NetBSD: linux_dma_buf.c,v 1.16 2023/02/21 11:40:13 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2018 The NetBSD Foundation, Inc.
@@ -30,7 +30,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: linux_dma_buf.c,v 1.15.4.1 2023/02/24 14:14:16 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: linux_dma_buf.c,v 1.16 2023/02/21 11:40:13 riastradh Exp $");
 
 #include <sys/types.h>
 #include <sys/atomic.h>

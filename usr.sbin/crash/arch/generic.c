@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: generic.c,v 1.1.58.1 2023/08/01 14:36:59 martin Exp $	*/
+=======
+/*	$NetBSD: generic.c,v 1.2 2023/04/12 17:53:32 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2009 The NetBSD Foundation, Inc.
@@ -31,7 +35,11 @@
 
 #include <sys/cdefs.h>
 #ifndef lint
+<<<<<<< HEAD
 __RCSID("$NetBSD: generic.c,v 1.1.58.1 2023/08/01 14:36:59 martin Exp $");
+=======
+__RCSID("$NetBSD: generic.c,v 1.2 2023/04/12 17:53:32 riastradh Exp $");
+>>>>>>> trunk
 #endif /* not lint */
 
 #include <sys/types.h>

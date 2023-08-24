@@ -1,4 +1,4 @@
-/*	$NetBSD: fs.h,v 1.70.2.1 2023/05/13 11:51:14 martin Exp $	*/
+/*	$NetBSD: fs.h,v 1.71 2023/01/07 19:41:30 chs Exp $	*/
 
 /*
  * Copyright (c) 1982, 1986, 1993

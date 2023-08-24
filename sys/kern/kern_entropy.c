@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: kern_entropy.c,v 1.57.4.4 2023/08/11 14:35:25 martin Exp $	*/
+=======
+/*	$NetBSD: kern_entropy.c,v 1.65 2023/08/05 11:21:24 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2019 The NetBSD Foundation, Inc.
@@ -77,7 +81,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: kern_entropy.c,v 1.57.4.4 2023/08/11 14:35:25 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: kern_entropy.c,v 1.65 2023/08/05 11:21:24 riastradh Exp $");
+>>>>>>> trunk
 
 #include <sys/param.h>
 #include <sys/types.h>

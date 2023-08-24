@@ -1,4 +1,4 @@
-/* $NetBSD: piixpmreg.h,v 1.12.24.1 2023/01/23 16:02:49 martin Exp $ */
+/* $NetBSD: piixpmreg.h,v 1.13 2023/01/10 00:05:53 msaitoh Exp $ */
 /*	$OpenBSD: piixreg.h,v 1.3 2006/01/03 22:39:03 grange Exp $	*/
 
 /*-

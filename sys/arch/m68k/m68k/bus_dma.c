@@ -1,4 +1,4 @@
-/* $NetBSD: bus_dma.c,v 1.38.4.1 2023/01/07 14:56:44 martin Exp $ */
+/* $NetBSD: bus_dma.c,v 1.39 2023/01/05 18:27:48 tsutsui Exp $ */
 
 /*
  * This file was taken from alpha/common/bus_dma.c
@@ -41,7 +41,7 @@
 
 #include <sys/cdefs.h>			/* RCS ID & Copyright macro defns */
 
-__KERNEL_RCSID(0, "$NetBSD: bus_dma.c,v 1.38.4.1 2023/01/07 14:56:44 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: bus_dma.c,v 1.39 2023/01/05 18:27:48 tsutsui Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

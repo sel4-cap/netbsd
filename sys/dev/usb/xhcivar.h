@@ -1,4 +1,4 @@
-/*	$NetBSD: xhcivar.h,v 1.22.2.2 2023/08/01 16:49:54 martin Exp $	*/
+/*	$NetBSD: xhcivar.h,v 1.24 2023/04/09 20:41:29 riastradh Exp $	*/
 
 /*
  * Copyright (c) 2013 Jonathan A. Kollasch

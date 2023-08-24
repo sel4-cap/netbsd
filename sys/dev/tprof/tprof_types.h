@@ -1,4 +1,4 @@
-/*	$NetBSD: tprof_types.h,v 1.6.2.1 2023/06/21 22:34:51 martin Exp $	*/
+/*	$NetBSD: tprof_types.h,v 1.7 2023/04/11 10:07:12 msaitoh Exp $	*/
 
 /*-
  * Copyright (c)2010,2011 YAMAMOTO Takashi,

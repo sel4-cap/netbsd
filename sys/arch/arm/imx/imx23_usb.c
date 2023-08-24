@@ -1,4 +1,4 @@
-/* $Id: imx23_usb.c,v 1.5.6.1 2023/05/28 10:14:36 martin Exp $ */
+/* $Id: imx23_usb.c,v 1.6 2023/05/04 17:09:44 bouyer Exp $ */
 
 /*
  * Copyright (c) 2013 The NetBSD Foundation, Inc.

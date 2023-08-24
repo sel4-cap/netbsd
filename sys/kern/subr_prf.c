@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: subr_prf.c,v 1.196.2.2 2023/08/11 14:35:25 martin Exp $	*/
+=======
+/*	$NetBSD: subr_prf.c,v 1.202 2023/08/04 07:38:53 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 1986, 1988, 1991, 1993
@@ -37,7 +41,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: subr_prf.c,v 1.196.2.2 2023/08/11 14:35:25 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: subr_prf.c,v 1.202 2023/08/04 07:38:53 riastradh Exp $");
+>>>>>>> trunk
 
 #ifdef _KERNEL_OPT
 #include "opt_ddb.h"
@@ -146,7 +154,8 @@ void
 kprintf_init(void)
 {
 
-	KASSERT(!kprintf_inited && cold); /* not foolproof, but ... */
+	KASSERT(!kprintf_inited); /* not foolproof, but ... */
+	KASSERT(cold);
 	mutex_init(&kprintf_mtx, MUTEX_DEFAULT, IPL_HIGH);
 #ifdef RND_PRINTF
 	rnd_attach_source(&rnd_printf_source, "printf", RND_TYPE_UNKNOWN,
@@ -641,7 +650,7 @@ tprintf(tpr_t tpr, const char *fmt, ...)
 	va_list ap;
 
 	/* mutex_enter(&proc_lock); XXXSMP */
-	if (sess && sess->s_ttyvp && ttycheckoutq(sess->s_ttyp, 0)) {
+	if (sess && sess->s_ttyvp && ttycheckoutq(sess->s_ttyp)) {
 		flags |= TOTTY;
 		tp = sess->s_ttyp;
 	}
@@ -1240,11 +1249,12 @@ device_printf(device_t dev, const char *fmt, ...)
 {
 	va_list ap;
 
+	kprintf_lock();
+	kprintf_internal("%s: ", TOCONS|TOLOG, NULL, NULL, device_xname(dev));
 	va_start(ap, fmt);
-	printf("%s: ", device_xname(dev));
-	vprintf(fmt, ap);
+	kprintf(fmt, TOCONS|TOLOG, NULL, NULL, ap);
 	va_end(ap);
-	return;
+	kprintf_unlock();
 }
 
 /*

@@ -1,4 +1,4 @@
-/* $NetBSD: tprof_armv7.c,v 1.11.2.2 2023/06/21 22:34:51 martin Exp $ */
+/* $NetBSD: tprof_armv7.c,v 1.13 2023/04/11 10:07:12 msaitoh Exp $ */
 
 /*-
  * Copyright (c) 2018 Jared McNeill <jmcneill@invisible.ca>
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: tprof_armv7.c,v 1.11.2.2 2023/06/21 22:34:51 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: tprof_armv7.c,v 1.13 2023/04/11 10:07:12 msaitoh Exp $");
 
 #include <sys/param.h>
 #include <sys/bus.h>

@@ -1,4 +1,4 @@
-/* $NetBSD: ep93xx_intr.c,v 1.27.4.1 2023/05/02 17:52:39 martin Exp $ */
+/* $NetBSD: ep93xx_intr.c,v 1.28 2023/05/02 09:49:33 jmcneill Exp $ */
 
 /*
  * Copyright (c) 2002 The NetBSD Foundation, Inc.
@@ -33,7 +33,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: ep93xx_intr.c,v 1.27.4.1 2023/05/02 17:52:39 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: ep93xx_intr.c,v 1.28 2023/05/02 09:49:33 jmcneill Exp $");
 
 /*
  * Interrupt support for the Cirrus Logic EP93XX

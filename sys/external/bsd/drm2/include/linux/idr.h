@@ -1,4 +1,4 @@
-/*	$NetBSD: idr.h,v 1.10.2.1 2023/08/09 17:42:03 martin Exp $	*/
+/*	$NetBSD: idr.h,v 1.11 2023/07/11 10:42:36 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2013 The NetBSD Foundation, Inc.

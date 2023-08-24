@@ -1,4 +1,4 @@
-/*	$NetBSD: netbsd32.h,v 1.140 2022/04/23 17:46:23 reinoud Exp $	*/
+/*	$NetBSD: netbsd32.h,v 1.143 2023/07/30 06:52:20 rin Exp $	*/
 
 /*
  * Copyright (c) 1998, 2001, 2008, 2015 Matthew R. Green
@@ -207,6 +207,15 @@ typedef netbsd32_uint64 netbsd32_dev_t;
 typedef netbsd32_int64 netbsd32_off_t;
 typedef netbsd32_uint64 netbsd32_ino_t;
 typedef netbsd32_int64 netbsd32_blkcnt_t;
+
+/* from <sys/epoll.h> */
+typedef netbsd32_uint64 netbsd32_epoll_data_t;
+
+typedef netbsd32_pointer_t netbsd32_epoll_eventp_t;
+struct netbsd32_epoll_event {
+	uint32_t		events;
+	netbsd32_epoll_data_t	data;
+};
 
 /* from <sys/spawn.h> */
 typedef netbsd32_pointer_t netbsd32_posix_spawn_file_actionsp;
@@ -511,7 +520,7 @@ typedef netbsd32_size_t netbsd32_msglen_t;
 
 typedef netbsd32_pointer_t netbsd32_msqid_dsp_t;
 struct netbsd32_msqid_ds {
-	struct netbsd32_ipc_perm msg_perm;	/* operation permission strucure */
+	struct netbsd32_ipc_perm msg_perm;	/* operation permission structure */
 	netbsd32_msgqnum_t	msg_qnum;	/* number of messages in the queue */
 	netbsd32_msglen_t	msg_qbytes;	/* max # of bytes in the queue */
 	pid_t		msg_lspid;	/* process ID of last msgsend() */
@@ -530,7 +539,7 @@ struct netbsd32_msqid_ds {
 };
 typedef netbsd32_pointer_t netbsd32_msqid_ds50p_t;
 struct netbsd32_msqid_ds50 {
-	struct netbsd32_ipc_perm msg_perm;	/* operation permission strucure */
+	struct netbsd32_ipc_perm msg_perm;	/* operation permission structure */
 	netbsd32_msgqnum_t	msg_qnum;	/* number of messages in the queue */
 	netbsd32_msglen_t	msg_qbytes;	/* max # of bytes in the queue */
 	pid_t		msg_lspid;	/* process ID of last msgsend() */
@@ -1018,6 +1027,19 @@ typedef netbsd32_pointer_t netbsd32_uuidp_t;
 typedef netbsd32_pointer_t netbsd32_keventp_t;
 
 struct netbsd32_kevent {
+	netbsd32_uintptr_t	ident;
+	uint32_t		filter;
+	uint32_t		flags;
+	uint32_t		fflags;
+	netbsd32_int64		data;
+	netbsd32_pointer_t	udata;
+	netbsd32_uint64		ext[4];
+};
+
+/* from <compat/sys/event.h> */
+typedef netbsd32_pointer_t netbsd32_kevent100p_t;
+
+struct netbsd32_kevent100 {
 	netbsd32_uintptr_t	ident;
 	uint32_t		filter;
 	uint32_t		flags;

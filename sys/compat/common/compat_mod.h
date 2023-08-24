@@ -1,4 +1,4 @@
-/*	$NetBSD: compat_mod.h,v 1.6 2019/09/22 22:59:38 christos Exp $	*/
+/*	$NetBSD: compat_mod.h,v 1.8 2023/07/28 18:19:00 christos Exp $	*/
 
 /*-
  * Copyright (c) 2013, 2019 The NetBSD Foundation, Inc.
@@ -31,6 +31,13 @@
 
 #ifndef	_COMPAT_MOD_H
 #define	_COMPAT_MOD_H
+
+#ifdef COMPAT_100
+int compat_100_init(void);
+int compat_100_fini(void);
+int kern_event_100_init(void);
+int kern_event_100_fini(void);
+#endif
 
 #ifdef COMPAT_90
 int compat_90_init(void);

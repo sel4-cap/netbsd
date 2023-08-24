@@ -1,4 +1,4 @@
-/*	$NetBSD: xen.h,v 1.47.20.1 2023/03/30 11:45:34 martin Exp $	*/
+/*	$NetBSD: xen.h,v 1.48 2023/03/24 12:28:42 bouyer Exp $	*/
 
 /*
  *

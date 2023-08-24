@@ -1,4 +1,4 @@
-/*	$NetBSD: if_urndis.c,v 1.47.4.1 2023/02/17 17:36:26 martin Exp $ */
+/*	$NetBSD: if_urndis.c,v 1.48 2023/02/11 22:42:49 nia Exp $ */
 /*	$OpenBSD: if_urndis.c,v 1.31 2011/07/03 15:47:17 matthew Exp $ */
 
 /*
@@ -21,7 +21,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: if_urndis.c,v 1.47.4.1 2023/02/17 17:36:26 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: if_urndis.c,v 1.48 2023/02/11 22:42:49 nia Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_usb.h"

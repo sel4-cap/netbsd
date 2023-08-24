@@ -1,4 +1,4 @@
-/*	$NetBSD: brgphy.c,v 1.90.20.1 2023/06/21 22:11:29 martin Exp $	*/
+/*	$NetBSD: brgphy.c,v 1.91 2023/02/22 08:09:09 msaitoh Exp $	*/
 
 /*-
  * Copyright (c) 1998, 1999, 2000, 2001 The NetBSD Foundation, Inc.
@@ -62,7 +62,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: brgphy.c,v 1.90.20.1 2023/06/21 22:11:29 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: brgphy.c,v 1.91 2023/02/22 08:09:09 msaitoh Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

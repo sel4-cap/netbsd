@@ -1,4 +1,4 @@
-/*	$NetBSD: linux32_machdep.c,v 1.47.4.1 2023/06/21 21:22:53 martin Exp $ */
+/*	$NetBSD: linux32_machdep.c,v 1.48 2023/06/20 15:22:15 riastradh Exp $ */
 
 /*-
  * Copyright (c) 2006 Emmanuel Dreyfus, all rights reserved.
@@ -31,7 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: linux32_machdep.c,v 1.47.4.1 2023/06/21 21:22:53 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: linux32_machdep.c,v 1.48 2023/06/20 15:22:15 riastradh Exp $");
 
 #if defined(_KERNEL_OPT)
 #include "opt_user_ldt.h"

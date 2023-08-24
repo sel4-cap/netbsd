@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: kern_subr.c,v 1.230.4.1 2023/02/22 13:28:01 martin Exp $	*/
+=======
+/*	$NetBSD: kern_subr.c,v 1.231 2023/01/19 07:40:58 mlelstv Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 1997, 1998, 1999, 2002, 2007, 2008 The NetBSD Foundation, Inc.
@@ -79,7 +83,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: kern_subr.c,v 1.230.4.1 2023/02/22 13:28:01 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: kern_subr.c,v 1.231 2023/01/19 07:40:58 mlelstv Exp $");
+>>>>>>> trunk
 
 #include "opt_ddb.h"
 #include "opt_md.h"

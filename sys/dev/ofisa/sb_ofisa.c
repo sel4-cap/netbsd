@@ -1,4 +1,4 @@
-/*	$NetBSD: sb_ofisa.c,v 1.23.18.1 2023/08/01 14:57:27 martin Exp $	*/
+/*	$NetBSD: sb_ofisa.c,v 1.24 2023/04/18 06:37:25 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 1998 The NetBSD Foundation, Inc.
@@ -31,7 +31,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: sb_ofisa.c,v 1.23.18.1 2023/08/01 14:57:27 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: sb_ofisa.c,v 1.24 2023/04/18 06:37:25 riastradh Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

@@ -1,4 +1,4 @@
-/*	$NetBSD: if_tap.c,v 1.127.4.1 2023/01/06 13:54:58 martin Exp $	*/
+/*	$NetBSD: if_tap.c,v 1.128 2023/01/06 01:54:22 ozaki-r Exp $	*/
 
 /*
  *  Copyright (c) 2003, 2004, 2008, 2009 The NetBSD Foundation.
@@ -33,7 +33,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: if_tap.c,v 1.127.4.1 2023/01/06 13:54:58 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: if_tap.c,v 1.128 2023/01/06 01:54:22 ozaki-r Exp $");
 
 #if defined(_KERNEL_OPT)
 

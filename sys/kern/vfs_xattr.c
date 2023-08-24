@@ -1,4 +1,4 @@
-/*	$NetBSD: vfs_xattr.c,v 1.38.2.1 2023/03/30 11:41:07 martin Exp $	*/
+/*	$NetBSD: vfs_xattr.c,v 1.39 2023/03/24 12:22:52 bouyer Exp $	*/
 
 /*-
  * Copyright (c) 2005, 2008 The NetBSD Foundation, Inc.
@@ -68,7 +68,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: vfs_xattr.c,v 1.38.2.1 2023/03/30 11:41:07 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: vfs_xattr.c,v 1.39 2023/03/24 12:22:52 bouyer Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

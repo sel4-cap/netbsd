@@ -1,4 +1,4 @@
-/*	$NetBSD: ipmi.c,v 1.9.10.1 2023/06/03 15:16:08 martin Exp $ */
+/*	$NetBSD: ipmi.c,v 1.10 2023/03/22 13:00:54 mlelstv Exp $ */
 
 /*
  * Copyright (c) 2019 Michael van Elst
@@ -76,7 +76,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: ipmi.c,v 1.9.10.1 2023/06/03 15:16:08 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: ipmi.c,v 1.10 2023/03/22 13:00:54 mlelstv Exp $");
 
 #include <sys/types.h>
 #include <sys/param.h>

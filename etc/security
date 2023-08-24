@@ -1,6 +1,10 @@
 #!/bin/sh -
 #
+<<<<<<< HEAD
 #	$NetBSD: security,v 1.129.2.1 2023/08/11 14:35:25 martin Exp $
+=======
+#	$NetBSD: security,v 1.131 2023/07/05 12:07:21 martin Exp $
+>>>>>>> trunk
 #	from: @(#)security	8.1 (Berkeley) 6/9/93
 #
 

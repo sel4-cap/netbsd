@@ -1,4 +1,4 @@
-/*	$NetBSD: xen_intr.c,v 1.30.4.1 2023/07/31 14:54:21 martin Exp $	*/
+/*	$NetBSD: xen_intr.c,v 1.31 2023/02/25 00:32:13 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 1998, 2001 The NetBSD Foundation, Inc.
@@ -30,7 +30,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: xen_intr.c,v 1.30.4.1 2023/07/31 14:54:21 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: xen_intr.c,v 1.31 2023/02/25 00:32:13 riastradh Exp $");
 
 #include "opt_multiprocessor.h"
 #include "opt_pci.h"

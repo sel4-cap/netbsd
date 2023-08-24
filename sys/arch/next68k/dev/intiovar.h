@@ -1,4 +1,4 @@
-/*	$NetBSD: intiovar.h,v 1.7.90.1 2023/02/15 19:35:14 martin Exp $	*/
+/*	$NetBSD: intiovar.h,v 1.8 2023/02/11 02:31:34 tsutsui Exp $	*/
 
 /*-
  * Copyright (c) 1996 The NetBSD Foundation, Inc.

@@ -1,4 +1,4 @@
-/*	$NetBSD: boot.c,v 1.12.48.2 2023/02/22 12:07:08 martin Exp $	*/
+/*	$NetBSD: boot.c,v 1.15 2023/02/12 10:04:56 tsutsui Exp $	*/
 /*
  * Copyright (c) 1994 Rolf Grossmann
  * All rights reserved.

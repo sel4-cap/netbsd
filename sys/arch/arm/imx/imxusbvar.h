@@ -1,4 +1,4 @@
-/*	$NetBSD: imxusbvar.h,v 1.6.28.1 2023/05/28 10:14:36 martin Exp $	*/
+/*	$NetBSD: imxusbvar.h,v 1.7 2023/05/04 17:09:44 bouyer Exp $	*/
 /*
  * Copyright (c) 2019  Genetec Corporation.  All rights reserved.
  * Written by Hashimoto Kenichi for Genetec Corporation.

@@ -1,4 +1,4 @@
-#	$NetBSD: Makefile,v 1.3.30.1 2023/05/15 10:34:58 martin Exp $
+#	$NetBSD: Makefile,v 1.4 2023/01/13 18:43:43 martin Exp $
 
 NODEBUG=yes
 PROG=	xxboot

@@ -1,4 +1,4 @@
-/*	$NetBSD: intr.h,v 1.22.16.1 2023/08/09 17:42:05 martin Exp $	*/
+/*	$NetBSD: intr.h,v 1.23 2023/07/11 10:58:03 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 1996, 1997, 2007 The NetBSD Foundation, Inc.

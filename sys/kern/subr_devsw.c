@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: subr_devsw.c,v 1.49.2.1 2023/02/14 16:16:30 martin Exp $	*/
+=======
+/*	$NetBSD: subr_devsw.c,v 1.51 2023/02/15 13:12:45 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2001, 2002, 2007, 2008 The NetBSD Foundation, Inc.
@@ -69,7 +73,11 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: subr_devsw.c,v 1.49.2.1 2023/02/14 16:16:30 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: subr_devsw.c,v 1.51 2023/02/15 13:12:45 riastradh Exp $");
+>>>>>>> trunk
 
 #ifdef _KERNEL_OPT
 #include "opt_dtrace.h"
@@ -397,7 +405,11 @@ devsw_attach(const char *devname,
 		if (conv->d_name == NULL || strcmp(devname, conv->d_name) != 0)
 			continue;
 
+<<<<<<< HEAD
 		if ((bdev != NULL) && (*bmajor < 0)) 
+=======
+		if ((bdev != NULL) && (*bmajor < 0))
+>>>>>>> trunk
 			*bmajor = conv->d_bmajor;
 		if (*cmajor < 0)
 			*cmajor = conv->d_cmajor;

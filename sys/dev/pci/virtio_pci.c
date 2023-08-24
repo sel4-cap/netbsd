@@ -1,4 +1,4 @@
-/* $NetBSD: virtio_pci.c,v 1.38.4.3 2023/07/09 13:39:27 martin Exp $ */
+/* $NetBSD: virtio_pci.c,v 1.43 2023/07/07 07:19:36 rin Exp $ */
 
 /*
  * Copyright (c) 2020 The NetBSD Foundation, Inc.
@@ -28,7 +28,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: virtio_pci.c,v 1.38.4.3 2023/07/09 13:39:27 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: virtio_pci.c,v 1.43 2023/07/07 07:19:36 rin Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

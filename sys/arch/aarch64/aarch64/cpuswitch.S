@@ -1,4 +1,4 @@
-/* $NetBSD: cpuswitch.S,v 1.39.4.1 2023/07/31 13:36:30 martin Exp $ */
+/* $NetBSD: cpuswitch.S,v 1.41 2023/03/01 08:17:24 riastradh Exp $ */
 
 /*-
  * Copyright (c) 2014, 2020 The NetBSD Foundation, Inc.
@@ -224,7 +224,13 @@ ENTRY_NP(cpu_switchto_softint)
 	msr	tpidr_el1, x0		/* curlwp = softlwp; */
 	dmb	ishst			/* for mutex_enter; see cpu_switchto */
 	str	x0, [x20, #CI_CURLWP]	/* curcpu()->ci_curlwp = softlwp; */
-	dmb	ish			/* for mutex_enter; see cpu_switchto */
+	/*
+	 * No need for barrier after ci->ci_curlwp = softlwp -- when we
+	 * enter a softint lwp, it can't be holding any mutexes, so it
+	 * can't release any until after it has acquired them, so we
+	 * need not participate in the protocol with mutex_vector_enter
+	 * barriers here.
+	 */
 
 	mov	x5, #CPACR_FPEN_NONE
 	msr	cpacr_el1, x5		/* cpacr_el1 = CPACR_FPEN_NONE */

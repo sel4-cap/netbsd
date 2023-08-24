@@ -1,4 +1,4 @@
-/*	$NetBSD: efiboot.c,v 1.12.24.1 2023/05/13 13:26:56 martin Exp $	*/
+/*	$NetBSD: efiboot.c,v 1.13 2023/04/20 00:42:24 manu Exp $	*/
 
 /*-
  * Copyright (c) 2016 Kimihiro Nonaka <nonaka@netbsd.org>

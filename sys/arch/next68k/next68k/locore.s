@@ -1,4 +1,4 @@
-/*	$NetBSD: locore.s,v 1.68.4.2 2023/02/15 19:35:14 martin Exp $	*/
+/*	$NetBSD: locore.s,v 1.73 2023/06/16 20:01:20 andvar Exp $	*/
 
 /*
  * Copyright (c) 1998 Darrin B. Jewell
@@ -359,7 +359,7 @@ Lstploaddone:
 	jne	Lmotommu2		| no, skip
 
 	| This is a hack to get PA=KVA when turning on MMU as mentioned above.
-	| Currintly this will only work on 68040's.  We should also provide
+	| Currently this will only work on 68040's.  We should also provide
 	| %tt0 and %tt1 settings to boot 68030's later.
 	movel	#0x0200c040,%d0		| intio devices are at 0x02000000
 	.long	0x4e7b0004		| movc %d0,%itt0

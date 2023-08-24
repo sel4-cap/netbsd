@@ -1,4 +1,4 @@
-/*	$NetBSD: fss.c,v 1.113.4.1 2023/03/23 12:11:03 martin Exp $	*/
+/*	$NetBSD: fss.c,v 1.114 2023/03/22 21:14:46 hannken Exp $	*/
 
 /*-
  * Copyright (c) 2003 The NetBSD Foundation, Inc.
@@ -36,7 +36,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: fss.c,v 1.113.4.1 2023/03/23 12:11:03 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: fss.c,v 1.114 2023/03/22 21:14:46 hannken Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

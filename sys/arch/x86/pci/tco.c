@@ -1,4 +1,4 @@
-/*	$NetBSD: tco.c,v 1.9.4.1 2023/08/01 14:06:36 martin Exp $	*/
+/*	$NetBSD: tco.c,v 1.10 2023/04/12 06:39:15 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2015 The NetBSD Foundation, Inc.
@@ -34,7 +34,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: tco.c,v 1.9.4.1 2023/08/01 14:06:36 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: tco.c,v 1.10 2023/04/12 06:39:15 riastradh Exp $");
 
 #include <sys/types.h>
 #include <sys/param.h>

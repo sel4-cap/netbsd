@@ -1,4 +1,4 @@
-/*	$NetBSD: ddb.h,v 1.5.20.1 2023/08/09 17:42:03 martin Exp $	*/
+/*	$NetBSD: ddb.h,v 1.6 2023/07/09 17:10:47 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2009 The NetBSD Foundation, Inc.

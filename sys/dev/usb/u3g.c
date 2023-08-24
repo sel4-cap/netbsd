@@ -1,4 +1,4 @@
-/*	$NetBSD: u3g.c,v 1.43.6.1 2023/02/14 16:33:43 martin Exp $	*/
+/*	$NetBSD: u3g.c,v 1.44 2023/02/13 14:05:26 manu Exp $	*/
 
 /*-
  * Copyright (c) 2009 The NetBSD Foundation, Inc.
@@ -50,7 +50,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: u3g.c,v 1.43.6.1 2023/02/14 16:33:43 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: u3g.c,v 1.44 2023/02/13 14:05:26 manu Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

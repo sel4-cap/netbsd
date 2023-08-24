@@ -1,4 +1,4 @@
-/*	$NetBSD: subr.S,v 1.41.2.1 2023/07/31 13:36:31 martin Exp $	   */
+/*	$NetBSD: subr.S,v 1.42 2023/02/23 14:57:08 riastradh Exp $	   */
 
 /*
  * Copyright (c) 1994 Ludd, University of Lule}, Sweden.

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: bsddisklabel.c,v 1.69.2.1 2022/12/31 04:55:12 snj Exp $	*/
+=======
+/*	$NetBSD: bsddisklabel.c,v 1.72 2023/01/06 18:19:27 martin Exp $	*/
+>>>>>>> trunk
 
 /*
  * Copyright 1997 Piermont Information Systems Inc.
@@ -144,9 +148,9 @@ default_parts_init[] =
 	  .flags = PUIFLG_JUST_MOUNTPOINT },
 #endif
 	{ .def_size = DEFUSRSIZE*(MEG/512), .mount = "/usr", .type = PT_root,
-	  .fs_type = FS_BSDFFS, .fs_version = 2 },
+	  .fs_type = FS_BSDFFS, .fs_version = 3 },
 	{ .def_size = DEFVARSIZE*(MEG/512), .mount = "/var", .type = PT_root,
-	  .fs_type = FS_BSDFFS, .fs_version = 2 },
+	  .fs_type = FS_BSDFFS, .fs_version = 3 },
 };
 
 static const char size_separator[] =
@@ -366,7 +370,7 @@ add_other_ptn_size(menudesc *menu, void *arg)
 	p->cur_part_id = NO_PART;
 	p->type = PT_root;
 	p->fs_type = FS_BSDFFS;
-	p->fs_version = 2;
+	p->fs_version = 3;
 	strncpy(p->mount, new_mp, sizeof(p->mount));
 
 	menu->cursel = pset->num;
@@ -1052,7 +1056,7 @@ fill_defaults(struct partition_usage_set *wanted, struct disk_partitions *parts,
 #ifndef HAVE_UFS2_BOOT
 				if (boot < wanted->num || i != root)
 #endif
-					wanted->infos[i].fs_version = 2;
+					wanted->infos[i].fs_version = 3;
 #endif
 			}
 		}
@@ -1702,6 +1706,8 @@ apply_settings_to_partitions(struct disk_partitions *parts,
 		struct disk_part_info t;
 
 		if (!parts->pscheme->get_part_info(parts, pno, &t))
+			continue;
+		if (t.flags & PTI_SPECIAL_PARTS)
 			continue;
 
 		for (i = 0; i < wanted->num; i++) {

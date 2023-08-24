@@ -1,4 +1,4 @@
-/* $NetBSD: coretemp.c,v 1.38.4.1 2023/07/29 10:58:02 martin Exp $ */
+/* $NetBSD: coretemp.c,v 1.39 2023/07/13 09:12:23 msaitoh Exp $ */
 
 /*-
  * Copyright (c) 2011 The NetBSD Foundation, Inc.
@@ -61,7 +61,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: coretemp.c,v 1.38.4.1 2023/07/29 10:58:02 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: coretemp.c,v 1.39 2023/07/13 09:12:23 msaitoh Exp $");
 
 #include <sys/param.h>
 #include <sys/device.h>

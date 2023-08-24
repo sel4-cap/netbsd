@@ -1,4 +1,4 @@
-/*	$NetBSD: rk_v1crypto.c,v 1.10.4.1 2023/05/02 21:31:56 martin Exp $	*/
+/*	$NetBSD: rk_v1crypto.c,v 1.11 2023/04/24 05:16:01 mrg Exp $	*/
 
 /*-
  * Copyright (c) 2020 The NetBSD Foundation, Inc.
@@ -36,7 +36,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(1, "$NetBSD: rk_v1crypto.c,v 1.10.4.1 2023/05/02 21:31:56 martin Exp $");
+__KERNEL_RCSID(1, "$NetBSD: rk_v1crypto.c,v 1.11 2023/04/24 05:16:01 mrg Exp $");
 
 #include <sys/types.h>
 

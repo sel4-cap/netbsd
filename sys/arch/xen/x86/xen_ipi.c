@@ -1,4 +1,4 @@
-/* $NetBSD: xen_ipi.c,v 1.40.4.1 2023/08/10 10:23:54 sborrill Exp $ */
+/* $NetBSD: xen_ipi.c,v 1.41 2023/08/06 16:07:53 riastradh Exp $ */
 
 /*-
  * Copyright (c) 2011, 2019 The NetBSD Foundation, Inc.
@@ -35,7 +35,7 @@
  * Based on: x86/ipi.c
  */
 
-__KERNEL_RCSID(0, "$NetBSD: xen_ipi.c,v 1.40.4.1 2023/08/10 10:23:54 sborrill Exp $");
+__KERNEL_RCSID(0, "$NetBSD: xen_ipi.c,v 1.41 2023/08/06 16:07:53 riastradh Exp $");
 
 #include "opt_ddb.h"
 

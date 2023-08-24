@@ -1,4 +1,4 @@
-/*	$NetBSD: obio.c,v 1.13.6.1 2023/08/09 17:42:05 martin Exp $ */
+/*	$NetBSD: obio.c,v 1.16 2023/07/14 12:57:10 riastradh Exp $ */
 
 /*
  * Copyright (c) 2002, 2003, 2005  Genetec corp.  All rights reserved.

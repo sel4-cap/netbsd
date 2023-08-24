@@ -1,4 +1,4 @@
-/*	$NetBSD: nfs_srvsubs.c,v 1.16.4.1 2023/03/30 11:57:26 martin Exp $	*/
+/*	$NetBSD: nfs_srvsubs.c,v 1.17 2023/03/23 19:52:42 riastradh Exp $	*/
 
 /*
  * Copyright (c) 1989, 1993
@@ -70,7 +70,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: nfs_srvsubs.c,v 1.16.4.1 2023/03/30 11:57:26 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: nfs_srvsubs.c,v 1.17 2023/03/23 19:52:42 riastradh Exp $");
 
 #include <sys/param.h>
 #include <sys/proc.h>

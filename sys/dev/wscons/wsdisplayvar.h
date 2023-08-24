@@ -1,4 +1,4 @@
-/* $NetBSD: wsdisplayvar.h,v 1.56.4.1 2023/03/20 17:24:15 martin Exp $ */
+/* $NetBSD: wsdisplayvar.h,v 1.57 2023/03/01 08:42:33 riastradh Exp $ */
 
 /*
  * Copyright (c) 1996, 1997 Christopher G. Demetriou.  All rights reserved.

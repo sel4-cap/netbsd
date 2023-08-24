@@ -170,7 +170,7 @@ cc_init_monitor(void)
 	/* turn sprite DMA off. we don't support them yet. */
 	custom.dmacon = DMAF_SPRITE;
 
-	/* makre sure sprite data registers are clear as well */
+	/* make sure sprite data registers are clear as well */
 	custom.spr[0].data = 0;
 	custom.spr[0].datb = 0;
 

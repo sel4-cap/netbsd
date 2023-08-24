@@ -1,4 +1,4 @@
-# $NetBSD: ALL,v 1.503.4.2 2023/08/01 16:07:19 martin Exp $
+# $NetBSD: ALL,v 1.511 2023/07/18 10:02:25 riastradh Exp $
 # From NetBSD: GENERIC,v 1.787 2006/10/01 18:37:54 bouyer Exp
 #
 # ALL machine description file
@@ -17,7 +17,7 @@ include 	"arch/i386/conf/std.i386"
 
 options 	INCLUDE_CONFIG_FILE	# embed config file in kernel binary
 
-#ident		"ALL-$Revision: 1.503.4.2 $"
+#ident		"ALL-$Revision: 1.511 $"
 
 maxusers	64		# estimated number of users
 
@@ -130,6 +130,10 @@ options 	BIOHIST		# kernhist for buff I/O
 # Kernel Code Coverage Driver.
 makeoptions	KCOV=1
 options		KCOV
+
+# Heartbeat checks
+options 	HEARTBEAT
+options 	HEARTBEAT_MAX_PERIOD_DEFAULT=15
 
 # Compatibility options
 include 	"conf/compat_netbsd09.config"
@@ -907,6 +911,7 @@ cd*	at scsibus? target ? lun ?	# SCSI CD-ROM drives
 ch*	at scsibus? target ? lun ?	# SCSI autochangers
 ses*	at scsibus? target ? lun ?	# SCSI Enclosure Services devices
 ss*	at scsibus? target ? lun ?	# SCSI scanners
+dse*	at scsibus? target ? lun ?	# SCSI ethernet (Dayna)
 se*	at scsibus? target ? lun ?	# SCSI ethernet adapters
 uk*	at scsibus? target ? lun ?	# SCSI unknown
 
@@ -1693,6 +1698,10 @@ virtio*	at pci? dev ? function ?	# Virtio PCI device
 viomb*	at virtio?			# Virtio memory balloon device
 ld*	at virtio?			# Virtio disk device
 vioif*	at virtio?			# Virtio network device
+viornd* at virtio?			# Virtio entropy device
+vioscsi* at virtio?			# Virtio SCSI device
+vio9p*	at virtio?			# Virtio 9P device
+viocon* at virtio?			# Virtio console device
 
 # Flash subsystem
 flash* at flashbus?
@@ -1700,7 +1709,7 @@ flash* at flashbus?
 # NAND subsystem
 nand* at nandbus?
 
-# Pull in optional local configuration
+# Pull in optional local configuration - always at end
 #include 	"arch/i386/conf/ALL.local"
 
 

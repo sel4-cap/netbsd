@@ -1,4 +1,4 @@
-/*	$NetBSD: cpufunc.c,v 1.33 2022/01/31 09:16:09 ryo Exp $	*/
+/*	$NetBSD: cpufunc.c,v 1.35 2023/06/10 07:33:32 skrll Exp $	*/
 
 /*
  * Copyright (c) 2017 Ryo Shimizu <ryo@nerv.org>
@@ -30,7 +30,7 @@
 #include "opt_multiprocessor.h"
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: cpufunc.c,v 1.33 2022/01/31 09:16:09 ryo Exp $");
+__KERNEL_RCSID(0, "$NetBSD: cpufunc.c,v 1.35 2023/06/10 07:33:32 skrll Exp $");
 
 #include <sys/param.h>
 #include <sys/types.h>
@@ -365,6 +365,8 @@ ln_dcache_inv_all(int level, struct aarch64_cache_unit *cunit)
 void
 aarch64_dcache_wbinv_all(void)
 {
+	KASSERT(kpreempt_disabled());
+
 	struct cpu_info * const ci = curcpu();
 	struct aarch64_cache_info * const cinfo = ci->ci_cacheinfo;
 	int level;
@@ -382,6 +384,8 @@ aarch64_dcache_wbinv_all(void)
 void
 aarch64_dcache_inv_all(void)
 {
+	KASSERT(kpreempt_disabled());
+
 	struct cpu_info * const ci = curcpu();
 	struct aarch64_cache_info * const cinfo = ci->ci_cacheinfo;
 	int level;
@@ -399,6 +403,8 @@ aarch64_dcache_inv_all(void)
 void
 aarch64_dcache_wb_all(void)
 {
+	KASSERT(kpreempt_disabled());
+
 	struct cpu_info * const ci = curcpu();
 	struct aarch64_cache_info * const cinfo = ci->ci_cacheinfo;
 	int level;

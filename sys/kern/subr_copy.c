@@ -1,4 +1,4 @@
-/*	$NetBSD: subr_copy.c,v 1.16 2022/04/09 23:51:09 riastradh Exp $	*/
+/*	$NetBSD: subr_copy.c,v 1.19 2023/05/22 14:07:24 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 1997, 1998, 1999, 2002, 2007, 2008, 2019
@@ -80,7 +80,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: subr_copy.c,v 1.16 2022/04/09 23:51:09 riastradh Exp $");
+__KERNEL_RCSID(0, "$NetBSD: subr_copy.c,v 1.19 2023/05/22 14:07:24 riastradh Exp $");
 
 #define	__UFETCHSTORE_PRIVATE
 #define	__UCAS_PRIVATE
@@ -112,10 +112,11 @@ uiomove(void *buf, size_t n, struct uio *uio)
 
 	KASSERT(uio->uio_rw == UIO_READ || uio->uio_rw == UIO_WRITE);
 	while (n > 0 && uio->uio_resid) {
+		KASSERT(uio->uio_iovcnt > 0);
 		iov = uio->uio_iov;
 		cnt = iov->iov_len;
 		if (cnt == 0) {
-			KASSERT(uio->uio_iovcnt > 0);
+			KASSERT(uio->uio_iovcnt > 1);
 			uio->uio_iov++;
 			uio->uio_iovcnt--;
 			continue;
@@ -163,6 +164,93 @@ uiomove_frombuf(void *buf, size_t buflen, struct uio *uio)
 	if (offset >= buflen)
 		return (0);
 	return (uiomove((char *)buf + offset, buflen - offset, uio));
+}
+
+int
+uiopeek(void *buf, size_t n, struct uio *uio)
+{
+	struct vmspace *vm = uio->uio_vmspace;
+	struct iovec *iov;
+	size_t cnt;
+	int error = 0;
+	char *cp = buf;
+	size_t resid = uio->uio_resid;
+	int iovcnt = uio->uio_iovcnt;
+	char *base;
+	size_t len;
+
+	KASSERT(uio->uio_rw == UIO_READ || uio->uio_rw == UIO_WRITE);
+
+	if (n == 0 || resid == 0)
+		return 0;
+	iov = uio->uio_iov;
+	base = iov->iov_base;
+	len = iov->iov_len;
+
+	while (n > 0 && resid > 0) {
+		KASSERT(iovcnt > 0);
+		cnt = len;
+		if (cnt == 0) {
+			KASSERT(iovcnt > 1);
+			iov++;
+			iovcnt--;
+			base = iov->iov_base;
+			len = iov->iov_len;
+			continue;
+		}
+		if (cnt > n)
+			cnt = n;
+		if (!VMSPACE_IS_KERNEL_P(vm)) {
+			preempt_point();
+		}
+
+		if (uio->uio_rw == UIO_READ) {
+			error = copyout_vmspace(vm, cp, base, cnt);
+		} else {
+			error = copyin_vmspace(vm, base, cp, cnt);
+		}
+		if (error) {
+			break;
+		}
+		base += cnt;
+		len -= cnt;
+		resid -= cnt;
+		cp += cnt;
+		KDASSERT(cnt <= n);
+		n -= cnt;
+	}
+
+	return error;
+}
+
+void
+uioskip(size_t n, struct uio *uio)
+{
+	struct iovec *iov;
+	size_t cnt;
+
+	KASSERTMSG(n <= uio->uio_resid, "n=%zu resid=%zu", n, uio->uio_resid);
+
+	KASSERT(uio->uio_rw == UIO_READ || uio->uio_rw == UIO_WRITE);
+	while (n > 0 && uio->uio_resid) {
+		KASSERT(uio->uio_iovcnt > 0);
+		iov = uio->uio_iov;
+		cnt = iov->iov_len;
+		if (cnt == 0) {
+			KASSERT(uio->uio_iovcnt > 1);
+			uio->uio_iov++;
+			uio->uio_iovcnt--;
+			continue;
+		}
+		if (cnt > n)
+			cnt = n;
+		iov->iov_base = (char *)iov->iov_base + cnt;
+		iov->iov_len -= cnt;
+		uio->uio_resid -= cnt;
+		uio->uio_offset += cnt;
+		KDASSERT(cnt <= n);
+		n -= cnt;
+	}
 }
 
 /*
@@ -411,9 +499,7 @@ ucas_critical_cpu_gate(void *arg __unused)
 	 * Matches atomic_load_acquire in ucas_critical_wait -- turns
 	 * the following atomic_dec_uint into a store-release.
 	 */
-#ifndef __HAVE_ATOMIC_AS_MEMBAR
 	membar_release();
-#endif
 	atomic_dec_uint(&ucas_critical_pausing_cpus);
 
 	/*

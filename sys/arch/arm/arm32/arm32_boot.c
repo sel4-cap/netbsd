@@ -1,4 +1,4 @@
-/*	$NetBSD: arm32_boot.c,v 1.44.4.1 2022/12/23 08:09:48 martin Exp $	*/
+/*	$NetBSD: arm32_boot.c,v 1.45 2022/12/22 06:58:08 ryo Exp $	*/
 
 /*
  * Copyright (c) 2002, 2003, 2005  Genetec Corporation.  All rights reserved.
@@ -122,7 +122,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(1, "$NetBSD: arm32_boot.c,v 1.44.4.1 2022/12/23 08:09:48 martin Exp $");
+__KERNEL_RCSID(1, "$NetBSD: arm32_boot.c,v 1.45 2022/12/22 06:58:08 ryo Exp $");
 
 #include "opt_arm_debug.h"
 #include "opt_cputypes.h"

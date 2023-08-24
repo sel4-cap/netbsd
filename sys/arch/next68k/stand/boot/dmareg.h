@@ -1,4 +1,4 @@
-/*	$NetBSD: dmareg.h,v 1.3.228.1 2023/02/12 12:18:24 martin Exp $	*/
+/*	$NetBSD: dmareg.h,v 1.4 2023/02/07 14:27:59 tsutsui Exp $	*/
 /*
  * Copyright (c) 1997 Rolf Grossmann
  * All rights reserved.

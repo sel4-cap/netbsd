@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: net.c,v 1.43.2.1 2023/01/04 05:30:44 snj Exp $	*/
+=======
+/*	$NetBSD: net.c,v 1.44 2023/01/03 16:16:15 martin Exp $	*/
+>>>>>>> trunk
 
 /*
  * Copyright 1997 Piermont Information Systems Inc.

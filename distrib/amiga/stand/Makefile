@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #       $NetBSD: Makefile,v 1.5.12.1 2023/03/30 11:49:11 martin Exp $
+=======
+#       $NetBSD: Makefile,v 1.6 2023/03/23 13:56:24 abs Exp $
+>>>>>>> trunk
 #
 
 #include <bsd.hostinit.mk>

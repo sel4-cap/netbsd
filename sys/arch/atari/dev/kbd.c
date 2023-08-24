@@ -1,4 +1,4 @@
-/*	$NetBSD: kbd.c,v 1.56 2022/06/26 09:18:06 martin Exp $	*/
+/*	$NetBSD: kbd.c,v 1.58 2023/06/26 10:57:09 andvar Exp $	*/
 
 /*
  * Copyright (c) 1995 Leo Weppelman
@@ -31,7 +31,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: kbd.c,v 1.56 2022/06/26 09:18:06 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: kbd.c,v 1.58 2023/06/26 10:57:09 andvar Exp $");
 
 #include "mouse.h"
 #include "ite.h"
@@ -95,7 +95,7 @@ struct kbd_softc {
 	int		sc_pollingmode;	/* polling mode on? whatever it is... */
 #endif
 	void		*sc_sicookie;	/* softint(9) cookie		*/
-	krndsource_t	sc_rndsource;	/* rnd(9) entropy 		*/
+	krndsource_t	sc_rndsource;	/* rnd(9) entropy		*/
 };
 
 /* WSKBD */
@@ -730,7 +730,7 @@ kbd_write(const uint8_t *cmd, int len)
 	s = splhigh();
 
 	/*
-	 * Make sure any privious write has ended...
+	 * Make sure any previous write has ended...
 	 */
 	while (sc->sc_sendp != NULL)
 		tsleep((void *)&sc->sc_sendp, TTOPRI, "kbd_write1", 0);

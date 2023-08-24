@@ -1,4 +1,4 @@
-/*	$NetBSD: conf.c,v 1.7.196.1 2023/02/22 12:07:08 martin Exp $	*/
+/*	$NetBSD: conf.c,v 1.8 2023/02/12 08:25:09 tsutsui Exp $	*/
 
 /*
  * Copyright (c) 1982, 1986, 1990, 1993

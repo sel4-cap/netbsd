@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # $NetBSD: mi,v 1.1757.2.2 2023/08/11 13:42:54 martin Exp $
+=======
+# $NetBSD: mi,v 1.1763 2023/08/11 23:04:29 christos Exp $
+>>>>>>> trunk
 #
 # Note: don't delete entries from here - mark them as "obsolete" instead.
 #
@@ -682,6 +686,7 @@
 ./usr/share/man/cat3/atari/ahdi_writelabel.0	man-obsolete		obsolete
 ./usr/share/man/cat3/eddsa_pk_new.0			man-util-catman	.cat
 ./usr/share/man/cat3/es256_pk_new.0			man-util-catman	.cat
+./usr/share/man/cat3/es384_pk_new.0			man-util-catman	.cat
 ./usr/share/man/cat3/i386			man-obsolete		obsolete
 ./usr/share/man/cat3/i386/keycap.0		man-obsolete		obsolete
 ./usr/share/man/cat3/libbozohttpd.0		man-sys-catman		.cat
@@ -874,6 +879,7 @@
 ./usr/share/man/cat4/amiga/xsurf.0		man-sys-catman		.cat
 ./usr/share/man/cat4/amiga/z3rambd.0		man-sys-catman		.cat
 ./usr/share/man/cat4/amiga/zssc.0		man-sys-catman		.cat
+./usr/share/man/cat4/amiga/zz9k.0		man-sys-catman		.cat
 ./usr/share/man/cat4/amr.0			man-sys-catman		.cat
 ./usr/share/man/cat4/ams.0			man-sys-catman		.cat
 ./usr/share/man/cat4/an.0			man-sys-catman		.cat
@@ -1064,6 +1070,7 @@
 ./usr/share/man/cat4/drm.0			man-sys-catman		.cat
 ./usr/share/man/cat4/drum.0			man-sys-catman		.cat
 ./usr/share/man/cat4/drvctl.0			man-sys-catman		.cat
+./usr/share/man/cat4/dse.0			man-sys-catman		.cat
 ./usr/share/man/cat4/dtide.0			man-sys-catman		.cat
 ./usr/share/man/cat4/dtv.0			man-sys-catman		.cat
 ./usr/share/man/cat4/dtviic.0			man-sys-catman		.cat
@@ -4121,6 +4128,7 @@
 ./usr/share/man/html1/ztest.html		man-zfs-htmlman		zfs,html
 ./usr/share/man/html3/eddsa_pk_new.html			man-util-htmlman	html
 ./usr/share/man/html3/es256_pk_new.html			man-util-htmlman	html
+./usr/share/man/html3/es384_pk_new.html			man-util-htmlman	html
 ./usr/share/man/html3/libbozohttpd.html		man-sys-htmlman		html
 ./usr/share/man/html3/libunbound.html		man-netutil-htmlman	html,unbound
 ./usr/share/man/html3/rs256_pk_new.html			man-util-htmlman	html
@@ -4301,6 +4309,7 @@
 ./usr/share/man/html4/amiga/xsurf.html		man-sys-htmlman		html
 ./usr/share/man/html4/amiga/z3rambd.html	man-sys-htmlman		html
 ./usr/share/man/html4/amiga/zssc.html		man-sys-htmlman		html
+./usr/share/man/html4/amiga/zz9k.html		man-sys-htmlman		html
 ./usr/share/man/html4/amr.html			man-sys-htmlman		html
 ./usr/share/man/html4/ams.html			man-sys-htmlman		html
 ./usr/share/man/html4/an.html			man-sys-htmlman		html
@@ -4453,6 +4462,7 @@
 ./usr/share/man/html4/drm.html			man-sys-htmlman		html
 ./usr/share/man/html4/drum.html			man-sys-htmlman		html
 ./usr/share/man/html4/drvctl.html		man-sys-htmlman		html
+./usr/share/man/html4/dse.html			man-sys-htmlman		html
 ./usr/share/man/html4/dtide.html		man-sys-htmlman		html
 ./usr/share/man/html4/dtv.html			man-sys-htmlman		html
 ./usr/share/man/html4/dtviic.html		man-sys-htmlman		html
@@ -7232,6 +7242,7 @@
 ./usr/share/man/man3/atari/ahdi_writelabel.3	man-obsolete		obsolete
 ./usr/share/man/man3/eddsa_pk_new.3			man-util-man	.man
 ./usr/share/man/man3/es256_pk_new.3			man-util-man	.man
+./usr/share/man/man3/es384_pk_new.3			man-util-man	.man
 ./usr/share/man/man3/i386			man-obsolete		obsolete
 ./usr/share/man/man3/i386/keycap.3		man-obsolete		obsolete
 ./usr/share/man/man3/libbozohttpd.3		man-sys-man		.man
@@ -7424,6 +7435,7 @@
 ./usr/share/man/man4/amiga/xsurf.4		man-sys-man		.man
 ./usr/share/man/man4/amiga/z3rambd.4		man-sys-man		.man
 ./usr/share/man/man4/amiga/zssc.4		man-sys-man		.man
+./usr/share/man/man4/amiga/zz9k.4		man-sys-man		.man
 ./usr/share/man/man4/amr.4			man-sys-man		.man
 ./usr/share/man/man4/ams.4			man-sys-man		.man
 ./usr/share/man/man4/an.4			man-sys-man		.man
@@ -7614,6 +7626,7 @@
 ./usr/share/man/man4/drm.4			man-sys-man		.man
 ./usr/share/man/man4/drum.4			man-sys-man		.man
 ./usr/share/man/man4/drvctl.4			man-sys-man		.man
+./usr/share/man/man4/dse.4			man-sys-man		.man
 ./usr/share/man/man4/dtide.4			man-sys-man		.man
 ./usr/share/man/man4/dtv.4			man-sys-man		.man
 ./usr/share/man/man4/dtviic.4			man-sys-man		.man

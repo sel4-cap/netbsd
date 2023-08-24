@@ -1,4 +1,4 @@
-/* $NetBSD: amdccp_pci.c,v 1.3.2.1 2022/12/19 11:37:14 martin Exp $ */
+/* $NetBSD: amdccp_pci.c,v 1.4 2022/12/18 15:50:32 reinoud Exp $ */
 
 /*-
  * Copyright (c) 2020 The NetBSD Foundation, Inc.
@@ -30,7 +30,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: amdccp_pci.c,v 1.3.2.1 2022/12/19 11:37:14 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: amdccp_pci.c,v 1.4 2022/12/18 15:50:32 reinoud Exp $");
 
 #include <sys/param.h>
 #include <sys/bus.h>

@@ -1,4 +1,4 @@
-/*	$NetBSD: armv6_start.S,v 1.37.4.1 2023/07/31 13:36:31 martin Exp $	*/
+/*	$NetBSD: armv6_start.S,v 1.38 2023/02/23 14:55:24 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2012, 2017, 2018 The NetBSD Foundation, Inc.

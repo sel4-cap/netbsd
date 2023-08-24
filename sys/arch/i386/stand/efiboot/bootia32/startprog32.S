@@ -1,4 +1,4 @@
-/*	$NetBSD: startprog32.S,v 1.2.52.1 2023/05/13 13:26:57 martin Exp $	*/
+/*	$NetBSD: startprog32.S,v 1.3 2023/04/20 00:42:24 manu Exp $	*/
 /*	NetBSD: startprog.S,v 1.4 2016/12/04 08:21:08 maxv Exp	*/
 
 /*

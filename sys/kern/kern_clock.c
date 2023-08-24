@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*	$NetBSD: kern_clock.c,v 1.148.4.1 2023/08/11 14:35:25 martin Exp $	*/
+=======
+/*	$NetBSD: kern_clock.c,v 1.150 2023/07/07 12:34:50 riastradh Exp $	*/
+>>>>>>> trunk
 
 /*-
  * Copyright (c) 2000, 2004, 2006, 2007, 2008 The NetBSD Foundation, Inc.
@@ -69,11 +73,16 @@
  */
 
 #include <sys/cdefs.h>
+<<<<<<< HEAD
 __KERNEL_RCSID(0, "$NetBSD: kern_clock.c,v 1.148.4.1 2023/08/11 14:35:25 martin Exp $");
+=======
+__KERNEL_RCSID(0, "$NetBSD: kern_clock.c,v 1.150 2023/07/07 12:34:50 riastradh Exp $");
+>>>>>>> trunk
 
 #ifdef _KERNEL_OPT
 #include "opt_dtrace.h"
 #include "opt_gprof.h"
+#include "opt_heartbeat.h"
 #include "opt_multiprocessor.h"
 #endif
 
@@ -92,6 +101,7 @@ __KERNEL_RCSID(0, "$NetBSD: kern_clock.c,v 1.148.4.1 2023/08/11 14:35:25 martin 
 #include <sys/cpu.h>
 #include <sys/atomic.h>
 #include <sys/rndsource.h>
+#include <sys/heartbeat.h>
 
 #ifdef GPROF
 #include <sys/gmon.h>
@@ -334,6 +344,13 @@ hardclock(struct clockframe *frame)
 		    atomic_load_relaxed(&hardclock_ticks) + 1);
 		tc_ticktock();
 	}
+
+#ifdef HEARTBEAT
+	/*
+	 * Make sure the CPUs and timecounter are making progress.
+	 */
+	heartbeat();
+#endif
 
 	/*
 	 * Update real-time timeout queue.

@@ -1,4 +1,4 @@
-/*	$NetBSD: sxvar.h,v 1.4.30.1 2023/07/05 16:09:50 martin Exp $	*/
+/*	$NetBSD: sxvar.h,v 1.5 2023/06/13 10:09:31 macallan Exp $	*/
 
 /*-
  * Copyright (c) 2013 The NetBSD Foundation, Inc.

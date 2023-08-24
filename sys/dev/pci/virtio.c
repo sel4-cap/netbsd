@@ -1,4 +1,4 @@
-/*	$NetBSD: virtio.c,v 1.63.2.5 2023/06/03 14:40:25 martin Exp $	*/
+/*	$NetBSD: virtio.c,v 1.78 2023/04/21 02:17:32 yamaguchi Exp $	*/
 
 /*
  * Copyright (c) 2020 The NetBSD Foundation, Inc.
@@ -28,7 +28,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: virtio.c,v 1.63.2.5 2023/06/03 14:40:25 martin Exp $");
+__KERNEL_RCSID(0, "$NetBSD: virtio.c,v 1.78 2023/04/21 02:17:32 yamaguchi Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

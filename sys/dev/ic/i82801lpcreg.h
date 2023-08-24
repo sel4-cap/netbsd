@@ -1,4 +1,4 @@
-/*	$NetBSD: i82801lpcreg.h,v 1.16.4.1 2023/08/01 14:06:37 martin Exp $	*/
+/*	$NetBSD: i82801lpcreg.h,v 1.17 2023/04/12 06:39:15 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2004 The NetBSD Foundation, Inc.

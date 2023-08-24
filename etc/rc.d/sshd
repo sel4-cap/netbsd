@@ -1,6 +1,10 @@
 #!/bin/sh
 #
+<<<<<<< HEAD
 # $NetBSD: sshd,v 1.32.2.1 2023/06/21 15:16:17 martin Exp $
+=======
+# $NetBSD: sshd,v 1.37 2023/07/22 08:51:28 kim Exp $
+>>>>>>> trunk
 #
 
 # PROVIDE: sshd

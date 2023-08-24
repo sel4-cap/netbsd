@@ -1,4 +1,4 @@
-/*	$NetBSD: imx6_ccmreg.h,v 1.1.20.1 2023/05/28 10:14:35 martin Exp $	*/
+/*	$NetBSD: imx6_ccmreg.h,v 1.2 2023/05/04 13:25:07 bouyer Exp $	*/
 
 /*
  * Copyright (c) 2014 Ryo Shimizu <ryo@nerv.org>

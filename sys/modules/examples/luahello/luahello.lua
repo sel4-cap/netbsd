@@ -1,4 +1,4 @@
---	$NetBSD: luahello.lua,v 1.2.54.1 2023/08/11 16:22:05 martin Exp $
+--	$NetBSD: luahello.lua,v 1.3 2023/04/16 20:46:17 nikita Exp $
 --
 --
 -- Copyright (c) 2015 The NetBSD Foundation, Inc.
