@@ -74,6 +74,7 @@
 #ifdef _KERNEL
 #include <sys/types.h>
 #include <machine/vmparam.h>
+#include <sys/resourcevar.h>
 #endif
 
 #if defined(_KERNEL)
