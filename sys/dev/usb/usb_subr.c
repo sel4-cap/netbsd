@@ -57,11 +57,17 @@ __KERNEL_RCSID(0, "$NetBSD: usb_subr.c,v 1.277 2022/04/06 22:01:45 mlelstv Exp $
 #include <dev/usb/usbdi_util.h>
 #include <dev/usb/usbdivar.h>
 #include <dev/usb/usbdevs.h>
+#include <dev/usb/usbdevs_data.h>
 #include <dev/usb/usb_quirks.h>
 #include <dev/usb/usb_verbose.h>
 #include <dev/usb/usbhist.h>
 
 #include "locators.h"
+
+#include <dev/usb/uhub.h>
+#include <config_methods.h>
+#include <timer.h>
+extern struct usbd_bus_methods *xhci_bus_methods_ptr;
 
 #define	DPRINTF(FMT,A,B,C,D)	USBHIST_LOG(usbdebug,FMT,A,B,C,D)
 #define	DPRINTFN(N,FMT,A,B,C,D)	USBHIST_LOGN(usbdebug,N,FMT,A,B,C,D)
@@ -241,6 +247,7 @@ usbd_devinfo_free(char *devinfop)
 }
 
 /* Delay for a certain number of ms */
+#ifndef SEL4
 void
 usb_delay_ms_locked(struct usbd_bus *bus, u_int ms, kmutex_t *lock)
 {
@@ -250,6 +257,13 @@ usb_delay_ms_locked(struct usbd_bus *bus, u_int ms, kmutex_t *lock)
 	else
 		kpause("usbdly", false, (ms*hz+999)/1000 + 1, lock);
 }
+#else
+void
+usb_delay_ms_locked(struct usbd_bus *bus, u_int ms, kmutex_t *lock)
+{
+	ms_delay(ms);
+}
+#endif
 
 void
 usb_delay_ms(struct usbd_bus *bus, u_int ms)
@@ -686,7 +700,8 @@ usbd_set_config_index(struct usbd_device *dev, int index, int msg)
 	USBHIST_FUNC();
 	USBHIST_CALLARGS(usbdebug, "dev=%#jx index=%jd",
 	    (uintptr_t)dev, index, 0, 0);
-	usb_config_descriptor_t cd, *cdp;
+	usb_config_descriptor_t *cd, *cdp;
+	cd = kmem_zalloc(sizeof(usb_config_descriptor_t), KM_SLEEP); //SEL4 added malloc for memory persistence
 	usb_bos_descriptor_t *bdp = NULL;
 	usbd_status err;
 	int i, ifcidx, nifc, len, selfpowered, power;
@@ -733,12 +748,12 @@ usbd_set_config_index(struct usbd_device *dev, int index, int msg)
 	}
 
 	/* Get the short descriptor. */
-	err = usbd_get_config_desc(dev, index, &cd);
+	err = usbd_get_config_desc(dev, index, cd);
 	if (err) {
 		DPRINTF("get_config_desc=%jd", err, 0, 0, 0);
 		return err;
 	}
-	len = UGETW(cd.wTotalLength);
+	len = UGETW(cd->wTotalLength);
 	if (len < USB_CONFIG_DESCRIPTOR_SIZE) {
 		DPRINTF("empty short descriptor", 0, 0, 0, 0);
 		return USBD_INVAL;
@@ -761,7 +776,7 @@ usbd_set_config_index(struct usbd_device *dev, int index, int msg)
 		err = USBD_INVAL;
 		goto bad;
 	}
-	if (UGETW(cdp->wTotalLength) != UGETW(cd.wTotalLength)) {
+	if (UGETW(cdp->wTotalLength) != UGETW(cd->wTotalLength)) {
 		DPRINTF("bad len %jd", UGETW(cdp->wTotalLength), 0, 0, 0);
 		err = USBD_INVAL;
 		goto bad;
@@ -958,7 +973,7 @@ usbd_setup_pipe_flags(struct usbd_device *dev, struct usbd_interface *iface,
 	cv_init(&p->up_callingcv, "usbpipecb");
 	p->up_abortlwp = NULL;
 
-	err = dev->ud_bus->ub_methods->ubm_open(p);
+	err = xhci_bus_methods_ptr->ubm_open(p);
 	if (err) {
 		DPRINTF("endpoint=%#jx failed, error=%jd",
 		    (uintptr_t)ep->ue_edesc->bEndpointAddress, err, 0, 0);
@@ -1081,6 +1096,7 @@ usbd_properties(device_t dv, struct usbd_device *dev)
 	vendor = UGETW(dd->idVendor);
 	product = UGETW(dd->idProduct);
 
+#ifndef SEL4
 	prop_dictionary_set_uint8(dict, "class", class);
 	prop_dictionary_set_uint8(dict, "subclass", subclass);
 	prop_dictionary_set_uint16(dict, "release", release);
@@ -1100,6 +1116,7 @@ usbd_properties(device_t dv, struct usbd_device *dev)
 		prop_dictionary_set_string(dict,
 		    "serialnumber", dev->ud_serial);
 	}
+#endif
 }
 
 static usbd_status
@@ -1292,8 +1309,14 @@ usbd_probe_and_attach(device_t parent, struct usbd_device *dev,
 	}
 	/* No interfaces were attached in any of the configurations. */
 
-	if (dd->bNumConfigurations > 1) /* don't change if only 1 config */
+	if (dd->bNumConfigurations > 1) /* don't change if only 1 config */ {
 		usbd_set_config_index(dev, 0, 0);
+		struct set_cfg *cfg = kmem_alloc(sizeof(struct set_cfg), 0); //SEL4: send data to softintr
+		cfg->dev = dev;
+		cfg->confi = 0;
+		cfg->msg = 0;
+		err = sel4cp_msginfo_get_label(sel4cp_ppcall(5, seL4_MessageInfo_new((uint64_t) cfg, 1, 0, 0)));
+    }
 
 	DPRINTF("no interface drivers found", 0, 0, 0, 0);
 
@@ -1386,8 +1409,8 @@ usbd_new_device(device_t parent, struct usbd_bus *bus, int depth, int speed,
 
 	KASSERT(usb_in_event_thread(parent));
 
-	if (bus->ub_methods->ubm_newdev != NULL)
-		return (bus->ub_methods->ubm_newdev)(parent, bus, depth, speed,
+	if (xhci_bus_methods_ptr->ubm_newdev != NULL)
+		return (xhci_bus_methods_ptr->ubm_newdev)(parent, bus, depth, speed,
 		    port, up);
 
 	addr = usbd_getnewaddr(bus);
@@ -1869,6 +1892,7 @@ usb_free_device(struct usbd_device *dev)
 int
 usb_disconnect_port(struct usbd_port *up, device_t parent, int flags)
 {
+#ifndef SEL4
 	struct usbd_device *dev = up->up_dev;
 	device_t subdev;
 	char subdevname[16];
@@ -1913,5 +1937,6 @@ usb_disconnect_port(struct usbd_port *up, device_t parent, int flags)
 
 	usb_free_device(dev);
 
+#endif
 	return 0;
 }

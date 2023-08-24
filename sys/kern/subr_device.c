@@ -31,9 +31,12 @@ __KERNEL_RCSID(0, "$NetBSD: subr_device.c,v 1.13 2022/03/28 12:38:59 riastradh E
 
 #include <sys/param.h>
 #include <sys/device.h>
+#include <sys/device_if.h>
 #include <sys/device_impl.h>
 #include <sys/systm.h>
+#include <lib/libkern/libkern.h>
 
+#ifndef SEL4
 #include <sys/device_calls.h>
 
 /* Root device. */
@@ -153,6 +156,7 @@ devhandle_impl_inherit(struct devhandle_impl *impl,
 	memcpy(impl, super, sizeof(*impl));
 	impl->super = super;
 }
+#endif
 
 /*
  * Accessor functions for the device_t type.
@@ -207,6 +211,7 @@ device_parent(device_t dev)
 	return dev->dv_parent;
 }
 
+#ifndef SEL4
 bool
 device_activation(device_t dev, devact_level_t level)
 {
@@ -264,6 +269,7 @@ device_locator(device_t dev, u_int locnum)
 	KASSERT(dev->dv_locators != NULL);
 	return dev->dv_locators[locnum];
 }
+#endif
 
 void *
 device_private(device_t dev)
@@ -313,6 +319,7 @@ device_is_a(device_t dev, const char *dname)
 	return strcmp(dev->dv_cfdriver->cd_name, dname) == 0;
 }
 
+#ifndef SEL4
 /*
  * device_attached_to_iattr:
  *
@@ -370,3 +377,4 @@ device_enumerate_children(device_t dev,
 
 	return device_call(dev, DEVICE_ENUMERATE_CHILDREN(&args));
 }
+#endif
