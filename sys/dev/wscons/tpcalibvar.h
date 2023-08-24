@@ -27,6 +27,8 @@
  *
  */
 
+#include <stddef.h>
+
 struct tpcalib_softc {
 	int sc_minx, sc_miny;
 	int sc_maxx, sc_maxy;
