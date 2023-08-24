@@ -1,3 +1,4 @@
+//TODO: vimdiff this file
 /*	$NetBSD: usb.c,v 1.200 2022/03/13 11:28:52 riastradh Exp $	*/
 
 /*
@@ -53,8 +54,10 @@ __KERNEL_RCSID(0, "$NetBSD: usb.c,v 1.200 2022/03/13 11:28:52 riastradh Exp $");
 #include <sys/kthread.h>
 #include <sys/proc.h>
 #include <sys/conf.h>
+#ifndef SEL4
 #include <sys/fcntl.h>
 #include <sys/poll.h>
+#endif
 #include <sys/select.h>
 #include <sys/vnode.h>
 #ifndef SEL4
@@ -479,6 +482,7 @@ usb_doattach(device_t self)
 	struct usbd_device *dev;
 	usbd_status err;
 	int speed;
+	speed = 0;
 	struct usb_event *ue;
 
 	USBHIST_FUNC(); USBHIST_CALLED(usbdebug);

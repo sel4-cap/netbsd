@@ -689,6 +689,7 @@ usbd_intr_transfer(struct usbd_xfer *xfer, struct usbd_pipe *pipe,
 	return err;
 }
 
+#ifndef SEL4
 void
 usb_detach_waitold(device_t dv)
 {
@@ -709,6 +710,7 @@ usb_detach_wakeupold(device_t dv)
 
 	wakeup(dv); /* XXXSMP ok */
 }
+#endif
 
 /* -------------------------------------------------------------------------- */
 

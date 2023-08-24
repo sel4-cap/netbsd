@@ -74,10 +74,23 @@ __KERNEL_RCSID(0, "$NetBSD: ukbd.c,v 1.161.4.1 2023/01/12 12:09:18 martin Exp $"
 #include <dev/wscons/wskbdvar.h>
 #include <dev/wscons/wsksymdef.h>
 #include <dev/wscons/wsksymvar.h>
+#include <sys/intr.h>
+#include <sys/kmem.h>
+#include <timer.h>
+#include <printf.h>
+#include <shared_ringbuffer.h>
+
+extern uintptr_t rx_free;
+extern uintptr_t rx_used;
+
+/* Pointers to shared_ringbuffers */
+extern ring_handle_t *kbd_buffer_ring;
+
+extern const keysym_t hidkbd_keydesc_us[];
 
 #ifdef UKBD_DEBUG
-#define DPRINTF(x)	if (ukbddebug) printf x
-#define DPRINTFN(n,x)	if (ukbddebug>(n)) printf x
+#define DPRINTF(x) printf x
+#define DPRINTFN(n,x) printf x
 int	ukbddebug = 0;
 #else
 #define DPRINTF(x)
@@ -94,6 +107,8 @@ struct ukbd_data {
 #define PRESS    0x000
 #define RELEASE  0x100
 #define CODEMASK 0x0ff
+
+#define KC(n)		KS_KEYCODE(n)
 
 struct ukbd_keycodetrans {
 	uint16_t	from;
@@ -336,15 +351,19 @@ Static int	ukbd_is_console;
 Static void	ukbd_cngetc(void *, u_int *, int *);
 Static void	ukbd_cnpollc(void *, int);
 
+#ifndef SEL4
 const struct wskbd_consops ukbd_consops = {
 	.getc =  ukbd_cngetc,
 	.pollc = ukbd_cnpollc,
 	.bell =  NULL,
 };
+#endif
 
 Static const char *ukbd_parse_desc(struct ukbd_softc *);
 
+#ifndef SEL4 //SEL4: moved
 Static void	ukbd_intr(void *, void *, u_int);
+#endif
 Static void	ukbd_decode(struct ukbd_softc *, struct ukbd_data *);
 Static void	ukbd_delayed_decode(void *);
 
@@ -394,7 +413,9 @@ static const struct ukbd_type {
 	((const struct ukbd_type *)usb_lookup(ukbd_devs, v, p))
 
 static int ukbd_match(device_t, cfdata_t, void *);
+#ifndef SEL4 //sel4: moved
 static void ukbd_attach(device_t, device_t, void *);
+#endif
 static int ukbd_detach(device_t, int);
 static int ukbd_activate(device_t, enum devact);
 static void ukbd_childdet(device_t, device_t);
@@ -438,10 +459,12 @@ ukbd_attach(device_t parent, device_t self, void *aux)
 
 	aprint_naive("\n");
 
+	#ifndef SEL4
 	if (!pmf_device_register(self, NULL, NULL)) {
 		aprint_normal("\n");
 		aprint_error_dev(self, "couldn't establish power handler\n");
 	}
+	#endif
 
 	parseerr = ukbd_parse_desc(sc);
 	if (parseerr != NULL) {
@@ -489,9 +512,12 @@ ukbd_attach(device_t parent, device_t self, void *aux)
 
 	if (sc->sc_console_keyboard) {
 		DPRINTF(("%s: console keyboard sc=%p\n", __func__, sc));
+#ifndef SEL4
 		wskbd_cnattach(&ukbd_consops, sc, &ukbd_keymapdata);
+#endif
 		ukbd_enable(sc, 1);
 	}
+	ukbd_enable(sc, 1); //SEL4: moved out to enable keyboard
 
 	a.console = sc->sc_console_keyboard;
 
@@ -519,10 +545,18 @@ ukbd_attach(device_t parent, device_t self, void *aux)
 	callout_reset(&sc->sc_ledreset, mstohz(400), ukbd_delayed_leds_off,
 	    sc);
 
-	sc->sc_wskbddev = config_found(self, &a, wskbddevprint, CFARGS_NONE);
+	sc->sc_wskbddev = config_found(self, &a, NULL, CFARGS_NONE);
 
 	sc->sc_attached = true;
 
+    // SEL4: keyboard ring
+    /* Set up shared memory regions */
+	printf("Allocing kbd_buffer_ring\n");
+    kbd_buffer_ring = kmem_alloc(sizeof(*kbd_buffer_ring), 0);
+	printf("about to go into ring init\n");
+    ring_init(kbd_buffer_ring, (ring_buffer_t *)rx_free, (ring_buffer_t *)rx_used, NULL, 1);
+
+	sel4cp_notify(42);
 	return;
 }
 
@@ -545,7 +579,7 @@ ukbd_enable(void *v, int on)
 	DPRINTF(("%s: sc=%p on=%d\n", __func__, sc, on));
 	if (on) {
 		sc->sc_flags |= FLAG_ENABLED;
-		return uhidev_open(sc->sc_hdev, &ukbd_intr, sc);
+		return uhidev_open(sc->sc_hdev, intr_ptrs->ukbd, sc);
 	} else {
 		sc->sc_flags &= ~FLAG_ENABLED;
 		uhidev_close(sc->sc_hdev);
@@ -590,6 +624,7 @@ ukbd_detach(device_t self, int flags)
 	if (!sc->sc_attached)
 		return rv;
 
+#ifndef SEL4 //not using console keyboards
 	if (sc->sc_console_keyboard) {
 		/*
 		 * Disconnect our consops and set ukbd_is_console
@@ -606,6 +641,7 @@ ukbd_detach(device_t self, int flags)
 	/* No need to do reference counting of ukbd, wskbd has all the goo. */
 	if (sc->sc_wskbddev != NULL)
 		rv = config_detach(sc->sc_wskbddev, flags);
+#endif
 
 	callout_halt(&sc->sc_delay, NULL);
 	callout_halt(&sc->sc_ledreset, NULL);
@@ -680,6 +716,16 @@ ukbd_intr(void *cookie, void *ibuf, u_int len)
 		printf("\n");
 	}
 #endif
+
+	// SEL4: keyboard ring {{{
+
+	// If ring not full:
+	// check if empty, then enqueue
+	bool empty = ring_empty(kbd_buffer_ring);
+	int error = enqueue_used(kbd_buffer_ring, (uintptr_t) ibuf, sizeof(ibuf), (void *)0);
+	if (empty)
+		sel4cp_notify(45);
+	// }}}
 
 	memset(ud->keys, 0, sizeof(ud->keys));
 
@@ -900,14 +946,32 @@ ukbd_decode(struct ukbd_softc *sc, struct ukbd_data *ud)
 	}
 #endif
 
+#ifndef SEL4
 	s = spltty();
+#endif
+	// test output: should probably send this to a separate PD
 	for (i = 0; i < nkeys; i++) {
 		key = ibuf[i];
+#ifndef SEL4
 		wskbd_input(sc->sc_wskbddev,
 		    key&RELEASE ? WSCONS_EVENT_KEY_UP : WSCONS_EVENT_KEY_DOWN,
 		    key&CODEMASK);
+#endif
+		// SEL4: keyboard ring
+		int index = 0;
+        int up = key&RELEASE ? WSCONS_EVENT_KEY_UP : WSCONS_EVENT_KEY_DOWN;
+        if (up == WSCONS_EVENT_KEY_DOWN) {
+            for (int i = 0; i < 274; i++) {
+                if (hidkbd_keydesc_us[i] == KC(key&CODEMASK)) {
+                    index = i;
+                    break;
+                }
+            }
+        }
 	}
+#ifndef SEL4
 	splx(s);
+#endif
 }
 
 void
@@ -929,6 +993,7 @@ ukbd_set_leds(void *v, int leds)
 
 	sc->sc_leds = leds;
 	usb_add_task(udev, &sc->sc_ledtask, USB_TASKQ_DRIVER);
+	ukbd_set_leds_task(sc); // SEL4: manually call set leds
 }
 
 void
@@ -1002,6 +1067,7 @@ ukbd_ioctl(void *v, u_long cmd, void *data, int flag,
 static int pollenter, warned;
 
 /* Console interface. */
+#ifndef SEL4
 void
 ukbd_cngetc(void *v, u_int *type, int *data)
 {
@@ -1061,6 +1127,7 @@ ukbd_cnpollc(void *v, int on)
 	}
 	usbd_set_polling(dev, on);
 }
+#endif
 
 int
 ukbd_cnattach(void)
