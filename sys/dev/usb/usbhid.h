@@ -36,7 +36,7 @@
 #define _DEV_USB_USBHID_H_
 
 #include <dev/hid/hid.h>
-#include <sys/ioccom.h>
+ #include <sys/ioccom.h>
 
 #define UR_GET_HID_DESCRIPTOR	0x06
 #define  UDESC_HID		0x21

@@ -37,6 +37,9 @@
 #include <sys/types.h>
 
 #include <dev/usb/usb.h>
+#include <sys/mutex.h>
+
+typedef struct device *device_t;
 
 struct usbd_bus;
 struct usbd_device;
@@ -301,6 +304,7 @@ struct usbif_attach_arg {
 #define UMATCH_GENERIC					 1
 /* No match */
 #define UMATCH_NONE					 0
+#define IPL_VM		5
 
 
 /*
@@ -316,4 +320,10 @@ struct usbif_attach_arg {
 #define IPL_SOFTUSB IPL_SOFTSERIAL
 #define splusb splsoftserial
 
+void uhub_intr(struct usbd_xfer *, void *, usbd_status);
+void uhidev_intr(struct usbd_xfer *, void *, usbd_status);
+void	ukbd_intr(void *, void *, u_int);
+void ums_intr(void *, void *, u_int);
+void uts_intr(void *, void *, u_int);
+void uhid_intr(void *, void *, u_int);
 #endif /* _USBDI_H_ */
