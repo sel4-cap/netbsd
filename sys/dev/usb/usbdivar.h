@@ -76,6 +76,7 @@
 
 #include <sys/callout.h>
 #include <sys/mutex.h>
+#include <sys/condvar.h>
 #include <sys/bus.h>
 
 /* From usb_mem.h */
@@ -110,6 +111,8 @@ struct usbd_bus_methods {
 	int			(*ubm_rhctrl)(struct usbd_bus *,
 				    usb_device_request_t *, void *, int);
 };
+
+extern struct usbd_bus_methods *xhci_bus_methods_ptr;
 
 struct usbd_pipe_methods {
 	int		      (*upm_init)(struct usbd_xfer *);
