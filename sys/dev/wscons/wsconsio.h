@@ -46,7 +46,9 @@
 
 #include <sys/types.h>
 #include <sys/ioccom.h>
+#ifndef SEL4
 #include <sys/time.h>
+#endif
 #include <dev/wscons/wsksymvar.h>
 
 
@@ -56,7 +58,9 @@
 struct wscons_event {
 	u_int		type;
 	int		value;
+	#ifndef SEL4
 	struct timespec	time;
+	#endif
 };
 #define WSEVENT_VERSION	1
 

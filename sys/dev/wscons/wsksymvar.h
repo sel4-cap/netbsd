@@ -45,7 +45,11 @@ struct wscons_keymap {
 	keysym_t group2[2];
 };
 
-#ifdef _KERNEL
+struct wskbd_mapdata {
+	const struct wscons_keydesc *keydesc;
+	kbd_t layout;
+};
+
 struct wscons_keydesc {
 	kbd_t	name;				/* name of this map */
 	kbd_t	base;				/* map this one is based on */
@@ -53,10 +57,8 @@ struct wscons_keydesc {
 	const keysym_t *map;			/* the map itself */
 };
 
-struct wskbd_mapdata {
-	const struct wscons_keydesc *keydesc;
-	kbd_t layout;
-};
+#ifdef _KERNEL
+
 
 /* layout variant bits ignored by mapping code */
 #define KB_HANDLEDBYWSKBD KB_METAESC
