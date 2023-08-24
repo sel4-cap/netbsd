@@ -27,6 +27,8 @@
 #include "objfiles.h"
 #include "xml-syscall.h"
 
+#include "elf/common.h"
+
 /* Flags in the 'kve_protection' field in struct kinfo_vmentry.  These
    match the KVME_PROT_* constants in <sys/sysctl.h>.  */
 
@@ -43,21 +45,6 @@
 #define	KINFO_VME_FLAG_PAGEABLE		0x00000008
 #define	KINFO_VME_FLAG_GROWS_UP		0x00000010
 #define	KINFO_VME_FLAG_GROWS_DOWN	0x00000020
-
-/* FIXME: kettenis/20060115: We should really eliminate the next two
-   functions completely.  */
-
-struct link_map_offsets *
-nbsd_ilp32_solib_svr4_fetch_link_map_offsets (void)
-{
-  return svr4_ilp32_fetch_link_map_offsets ();
-}
-
-struct link_map_offsets *
-nbsd_lp64_solib_svr4_fetch_link_map_offsets (void)
-{
-  return svr4_lp64_fetch_link_map_offsets ();
-}
 
 int
 nbsd_pc_in_sigtramp (CORE_ADDR pc, const char *func_name)
@@ -393,6 +380,31 @@ get_nbsd_gdbarch_data (struct gdbarch *gdbarch)
 	  gdbarch_data (gdbarch, nbsd_gdbarch_data_handle));
 }
 
+/* Print descriptions of NetBSD-specific AUXV entries to FILE.  */
+
+static void
+nbsd_print_auxv_entry (struct gdbarch *gdbarch, struct ui_file *file,
+		       CORE_ADDR type, CORE_ADDR val)
+{
+  const char *name = "???";
+  const char *description = "";
+  enum auxv_format format = AUXV_FORMAT_HEX;
+
+  switch (type)
+    {
+    default:
+      default_print_auxv_entry (gdbarch, file, type, val);
+      return;
+#define _TAGNAME(tag) #tag
+#define TAGNAME(tag) _TAGNAME(AT_##tag)
+#define TAG(tag, text, kind) \
+      case AT_NETBSD_##tag: name = TAGNAME(tag); description = text; format = kind; break
+      TAG (STACKBASE, _("Base address of main thread"), AUXV_FORMAT_HEX);
+    }
+
+  fprint_auxv_entry (file, name, description, format, type, val);
+}
+
 /* Implement the "get_siginfo_type" gdbarch method.  */
 
 static struct type *
@@ -616,6 +628,7 @@ nbsd_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)
   set_gdbarch_gdb_signal_to_target (gdbarch, nbsd_gdb_signal_to_target);
   set_gdbarch_skip_solib_resolver (gdbarch, nbsd_skip_solib_resolver);
   set_gdbarch_auxv_parse (gdbarch, svr4_auxv_parse);
+  set_gdbarch_print_auxv_entry (gdbarch, nbsd_print_auxv_entry);
   set_gdbarch_get_siginfo_type (gdbarch, nbsd_get_siginfo_type);
 
   /* `catch syscall' */

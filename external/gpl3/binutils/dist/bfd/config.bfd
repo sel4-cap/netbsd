@@ -349,11 +349,11 @@ case "${targ}" in
     targ64_selvecs="x86_64_elf32_nacl_vec x86_64_elf64_nacl_vec"
     targ_archs="$targ_archs bfd_i386_arch"
     ;;
-  arm*eb-*-netbsdelf*)
+  arm*eb-*-netbsd*)
     targ_defvec=arm_elf32_be_vec
     targ_selvecs="arm_elf32_le_vec"
     ;;
-  arm*-*-netbsdelf*)
+  arm*-*-netbsd*)
     targ_defvec=arm_elf32_le_vec
     targ_selvecs="arm_elf32_be_vec"
     ;;

@@ -65,6 +65,7 @@ static const struct sh_corefile_regmap gregs_table[] =
   {GBR_REGNUM,	   21 * 4},
   {-1 /* Terminator.  */, 0}
 };
+
 
 
 #define REGSx16(base) \
@@ -87,7 +88,7 @@ static const struct sh_corefile_regmap gregs_table[] =
 
 /* Convert an FPU register number into an offset into a ptrace
    register structure.  */
-static const struct sh_corefile_regmap fpregs_table[] =
+static const struct sh_corefile_regmap fpregmap[] =
 {
   REGSx16 (FR0_REGNUM),
   /* XXX: REGSx16(XF0_REGNUM) omitted.  */
@@ -200,10 +201,10 @@ shnbsd_init_abi (struct gdbarch_info info,
   struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);
   nbsd_init_abi (info, gdbarch);
 
-  tdep->core_gregmap = (struct sh_corefile_regmap *)gregs_table;
+  tdep->core_gregmap = (struct sh_corefile_regmap *)regmap;
   tdep->sizeof_gregset = 88;
 
-  tdep->core_fpregmap = (struct sh_corefile_regmap *)fpregs_table;
+  tdep->core_fpregmap = (struct sh_corefile_regmap *)fpregmap;
   tdep->sizeof_fpregset = 0;	/* XXX */
 
   set_solib_svr4_fetch_link_map_offsets

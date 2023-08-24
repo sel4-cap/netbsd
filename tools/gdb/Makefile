@@ -1,4 +1,4 @@
-#	$NetBSD: Makefile,v 1.40 2020/09/24 14:53:17 christos Exp $
+#	$NetBSD: Makefile,v 1.48 2023/08/17 07:54:10 rin Exp $
 
 .include <bsd.hostinit.mk>
 
@@ -11,6 +11,10 @@ FIND_ARGS=	\! \( -type d -name sim -prune \)
 CONFIGURE_ARGS=	--target=${MACHINE_GNU_PLATFORM} --disable-nls \
 		--program-transform-name="s,^,${MACHINE_GNU_PLATFORM}-," \
 		--without-mpfr
+
+.if ${MACHINE} == "ia64"
+CONFIGURE_ARGS+=--enable-obsolete
+.endif
 
 MAKE_ARGS=	MACHINE= MAKEINFO=${TOOL_MAKEINFO:Q}
 
@@ -33,7 +37,8 @@ MKNATIVE_ENV=	${BINENV} ${CONFIGURE_ENV:NC*:NLD*:Nam_cv_func_iconv*} \
 			CC=${CC:Q}' '${CCADDFLAGS:Q} \
 			CXX=${CXX:Q}' '${CCADDFLAGS:Q}' '${CXXADDFLAGS:Q} \
 			CPP=${CPP:Q}' '-I${DESTDIR}/usr/include \
-			CFLAGS= CPPFLAGS= CXXFLAGS= LDFLAGS= \
+			CFLAGS= CPPFLAGS= \
+			CXXFLAGS= LDFLAGS=-L${GMPOBJ} \
 			AS=${AS:Q} AWK=${TOOL_AWK:Q} LD=${LD:Q} \
 			MSGFMT=${TOOLDIR}/bin/${_TOOL_PREFIX}msgfmt \
 			NM=${NM:Q} OBJDUMP=${OBJDUMP:Q} \
@@ -43,7 +48,9 @@ MKNATIVE_ENV=	${BINENV} ${CONFIGURE_ENV:NC*:NLD*:Nam_cv_func_iconv*} \
 
 MKENV_BUILD_MAKE=${MKNATIVE_ENV} ${BUILD_MAKE}
 
-CCADDFLAGS+= --sysroot=${DESTDIR} -B${DESTDIR}/usr/lib/ -I${.OBJDIR}/.native/gcc/include
+CCADDFLAGS+= --sysroot=${DESTDIR} -B${DESTDIR}/usr/lib/ \
+		-I${.OBJDIR}/.native/include \
+		-I${.OBJDIR}/.native/gcc/include
 LDADDFLAGS+= -L${DESTDIR}/lib -L${DESTDIR}/usr/lib
 CXXADDFLAGS+= -D__STDC_FORMAT_MACROS
 CXXADDFLAGS+= -D__STDC_LIMIT_MACROS

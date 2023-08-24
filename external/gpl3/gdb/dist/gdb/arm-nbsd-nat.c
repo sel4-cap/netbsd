@@ -42,6 +42,24 @@
 #include "bsd-kvm.h"
 #include "nbsd-nat.h"
 
+/* Determine if PT_GETREGS fetches REGNUM.  */
+
+static bool
+getregs_supplies (int regnum)
+{
+  return ((regnum >= ARM_A1_REGNUM && regnum <= ARM_PC_REGNUM)
+	  || regnum == ARM_PS_REGNUM);
+}
+
+/* Determine if PT_GETFPREGS fetches REGNUM.  */
+
+static bool
+getfpregs_supplies (int regnum)
+{
+  return ((regnum >= ARM_D0_REGNUM && regnum <= ARM_D31_REGNUM)
+	  || regnum == ARM_FPSCR_REGNUM);
+}
+
 class arm_netbsd_nat_target final : public nbsd_nat_target
 {
 public:
@@ -205,12 +223,15 @@ arm_netbsd_nat_target::fetch_registers (struct regcache *regcache, int regno)
 {
   if (regno >= 0)
     {
+      /* Handle discontinuous range for general purpose registers.
+	 For floating-point registers, it happens to be continuous,
+	 but use specific static function for clarity.  */
       if (getregs_supplies (regno))
 	fetch_register (regcache, regno);
       else if (getfpregs_supplies (regno))
 	fetch_fp_register (regcache, regno);
       else
-        warning (_("unable to fetch register %d"), regno);
+	warning (_("unable to fetch register %d"), regno);
     }
   else
     {

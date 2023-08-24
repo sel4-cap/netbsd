@@ -72,6 +72,9 @@ arm_nbsd_supply_gregset (const struct regset *regset, struct regcache *regcache,
 
   if (regnum == -1 || regnum == ARM_PC_REGNUM)
     {
+      /* XXX Use uint32_t instead of CORE_ADDR (aka uint64_t; see
+	 gdbsupport/common-types.h).  Otherwise, zero-filled word
+	 will be stored for big-endian targets.  */
       uint32_t r_pc = gdbarch_addr_bits_remove (regcache->arch (), gregset->pc);
       regcache->raw_supply (ARM_PC_REGNUM, (char *) &r_pc);
     }
@@ -116,6 +119,8 @@ arm_netbsd_init_abi_common (struct gdbarch_info info,
   struct gdbarch_tdep *tdep = gdbarch_tdep (gdbarch);
 
   tdep->lowest_pc = 0x8000;
+  /* For armv[67]eb (BE8), insns are encoded in little-endian.
+     Therefore, we cannot use info.byte_order here.  */
   switch (info.byte_order_for_code)
     {
     case BFD_ENDIAN_LITTLE:

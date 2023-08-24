@@ -13166,8 +13166,7 @@ if test "$XGETTEXT" != ":"; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $XGETTEXT" >&5
 $as_echo "$XGETTEXT" >&6; }
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
+  use_secureplt=false	# XXX port-alpha/57511
 fi
 
     rm -f messages.po
@@ -15245,6 +15244,9 @@ if test "${target}" = "${host}"; then
 	TRAD_HEADER='"hosts/pc532mach.h"'
 	;;
   ns32k-*-netbsd* | ns32k-*-openbsd*)
+	COREFILE=netbsd-core.lo
+	;;
+  riscv*-*-netbsd*)
 	COREFILE=netbsd-core.lo
 	;;
   rs6000-*-lynx*)
