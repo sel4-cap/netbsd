@@ -9,7 +9,7 @@
 struct device;
 typedef struct device *device_t;
 
-#if defined(_KERNEL) || defined(_KMEMUSER)
+#if defined(_KERNEL) || defined(_KMEMUSER) || defined(SEL4)
 typedef enum devact_level {
 	  DEVACT_LEVEL_CLASS	= 0
 	, DEVACT_LEVEL_DRIVER	= 1
@@ -28,11 +28,5 @@ typedef struct device_suspensor device_suspensor_t;
 #else
 typedef struct device_lock *device_lock_t;
 #endif
-typedef enum devact_level {
-	  DEVACT_LEVEL_CLASS	= 0
-	, DEVACT_LEVEL_DRIVER	= 1
-	, DEVACT_LEVEL_BUS	= 2
-} devact_level_t;
-typedef struct device_suspensor device_suspensor_t;
 
 #endif	/* _SYS_DEVICE_IF_H */
