@@ -80,9 +80,9 @@
  */
 
 #include <sys/dkio.h>
-#include <sys/time.h>
+//#include <sys/time.h>
 #include <sys/queue.h>
-#include <sys/iostat.h>
+//#include <sys/iostat.h>
 
 /*
  * Disk information dictionary.
@@ -283,7 +283,7 @@ struct disk_badsectors {
 	SLIST_ENTRY(disk_badsectors)	dbs_next;
 	daddr_t		dbs_min;	/* min. sector number */
 	daddr_t		dbs_max;	/* max. sector number */
-	struct timeval	dbs_failedat;	/* first failure at */
+	//struct timeval	dbs_failedat;	/* first failure at */
 };
 
 struct disk_badsecinfo {

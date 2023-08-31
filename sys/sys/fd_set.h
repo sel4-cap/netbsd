@@ -87,6 +87,7 @@ typedef	struct fd_set {
 /*
  * Expose our internals if we are not required to hide them.
  */
+//#define	fd_mask		__fd_mask
 #if defined(_NETBSD_SOURCE)
 
 #define	fd_mask		__fd_mask

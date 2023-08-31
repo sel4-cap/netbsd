@@ -210,8 +210,6 @@ static usbd_status
 usbd_get_hub_desc(struct usbd_device *dev, usb_hub_descriptor_t *hd, int speed)
 {
 
-	printf("\nusbd_get_hub_desc called\n");
-
 	usb_device_request_t req;
 	usbd_status err;
 	int nports;
@@ -223,20 +221,18 @@ usbd_get_hub_desc(struct usbd_device *dev, usb_hub_descriptor_t *hd, int speed)
 		usb_hub_ss_descriptor_t *hssd = kmem_zalloc(sizeof(usb_hub_ss_descriptor_t), 0);
 		int rmvlen;
 
-#ifndef SEL4
-		memset(&hssd, 0, sizeof(hssd));
-#endif
+		// memset(hssd, 0, sizeof(hssd));
 		req.bmRequestType = UT_READ_CLASS_DEVICE;
 		req.bRequest = UR_GET_DESCRIPTOR;
 		USETW2(req.wValue, UDESC_SS_HUB, 0);
 		USETW(req.wIndex, 0);
 		USETW(req.wLength, USB_HUB_SS_DESCRIPTOR_SIZE);
-		DPRINTFN(1, "getting sshub descriptor", 0, 0, 0, 0);
+		//DPRINTFN(1, "getting sshub descriptor", 0, 0, 0, 0);
 		err = usbd_do_request(dev, &req, hssd);
 		nports = hssd->bNbrPorts;
 		if (dev->ud_depth != 0 && nports > UHD_SS_NPORTS_MAX) {
-			DPRINTF("num of ports %jd exceeds maxports %jd",
-			    nports, UHD_SS_NPORTS_MAX, 0, 0);
+			aprint_debug("num of ports %jd exceeds maxports %jd",
+			    nports, UHD_SS_NPORTS_MAX);
 			nports = hd->bNbrPorts = UHD_SS_NPORTS_MAX;
 		}
 		rmvlen = (nports + 7) / 8;
@@ -255,7 +251,6 @@ usbd_get_hub_desc(struct usbd_device *dev, usb_hub_descriptor_t *hd, int speed)
 		USETW2(req.wValue, UDESC_HUB, 0);
 		USETW(req.wIndex, 0);
 		USETW(req.wLength, USB_HUB_DESCRIPTOR_SIZE);
-		printf("getting hub descriptor");
 		err = usbd_do_request(dev, &req, hd);
 		nports = hd->bNbrPorts;
 		if (!err && nports > 7) {
@@ -299,7 +294,6 @@ uhub_match(device_t parent, cfdata_t match, void *aux)
 	 * The subclass for hubs seems to be 0 for some and 1 for others,
 	 * so we just ignore the subclass.
 	 */
-	printf("class is %d\n", uaa->uaa_class);
 	if (uaa->uaa_class == UDCLASS_HUB)
 		return matchvalue;
 	return UMATCH_NONE;
@@ -308,7 +302,6 @@ uhub_match(device_t parent, cfdata_t match, void *aux)
 void
 uhub_attach(device_t parent, device_t self, void *aux)
 {
-	printf("\nuhub_attach called!\n");
 	struct uhub_softc *sc = device_private(self);
 	struct usb_attach_arg *uaa = aux;
 	struct usbd_device *dev = uaa->uaa_device;
@@ -357,9 +350,7 @@ uhub_attach(device_t parent, device_t self, void *aux)
 	}
 
 	/* Get hub descriptor. */
-#ifndef SEL4
-	memset(&hubdesc, 0, sizeof(hubdesc));
-#endif
+	// memset(&hubdesc, 0, sizeof(hubdesc));
 	err = usbd_get_hub_desc(dev, hubdesc, dev->ud_speed);
 	nports = hubdesc->bNbrPorts;
 	if (err) {
@@ -504,10 +495,10 @@ uhub_attach(device_t parent, device_t self, void *aux)
 		/* Turn the power on. */
 		err = usbd_set_port_feature(dev, port, UHF_PORT_POWER);
 		if (err)
-			aprint_error_dev(self, "port %d power on failed, %s\n",
+			aprint_error("\nport %d power on failed, %s\n",
 			    port, usbd_errstr(err));
-		DPRINTF("uhub%jd turn on port %jd power", device_unit(self),
-		    port, 0, 0);
+		aprint_debug("uhub%jd turn on port %jd power\n", device_unit(self),
+		    port);
 	}
 
 	/* Wait for stable power if we are not a root hub */
@@ -518,8 +509,8 @@ uhub_attach(device_t parent, device_t self, void *aux)
 	sc->sc_running = true;
 	sc->sc_first_explore = true;
 
-	if (!pmf_device_register(self, NULL, NULL))
-		aprint_error_dev(self, "couldn't establish power handler\n");
+	// if (!pmf_device_register(self, NULL, NULL))
+	// 	aprint_error_dev(self, "couldn't establish power handler\n");
 
 	return;
 
@@ -704,7 +695,7 @@ uhub_explore(struct usbd_device *dev)
 
 		/* We have a connect status change, handle it. */
 
-		DPRINTF("uhub%jd status change port %jd",
+		printf("uhub%jd status change port %jd",
 		    device_unit(sc->sc_dev), port, 0, 0);
 		usbd_clear_port_feature(dev, port, UHF_C_PORT_CONNECTION);
 		/*
@@ -741,7 +732,7 @@ uhub_explore(struct usbd_device *dev)
 		}
 
 		/* Connected */
-		DPRINTF("unit %jd dev->speed=%ju dev->depth=%ju",
+		printf("unit %jd dev->speed=%ju dev->depth=%ju",
 		    device_unit(sc->sc_dev), dev->ud_speed, dev->ud_depth, 0);
 
 		/* Wait for maximum device power up time. */
@@ -770,7 +761,7 @@ uhub_explore(struct usbd_device *dev)
 		change = UGETW(up->up_status.wPortChange);
 		SDT_PROBE5(usb, hub, explore, reset,
 		    dev, port, up, status, change);
-		DPRINTF("uhub%jd port %jd after reset: s/c=%jx/%jx",
+		printf("uhub%jd port %jd after reset: s/c=%jx/%jx",
 		    device_unit(sc->sc_dev), port, status, change);
 
 		if (!(status & UPS_CURRENT_CONNECT_STATUS)) {
@@ -1014,8 +1005,9 @@ uhub_childdet(device_t self, device_t child)
 	KASSERT(KERNEL_LOCKED_P());
 
 	if (!devhub->ud_hub)
+		printf("hub not fully initialised, but child deleted?");
+		// panic("hub not fully initialised, but child deleted?");
 		/* should never happen; children are only created after init */
-		panic("hub not fully initialised, but child deleted?");
 
 	nports = devhub->ud_hub->uh_hubdesc.bNbrPorts;
 	for (port = 1; port <= nports; port++) {

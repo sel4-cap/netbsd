@@ -74,6 +74,7 @@ typedef enum {		/* keep in sync with usbd_error_strs */
 } usbd_status;
 
 typedef void (*usbd_callback)(struct usbd_xfer *, void *, usbd_status);
+// typedef uint8_t u_int;
 
 /* Use default (specified by ep. desc.) interval on interrupt pipe */
 #define USBD_DEFAULT_INTERVAL	(-1)
@@ -192,9 +193,7 @@ const struct usbd_quirks *usbd_get_quirks(struct usbd_device *);
 
 usbd_status usbd_reload_device_desc(struct usbd_device *);
 
-#ifndef SEL4
-int usbd_ratecheck(struct timeval *);
-#endif
+// int usbd_ratecheck(struct timeval *);
 
 usbd_status usbd_get_string(struct usbd_device *, int, char *);
 usbd_status usbd_get_string0(struct usbd_device *, int, char *, int);
@@ -320,15 +319,12 @@ struct usbif_attach_arg {
 #define splhardusb splvm
 
 #define SOFTINT_USB SOFTINT_SERIAL
-#ifndef SEL4
-#define IPL_SOFTUSB IPL_SOFTSERIAL
-#endif
+// #define IPL_SOFTUSB IPL_SOFTSERIAL
 #define IPL_SOFTUSB NULL
 #define splusb splsoftserial
-
 void uhub_intr(struct usbd_xfer *, void *, usbd_status);
 void uhidev_intr(struct usbd_xfer *, void *, usbd_status);
-void	ukbd_intr(void *, void *, u_int);
+void ukbd_intr(void *, void *, u_int);
 void ums_intr(void *, void *, u_int);
 void uts_intr(void *, void *, u_int);
 void uhid_intr(void *, void *, u_int);

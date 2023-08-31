@@ -68,7 +68,7 @@
  */
 
 #if !defined(_KERNEL)
-#error not supposed to be exposed to userland.
+//#error not supposed to be exposed to userland.
 #endif
 
 struct buf;

@@ -37,8 +37,8 @@
 #include <sys/mutex.h>
 #include <sys/pool.h>
 #include <sys/queue.h>
-#include <sys/sched.h>
-#include <sys/syncobj.h>
+//#include <sys/sched.h>
+//#include <sys/syncobj.h>
 #include <sys/param.h>
 
 /*
@@ -47,20 +47,20 @@
 
 typedef struct sleepq sleepq_t;
 
-void	sleepq_init(sleepq_t *);
-void	sleepq_remove(sleepq_t *, lwp_t *);
-void	sleepq_enqueue(sleepq_t *, wchan_t, const char *, struct syncobj *,
-	    bool);
-void	sleepq_transfer(lwp_t *, sleepq_t *, sleepq_t *, wchan_t, const char *,
-	    struct syncobj *, kmutex_t *, bool);
-void	sleepq_uncatch(lwp_t *);
-void	sleepq_unsleep(lwp_t *, bool);
-void	sleepq_timeout(void *);
-void	sleepq_wake(sleepq_t *, wchan_t, u_int, kmutex_t *);
-int	sleepq_abort(kmutex_t *, int);
-void	sleepq_changepri(lwp_t *, pri_t);
-void	sleepq_lendpri(lwp_t *, pri_t);
-int	sleepq_block(int, bool, struct syncobj *);
+// void	sleepq_init(sleepq_t *);
+// void	sleepq_remove(sleepq_t *, lwp_t *);
+// void	sleepq_enqueue(sleepq_t *, wchan_t, const char *, struct syncobj *,
+// 	    bool);
+// void	sleepq_transfer(lwp_t *, sleepq_t *, sleepq_t *, wchan_t, const char *,
+// 	    struct syncobj *, kmutex_t *, bool);
+// void	sleepq_uncatch(lwp_t *);
+// void	sleepq_unsleep(lwp_t *, bool);
+// void	sleepq_timeout(void *);
+// void	sleepq_wake(sleepq_t *, wchan_t, u_int, kmutex_t *);
+// int	sleepq_abort(kmutex_t *, int);
+// void	sleepq_changepri(lwp_t *, pri_t);
+// void	sleepq_lendpri(lwp_t *, pri_t);
+// int	sleepq_block(int, bool, struct syncobj *);
 
 #ifdef _KERNEL
 

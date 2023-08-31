@@ -63,11 +63,9 @@
 #include <sys/event.h>
 #include <sys/queue.h>
 #include <sys/condvar.h>
-#include <sys/rwlock.h>
+//#include <sys/rwlock.h>
 #include <sys/mutex.h>
-#ifndef SEL4
-#include <sys/time.h>
-#endif
+//#include <sys/time.h>
 #include <sys/acl.h>
 
 /* XXX: clean up includes later */
@@ -266,12 +264,10 @@ struct vattr {
 	ino_t		va_fileid;	/* file id */
 	u_quad_t	va_size;	/* file size in bytes */
 	long		va_blocksize;	/* blocksize preferred for i/o */
-	#ifndef SEL4
-	struct timespec	va_atime;	/* time of last access */
-	struct timespec	va_mtime;	/* time of last modification */
-	struct timespec	va_ctime;	/* time file changed */
-	struct timespec va_birthtime;	/* time file created */
-	#endif
+	//struct timespec	va_atime;	/* time of last access */
+	//struct timespec	va_mtime;	/* time of last modification */
+	//struct timespec	va_ctime;	/* time file changed */
+	//struct timespec va_birthtime;	/* time file created */
 	u_long		va_gen;		/* generation number of file */
 	u_long		va_flags;	/* flags defined for file */
 	dev_t		va_rdev;	/* device the special file represents */
@@ -286,6 +282,8 @@ struct vattr {
  */
 #define	VA_UTIMES_NULL	0x01		/* utimes argument was NULL */
 #define	VA_EXCLUSIVE	0x02		/* exclusive create request */
+
+#define	IO_NDELAY	0x00100		/* FNDELAY flag set in file table */
 
 #ifdef _KERNEL
 

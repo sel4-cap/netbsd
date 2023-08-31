@@ -86,34 +86,34 @@ sleepq_hashlock(wchan_t wchan)
  * Turnstiles, specialized sleep queues for use by kernel locks.
  */
 
-typedef struct turnstile {
-	LIST_ENTRY(turnstile)	ts_chain;	/* link on hash chain */
-	struct turnstile	*ts_free;	/* turnstile free list */
-	wchan_t			ts_obj;		/* lock object */
-	sleepq_t		ts_sleepq[2];	/* sleep queues */
-	u_int			ts_waiters[2];	/* count of waiters */
+// typedef struct turnstile {
+// 	LIST_ENTRY(turnstile)	ts_chain;	/* link on hash chain */
+// 	struct turnstile	*ts_free;	/* turnstile free list */
+// 	wchan_t			ts_obj;		/* lock object */
+// 	sleepq_t		ts_sleepq[2];	/* sleep queues */
+// 	u_int			ts_waiters[2];	/* count of waiters */
 
-	/* priority inheritance */
-	pri_t			ts_eprio;
-	lwp_t			*ts_inheritor;
-	SLIST_ENTRY(turnstile)	ts_pichain;
-} turnstile_t;
+// 	/* priority inheritance */
+// 	pri_t			ts_eprio;
+// 	lwp_t			*ts_inheritor;
+// 	SLIST_ENTRY(turnstile)	ts_pichain;
+// } turnstile_t;
 
-LIST_HEAD(tschain, turnstile);
+// LIST_HEAD(tschain, turnstile);
 
-typedef struct tschain tschain_t;
+// typedef struct tschain tschain_t;
 
-#define	TS_READER_Q	0		/* reader sleep queue */
-#define	TS_WRITER_Q	1		/* writer sleep queue */
+// #define	TS_READER_Q	0		/* reader sleep queue */
+// #define	TS_WRITER_Q	1		/* writer sleep queue */
 
-#define	TS_WAITERS(ts, q)						\
-	(ts)->ts_waiters[(q)]
+// #define	TS_WAITERS(ts, q)						\
+// 	(ts)->ts_waiters[(q)]
 
-#define	TS_ALL_WAITERS(ts)						\
-	((ts)->ts_waiters[TS_READER_Q] +				\
-	 (ts)->ts_waiters[TS_WRITER_Q])
+// #define	TS_ALL_WAITERS(ts)						\
+// 	((ts)->ts_waiters[TS_READER_Q] +				\
+// 	 (ts)->ts_waiters[TS_WRITER_Q])
 
-#define	TS_FIRST(ts, q)	(LIST_FIRST(&(ts)->ts_sleepq[(q)]))
+// #define	TS_FIRST(ts, q)	(LIST_FIRST(&(ts)->ts_sleepq[(q)]))
 
 #ifdef	_KERNEL
 

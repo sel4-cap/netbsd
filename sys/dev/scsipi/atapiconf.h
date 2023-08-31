@@ -28,7 +28,7 @@
 #define _DEV_SCSIPI_ATAPICONF_H
 
 #include <sys/device.h>
-#include <dev/scsipi/scsipiconf.h>
+#include <dev/scsipi/scsipiconf.h> 
 
 struct atapibus_softc {
 	device_t sc_dev;
@@ -44,7 +44,9 @@ extern const struct scsipi_periphsw atapi_probe_periphsw;
  * atapi_adapter when we need the extra data (only in ATAPI code)
  */
 struct atapi_adapter {
+	#ifndef SEL4
 	struct scsipi_adapter _generic;
+	#endif
 	void (*atapi_probe_device)(struct atapibus_softc *, int);
 };
 

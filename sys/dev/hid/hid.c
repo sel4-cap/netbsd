@@ -421,10 +421,10 @@ hid_locate(const void *desc, int size, uint32_t u, uint8_t id, enum hid_kind k,
 	struct hid_item h;
 
 	h.report_ID = 0;
-	DPRINTFN(5,("hid_locate: enter usage=0x%x kind=%d id=%d\n", u, k, id));
+	/* printf("hid_locate: enter usage=0x%x kind=%d id=%d\n", u, k, id); */
 	for (d = hid_start_parse(desc, size, k); hid_get_item(d, &h); ) {
-		DPRINTFN(5,("hid_locate: usage=0x%x kind=%d id=%d flags=0x%x\n",
-			    h.usage, h.kind, h.report_ID, h.flags));
+		/* printf("hid_locate: usage=0x%x kind=%d id=%d flags=0x%x\n", */
+			    /* h.usage, h.kind, h.report_ID, h.flags); */
 		if (h.kind == k && !(h.flags & HIO_CONST) &&
 		    h.usage == u && h.report_ID == id) {
 			if (loc != NULL)
@@ -436,8 +436,9 @@ hid_locate(const void *desc, int size, uint32_t u, uint8_t id, enum hid_kind k,
 		}
 	}
 	hid_end_parse(d);
-	if (loc != NULL)
+	if (loc != NULL) {
 		loc->size = 0;
+	}
 	return 0;
 }
 
@@ -449,7 +450,6 @@ hid_get_data(const u_char *buf, const struct hid_location *loc)
 
 	if (hsize == 0)
 		return 0;
-
 	data = hid_get_udata(buf, loc);
 	if (data < (1UL << (hsize - 1)) || hsize == sizeof(data) * NBBY)
 		return data;

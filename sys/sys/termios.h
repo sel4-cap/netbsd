@@ -310,5 +310,5 @@ int	tcsetwinsize(int, const struct winsize *);
 #endif /* !_SYS_TERMIOS_H_ */
 
 #if defined(_NETBSD_SOURCE)
-#include <sys/ttydefaults.h>
+//#include <sys/ttydefaults.h>
 #endif
