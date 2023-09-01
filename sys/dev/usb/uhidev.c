@@ -52,10 +52,8 @@ __KERNEL_RCSID(0, "$NetBSD: uhidev.c,v 1.94 2022/11/04 19:46:55 jmcneill Exp $")
 #include <sys/kernel.h>
 #include <sys/kmem.h>
 #include <sys/lwp.h>
-#ifndef SEL4
-#include <sys/rndsource.h>
-#include <sys/signalvar.h>
-#endif
+//#include <sys/rndsource.h>
+//#include <sys/signalvar.h>
 #include <sys/systm.h>
 #include <sys/xcall.h>
 
@@ -96,9 +94,7 @@ struct uhidev_softc {
 		device_t	sc_dev;
 		void		(*sc_intr)(void *, void *, u_int);
 		void		*sc_cookie;
-#ifndef SEL4
-		krndsource_t	sc_rndsource;
-#endif
+		//krndsource_t	sc_rndsource;
 		int		sc_in_rep_size;
 		uint8_t		sc_report_id;
 		uint8_t		sc_state;
@@ -141,17 +137,11 @@ int	uhidevdebug = 0;
 #define DPRINTFN(n,x)
 #endif
 
-#ifndef SEL4 //SEL4: moved
-static void uhidev_intr(struct usbd_xfer *, void *, usbd_status);
-#endif
-
 static int uhidev_maxrepid(void *, int);
 static int uhidevprint(void *, const char *);
 
 static int uhidev_match(device_t, cfdata_t, void *);
-#ifndef SEL4 //SEL4: moved
-static void uhidev_attach(device_t, device_t, void *);
-#endif
+// static void uhidev_attach(device_t, device_t, void *);
 static void uhidev_childdet(device_t, device_t);
 static int uhidev_detach(device_t, int);
 
@@ -180,6 +170,7 @@ uhidev_match(device_t parent, cfdata_t match, void *aux)
 void
 uhidev_attach(device_t parent, device_t self, void *aux)
 {
+	printf("uhidev attach\n");
 	struct uhidev_softc *sc = kmem_alloc(sizeof(struct uhidev_softc), 0);
 	struct usbif_attach_arg *uiaa = aux;
 	struct usbd_interface *iface = uiaa->uiaa_iface;
@@ -194,7 +185,7 @@ uhidev_attach(device_t parent, device_t self, void *aux)
 	const void *descptr;
 	usbd_status err;
 	char *devinfop;
-	int locs[UHIDBUSCF_NLOCS];
+	int locs[0];
 
 	sc->sc_dev = self;
 	sc->sc_udev = uiaa->uiaa_device;
@@ -421,7 +412,7 @@ uhidev_attach(device_t parent, device_t self, void *aux)
 		if (hid_report_size(desc, size, hid_input, repid) == 0 &&
 		    hid_report_size(desc, size, hid_output, repid) == 0 &&
 		    hid_report_size(desc, size, hid_feature, repid) == 0) {
-			;	/* already NULL in sc->sc_subdevs[repid] */
+			printf("rep %d null in sc_subdevs\n", repid);	/* already NULL in sc->sc_subdevs[repid] */
 		} else {
 			uha.parent = scd;
 			uha.reportid = repid;
@@ -430,17 +421,15 @@ uhidev_attach(device_t parent, device_t self, void *aux)
 			dev = config_found(self, &uha, uhidevprint,
 			    CFARGS(.submatch = config_stdsubmatch,
 				   .locators = locs));
-			sc->sc_subdevs[repid].sc_dev = dev;
+			sc->sc_subdevs[repid].sc_dev = dev; //changed from self - supposed to be dev
 			if (dev == NULL)
 				continue;
 			/*
 			 * XXXSMP -- could be detached in the middle of
 			 * sleeping for allocation in rnd_attach_source
 			 */
-#ifndef SEL4
-			rnd_attach_source(&scd->sc_rndsource,
-			    device_xname(dev), RND_TYPE_TTY, RND_FLAG_DEFAULT);
-#endif
+			//rnd_attach_source(&scd->sc_rndsource,
+			    //device_xname(dev), RND_TYPE_TTY, RND_FLAG_DEFAULT);
 		}
 	}
 	kmem_free(repsizes, nrepid * sizeof(*repsizes));
@@ -495,15 +484,12 @@ uhidev_childdet(device_t self, device_t child)
 	 * (Actually this can't happen right now because there's no
 	 * rescan method, but if there were, it could.)
 	 */
-#ifndef SEL4
-	rnd_detach_source(&sc->sc_subdevs[i].sc_rndsource);
-#endif
+	//rnd_detach_source(&sc->sc_subdevs[i].sc_rndsource);
 }
 
 static int
 uhidev_detach(device_t self, int flags)
 {
-#ifndef SEL4
 	struct uhidev_softc *sc = device_private(self);
 	int rv;
 
@@ -517,7 +503,7 @@ uhidev_detach(device_t self, int flags)
 	 * refusing detachment.  If they do detach, the pipes can no
 	 * longer be in use.
 	 */
-	rv = config_detach_children(self, flags);
+	// rv = config_detach_children(self, flags);
 	if (rv)
 		return rv;
 
@@ -546,7 +532,6 @@ uhidev_detach(device_t self, int flags)
 	mutex_destroy(&sc->sc_lock);
 
 	return rv;
-#endif
 }
 
 void
@@ -583,21 +568,27 @@ uhidev_intr(struct usbd_xfer *xfer, void *addr, usbd_status status)
 	}
 
 	p = sc->sc_ibuf;
-	if (sc->sc_nrepid != 1)
+	printf("\nnrepID: %d\n", sc->sc_nrepid);
+	if (sc->sc_nrepid != 1) {
 		rep = *p++, cc--;
-	else
+		if (rep == 0) {
+			aprint_debug("WARNING: rep manually set to 1 (touch screen?)");
+			rep = 1; //seL4 added nested if statement to make touchscreen avoid repid 0 and default to 1
+		}
+	}
+	else {
 		rep = 0;
+	}
 	if (rep >= sc->sc_nrepid) {
 		printf("uhidev_intr: bad repid %d\n", rep);
 		return;
 	}
+	//printf("repID: %d\n", rep);
 	scd = &sc->sc_subdevs[rep];
-	DPRINTFN(5,("uhidev_intr: rep=%d, scd=%p state=%#x\n",
-		    rep, scd, scd->sc_state));
-#ifndef SEL4
-	if (!(atomic_load_acquire(&scd->sc_state) & UHIDEV_OPEN))
-	 	return;
-#endif
+	// printf("uhidev_intr: rep=%d, scd=%p state=%#x\n",
+	// 	    rep, scd, scd->sc_state);
+	/* if (!(atomic_load_acquire(&scd->sc_state) & UHIDEV_OPEN)) */
+	/* 	return; */
 #ifdef UHIDEV_DEBUG
 	if (scd->sc_in_rep_size != cc) {
 		DPRINTF(("%s: expected %d bytes, got %d\n",
@@ -609,9 +600,9 @@ uhidev_intr(struct usbd_xfer *xfer, void *addr, usbd_status status)
 			device_xname(sc->sc_dev)));
 		return;
 	}
-#ifndef SEL4
-	rnd_add_uint32(&scd->sc_rndsource, (uintptr_t)(sc->sc_ibuf));
-#endif
+	//rnd_add_uint32(&scd->sc_rndsource, (uintptr_t)(sc->sc_ibuf));
+	//printf("going to intr: ");
+	//printf("%p\n", scd->sc_intr);
 	scd->sc_intr(scd->sc_cookie, p, cc);
 }
 
@@ -619,7 +610,6 @@ void
 uhidev_get_report_desc(struct uhidev *scd, void **desc, int *size)
 {
 	struct uhidev_softc *sc = scd->sc_parent;
-	
 	*desc = sc->sc_repdesc;
 	*size = sc->sc_repdesc_size;
 }
@@ -880,6 +870,7 @@ int
 uhidev_open(struct uhidev *scd, void (*intr)(void *, void *, u_int),
     void *cookie)
 {
+	printf("\nuhidev open\n");
 	struct uhidev_softc *sc = scd->sc_parent;
 	int error;
 
@@ -897,6 +888,7 @@ uhidev_open(struct uhidev *scd, void (*intr)(void *, void *, u_int),
 		error = EBUSY;
 		goto out;
 	}
+	printf("setting intr for scd %p !!!! %p\n", scd, intr);
 	scd->sc_intr = intr;
 	scd->sc_cookie = cookie;
 	atomic_store_release(&scd->sc_state, scd->sc_state | UHIDEV_OPEN);
@@ -917,6 +909,7 @@ out:	if (error) {
 		    scd->sc_state & ~UHIDEV_OPEN);
 	}
 	mutex_exit(&sc->sc_lock);
+	//printf("\n1");
 	return error;
 }
 
@@ -1049,9 +1042,7 @@ uhidev_close(struct uhidev *scd)
 	 * until after uhidev_close returns.
 	 */
 	mutex_exit(&sc->sc_lock);
-#ifndef SEL4
-	xc_barrier(XC_HIGHPRI);
-#endif
+	//xc_barrier(XC_HIGHPRI);
 	mutex_enter(&sc->sc_lock);
 	KASSERT((scd->sc_state & UHIDEV_OPEN) == 0);
 	scd->sc_intr = NULL;

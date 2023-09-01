@@ -57,9 +57,9 @@ __KERNEL_RCSID(0, "$NetBSD: ugen.c,v 1.173 2023/07/31 17:41:18 christos Exp $");
 #include <sys/proc.h>
 #include <sys/vnode.h>
 #include <sys/poll.h>
-#include <sys/compat_stub.h>
+//#include <sys/compat_stub.h>
 #include <sys/module.h>
-#include <sys/rbtree.h>
+//#include <sys/rbtree.h>
 
 #include <dev/usb/usb.h>
 #include <dev/usb/usbdi.h>
@@ -167,7 +167,7 @@ struct ugen_endpoint {
 struct ugen_softc {
 	device_t sc_dev;		/* base device */
 	struct usbd_device *sc_udev;
-	struct rb_node sc_node;
+	//struct rb_node sc_node;
 	unsigned sc_unit;
 
 	kmutex_t		sc_lock;
@@ -184,10 +184,10 @@ struct ugen_softc {
 	u_char sc_attached;
 };
 
-static struct {
-	kmutex_t	lock;
-	rb_tree_t	tree;
-} ugenif __cacheline_aligned;
+// static struct {
+// 	kmutex_t	lock;
+// 	//rb_tree_t	tree;
+// } ugenif __cacheline_aligned;
 
 static int
 compare_ugen(void *cookie, const void *vsca, const void *vscb)
@@ -215,11 +215,11 @@ compare_ugen_key(void *cookie, const void *vsc, const void *vk)
 	return 0;
 }
 
-static const rb_tree_ops_t ugenif_tree_ops = {
-	.rbto_compare_nodes = compare_ugen,
-	.rbto_compare_key = compare_ugen_key,
-	.rbto_node_offset = offsetof(struct ugen_softc, sc_node),
-};
+// static const rb_tree_ops_t ugenif_tree_ops = {
+// 	.rbto_compare_nodes = compare_ugen,
+// 	.rbto_compare_key = compare_ugen_key,
+// 	.rbto_node_offset = offsetof(struct ugen_softc, sc_node),
+// };
 
 static void
 ugenif_get_unit(struct ugen_softc *sc)
@@ -227,28 +227,28 @@ ugenif_get_unit(struct ugen_softc *sc)
 	struct ugen_softc *sc0;
 	unsigned i;
 
-	mutex_enter(&ugenif.lock);
-	for (i = 0, sc0 = RB_TREE_MIN(&ugenif.tree);
-	     sc0 != NULL && i == sc0->sc_unit;
-	     i++, sc0 = RB_TREE_NEXT(&ugenif.tree, sc0))
-		KASSERT(i < UINT_MAX);
-	KASSERT(rb_tree_find_node(&ugenif.tree, &i) == NULL);
-	sc->sc_unit = i;
-	sc0 = rb_tree_insert_node(&ugenif.tree, sc);
-	KASSERT(sc0 == sc);
-	KASSERT(rb_tree_find_node(&ugenif.tree, &i) == sc);
-	mutex_exit(&ugenif.lock);
+	// mutex_enter(&ugenif.lock);
+	// for (i = 0, sc0 = RB_TREE_MIN(&ugenif.tree);
+	//      sc0 != NULL && i == sc0->sc_unit;
+	//      i++, sc0 = RB_TREE_NEXT(&ugenif.tree, sc0))
+	// 	KASSERT(i < UINT_MAX);
+	// KASSERT(rb_tree_find_node(&ugenif.tree, &i) == NULL);
+	// sc->sc_unit = i;
+	// sc0 = rb_tree_insert_node(&ugenif.tree, sc);
+	// KASSERT(sc0 == sc);
+	// KASSERT(rb_tree_find_node(&ugenif.tree, &i) == sc);
+	// mutex_exit(&ugenif.lock);
 }
 
 static void
 ugenif_put_unit(struct ugen_softc *sc)
 {
 
-	mutex_enter(&ugenif.lock);
-	KASSERT(rb_tree_find_node(&ugenif.tree, &sc->sc_unit) == sc);
-	rb_tree_remove_node(&ugenif.tree, sc);
-	sc->sc_unit = -1;
-	mutex_exit(&ugenif.lock);
+	// mutex_enter(&ugenif.lock);
+	// KASSERT(rb_tree_find_node(&ugenif.tree, &sc->sc_unit) == sc);
+	// rb_tree_remove_node(&ugenif.tree, sc);
+	// sc->sc_unit = -1;
+	// mutex_exit(&ugenif.lock);
 }
 
 static struct ugen_softc *
@@ -256,20 +256,20 @@ ugenif_acquire(unsigned unit)
 {
 	struct ugen_softc *sc;
 
-	mutex_enter(&ugenif.lock);
-	sc = rb_tree_find_node(&ugenif.tree, &unit);
-	if (sc == NULL)
-		goto out;
-	mutex_enter(&sc->sc_lock);
-	if (sc->sc_dying) {
-		mutex_exit(&sc->sc_lock);
-		sc = NULL;
-		goto out;
-	}
-	KASSERT(sc->sc_refcnt < INT_MAX);
-	sc->sc_refcnt++;
-	mutex_exit(&sc->sc_lock);
-out:	mutex_exit(&ugenif.lock);
+// 	mutex_enter(&ugenif.lock);
+// 	sc = rb_tree_find_node(&ugenif.tree, &unit);
+// 	if (sc == NULL)
+// 		goto out;
+// 	mutex_enter(&sc->sc_lock);
+// 	if (sc->sc_dying) {
+// 		mutex_exit(&sc->sc_lock);
+// 		sc = NULL;
+// 		goto out;
+// 	}
+// 	KASSERT(sc->sc_refcnt < INT_MAX);
+// 	sc->sc_refcnt++;
+// 	mutex_exit(&sc->sc_lock);
+// out:	mutex_exit(&ugenif.lock);
 
 	return sc;
 }
@@ -293,18 +293,18 @@ static dev_type_poll(ugenpoll);
 static dev_type_kqfilter(ugenkqfilter);
 
 const struct cdevsw ugen_cdevsw = {
-	.d_open = ugenopen,
-	.d_close = ugenclose,
-	.d_read = ugenread,
-	.d_write = ugenwrite,
-	.d_ioctl = ugenioctl,
-	.d_stop = nostop,
-	.d_tty = notty,
-	.d_poll = ugenpoll,
-	.d_mmap = nommap,
-	.d_kqfilter = ugenkqfilter,
-	.d_discard = nodiscard,
-	.d_flag = D_OTHER,
+	// .d_open = ugenopen,
+	// .d_close = ugenclose,
+	// .d_read = ugenread,
+	// .d_write = ugenwrite,
+	// .d_ioctl = ugenioctl,
+	// .d_stop = nostop,
+	// .d_tty = notty,
+	// .d_poll = ugenpoll,
+	// .d_mmap = nommap,
+	// .d_kqfilter = ugenkqfilter,
+	// .d_discard = nodiscard,
+	// .d_flag = D_OTHER,
 };
 
 Static void ugenintr(struct usbd_xfer *, void *,
@@ -771,8 +771,8 @@ ugen_do_close(struct ugen_softc *sc, int flag, int endpt)
 
 		switch (sce->edesc->bmAttributes & UE_XFERTYPE) {
 		case UE_INTERRUPT:
-			ndflush(&sce->q, sce->q.c_cc);
-			clfree(&sce->q);
+			//ndflush(&sce->q, sce->q.c_cc);
+			//clfree(&sce->q);
 			msize = isize;
 			break;
 		case UE_ISOCHRONOUS:
@@ -1292,14 +1292,14 @@ ugen_detach(device_t self, int flags)
 	mutex_exit(&sc->sc_lock);
 
 	/* locate the major number */
-	maj = cdevsw_lookup_major(&ugen_cdevsw);
+	//maj = cdevsw_lookup_major(&ugen_cdevsw);
 
 	/*
 	 * Nuke the vnodes for any open instances (calls ugenclose, but
 	 * with no effect because we already set sc_dying).
 	 */
 	mn = sc->sc_unit * USB_MAX_ENDPOINTS;
-	vdevgone(maj, mn, mn + USB_MAX_ENDPOINTS - 1, VCHR);
+	//vdevgone(maj, mn, mn + USB_MAX_ENDPOINTS - 1, VCHR);
 
 	/* Actually close any lingering pipes.  */
 	for (i = 0; i < USB_MAX_ENDPOINTS; i++)
@@ -1988,7 +1988,7 @@ ugen_do_ioctl(struct ugen_softc *sc, int endpt, u_long cmd,
 		uio.uio_resid = len;
 		uio.uio_offset = 0;
 		uio.uio_rw = UIO_READ;
-		uio.uio_vmspace = l->l_proc->p_vmspace;
+		//uio.uio_vmspace = l->l_proc->p_vmspace;
 		error = uiomove((void *)cdesc, len, &uio);
 		kmem_free(cdesc, cdesclen);
 		return error;
@@ -2036,7 +2036,7 @@ ugen_do_ioctl(struct ugen_softc *sc, int endpt, u_long cmd,
 			uio.uio_rw =
 				ur->ucr_request.bmRequestType & UT_READ ?
 				UIO_READ : UIO_WRITE;
-			uio.uio_vmspace = l->l_proc->p_vmspace;
+			//uio.uio_vmspace = l->l_proc->p_vmspace;
 			ptr = kmem_alloc(len, KM_SLEEP);
 			if (uio.uio_rw == UIO_WRITE) {
 				error = uiomove(ptr, len, &uio);
@@ -2068,17 +2068,17 @@ ugen_do_ioctl(struct ugen_softc *sc, int endpt, u_long cmd,
 		usbd_fill_deviceinfo(sc->sc_udev,
 				     (struct usb_device_info *)addr, 0);
 		break;
-	case USB_GET_DEVICEINFO_30:
-	{
-		int ret;
-		MODULE_HOOK_CALL(usb_subr_fill_30_hook,
-		    (sc->sc_udev, (struct usb_device_info30 *)addr, 0,
-		      usbd_devinfo_vp, usbd_printBCD),
-		    enosys(), ret);
-		if (ret == 0)
-			return 0;
-		return EINVAL;
-	}
+	// case USB_GET_DEVICEINFO_30:
+	// {
+	// 	int ret;
+	// 	MODULE_HOOK_CALL(usb_subr_fill_30_hook,
+	// 	    (sc->sc_udev, (struct usb_device_info30 *)addr, 0,
+	// 	      usbd_devinfo_vp, usbd_printBCD),
+	// 	    enosys(), ret);
+	// 	if (ret == 0)
+	// 		return 0;
+	// 	return EINVAL;
+	// }
 	default:
 		return EINVAL;
 	}
@@ -2408,7 +2408,7 @@ out:	ugenif_release(sc);
 	return error;
 }
 
-MODULE(MODULE_CLASS_DRIVER, ugen, NULL);
+//MODULE(MODULE_CLASS_DRIVER, ugen, NULL);
 
 static int
 ugen_modcmd(modcmd_t cmd, void *aux)
@@ -2416,8 +2416,8 @@ ugen_modcmd(modcmd_t cmd, void *aux)
 
 	switch (cmd) {
 	case MODULE_CMD_INIT:
-		mutex_init(&ugenif.lock, MUTEX_DEFAULT, IPL_NONE);
-		rb_tree_init(&ugenif.tree, &ugenif_tree_ops);
+		// mutex_init(&ugenif.lock, MUTEX_DEFAULT, IPL_NONE);
+		// rb_tree_init(&ugenif.tree, &ugenif_tree_ops);
 		return 0;
 	default:
 		return ENOTTY;

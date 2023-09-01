@@ -1,4 +1,4 @@
-/*	$NetBSD: ums.c,v 1.104 2023/07/20 20:00:34 mrg Exp $	*/
+/*	$NetBSD: ums.c,v 1.103 2022/03/28 12:44:17 riastradh Exp $	*/
 
 /*
  * Copyright (c) 1998, 2017 The NetBSD Foundation, Inc.
@@ -35,7 +35,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: ums.c,v 1.104 2023/07/20 20:00:34 mrg Exp $");
+__KERNEL_RCSID(0, "$NetBSD: ums.c,v 1.103 2022/03/28 12:44:17 riastradh Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_usb.h"
@@ -48,7 +48,6 @@ __KERNEL_RCSID(0, "$NetBSD: ums.c,v 1.104 2023/07/20 20:00:34 mrg Exp $");
 #include <sys/ioctl.h>
 #include <sys/file.h>
 #include <sys/select.h>
-#include <sys/sysctl.h>
 #include <sys/proc.h>
 #include <sys/vnode.h>
 #include <sys/poll.h>
@@ -62,59 +61,17 @@ __KERNEL_RCSID(0, "$NetBSD: ums.c,v 1.104 2023/07/20 20:00:34 mrg Exp $");
 #include <dev/usb/usbdevs.h>
 #include <dev/usb/usb_quirks.h>
 #include <dev/usb/uhidev.h>
-#include <dev/usb/usbhist.h>
 #include <dev/hid/hid.h>
 #include <dev/hid/hidms.h>
 
-#ifdef USB_DEBUG
-#ifndef UMS_DEBUG
-#define umsdebug 0
+#ifdef UMS_DEBUG
+#define DPRINTF(x)	if (umsdebug) printf x
+#define DPRINTFN(n,x)	if (umsdebug>(n)) printf x
+int	umsdebug = 0;
 #else
-
-#ifndef UMS_DEBUG_DEFAULT
-#define UMS_DEBUG_DEFAULT 0
+#define DPRINTF(x)
+#define DPRINTFN(n,x)
 #endif
-
-static int umsdebug = UMS_DEBUG_DEFAULT;
-
-SYSCTL_SETUP(sysctl_hw_ums_setup, "sysctl hw.ums setup")
-{
-	int err;
-	const struct sysctlnode *rnode;
-	const struct sysctlnode *cnode;
-
-	err = sysctl_createv(clog, 0, NULL, &rnode,
-	    CTLFLAG_PERMANENT, CTLTYPE_NODE, "ums",
-	    SYSCTL_DESCR("ums global controls"),
-	    NULL, 0, NULL, 0, CTL_HW, CTL_CREATE, CTL_EOL);
-
-	if (err)
-		goto fail;
-
-	/* control debugging printfs */
-	err = sysctl_createv(clog, 0, &rnode, &cnode,
-	    CTLFLAG_PERMANENT|CTLFLAG_READWRITE, CTLTYPE_INT,
-	    "debug", SYSCTL_DESCR("Enable debugging output"),
-	    NULL, 0, &umsdebug, sizeof(umsdebug), CTL_CREATE, CTL_EOL);
-	if (err)
-		goto fail;
-
-	return;
-fail:
-	aprint_error("%s: sysctl_createv failed (err = %d)\n", __func__, err);
-}
-
-#endif /* UMS_DEBUG */
-#endif /* USB_DEBUG */
-
-#define DPRINTF(FMT,A,B,C,D)	USBHIST_LOGN(umsdebug,1,FMT,A,B,C,D)
-#define DPRINTFN(N,FMT,A,B,C,D)	USBHIST_LOGN(umsdebug,N,FMT,A,B,C,D)
-#define UMSHIST_FUNC()		USBHIST_FUNC()
-#define UMSHIST_CALLED(name)	USBHIST_CALLED(umsdebug)
-#define UMSHIST_CALLARGS(FMT,A,B,C,D) \
-				USBHIST_CALLARGS(umsdebug,FMT,A,B,C,D)
-#define UMSHIST_CALLARGSN(N,FMT,A,B,C,D) \
-				USBHIST_CALLARGSN(umsdebug,N,FMT,A,B,C,D)
 
 #define UMSUNIT(s)	(minor(s))
 
@@ -276,10 +233,8 @@ ums_attach(device_t parent, device_t self, void *aux)
 			}
 			hid_end_parse(d);
 		}
-#ifndef SEL4
-        	tpcalib_ioctl(&sc->sc_ms.sc_tpcalib, WSMOUSEIO_SCALIBCOORDS,
-        	    (void *)&sc->sc_ms.sc_calibcoords, 0, 0);
-#endif
+        	// tpcalib_ioctl(&sc->sc_ms.sc_tpcalib, WSMOUSEIO_SCALIBCOORDS,
+        	//     (void *)&sc->sc_ms.sc_calibcoords, 0, 0);
 	}
 
 	hidms_attach(self, &sc->sc_ms, &ums_accessops);
@@ -292,6 +247,7 @@ ums_attach(device_t parent, device_t self, void *aux)
 			sc->sc_alwayson = false;
 		}
 	}
+	printf("\n\nReady for mouse wiggle\n\n");
 }
 
 static int
@@ -323,18 +279,14 @@ ums_detach(device_t self, int flags)
 	struct ums_softc *sc = device_private(self);
 	int rv = 0;
 
-	UMSHIST_FUNC();
-	UMSHIST_CALLARGS("ums_detach: sc=%qd flags=%qd\n",
-	    (uintptr_t)sc, flags, 0, 0);
+	DPRINTF(("ums_detach: sc=%p flags=%d\n", sc, flags));
 
 	if (sc->sc_alwayson)
 		uhidev_close(sc->sc_hdev);
 
 	/* No need to do reference counting of ums, wsmouse has all the goo. */
-#ifndef SEL4
-	if (sc->sc_ms.hidms_wsmousedev != NULL)
-		rv = config_detach(sc->sc_ms.hidms_wsmousedev, flags);
-#endif
+	/* if (sc->sc_ms.hidms_wsmousedev != NULL) */
+	/* 	rv = config_detach(sc->sc_ms.hidms_wsmousedev, flags); */
 
 	pmf_device_deregister(self);
 
@@ -353,10 +305,11 @@ ums_intr(void *cookie, void *ibuf, u_int len)
 Static int
 ums_enable(void *v)
 {
+    printf("enabling mouse\n");
 	struct ums_softc *sc = v;
 	int error = 0;
 
-	UMSHIST_FUNC(); UMSHIST_CALLARGS("sc=%jx\n", (uintptr_t)sc, 0, 0, 0);
+	DPRINTFN(1,("ums_enable: sc=%p\n", sc));
 
 	if (sc->sc_dying)
 		return EIO;
@@ -382,8 +335,7 @@ ums_disable(void *v)
 {
 	struct ums_softc *sc = v;
 
-	UMSHIST_FUNC(); UMSHIST_CALLARGS("sc=%jx\n", (uintptr_t)sc, 0, 0, 0);
-
+	DPRINTFN(1,("ums_disable: sc=%p\n", sc));
 #ifdef DIAGNOSTIC
 	if (!sc->sc_enabled) {
 		printf("ums_disable: not enabled\n");

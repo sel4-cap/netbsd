@@ -339,6 +339,7 @@ usbd_clear_port_feature(struct usbd_device *dev, int port, int sel)
 usbd_status
 usbd_set_port_feature(struct usbd_device *dev, int port, int sel)
 {
+	printf("\nset port feature called");
 	USBHIST_FUNC();
 	USBHIST_CALLARGS(usbdebug, "dev %#jx port %jd sel %.d",
 	    (uintptr_t)dev, sel, 0, 0);

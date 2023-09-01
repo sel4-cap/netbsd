@@ -208,7 +208,7 @@ usb_block_allocmem(bus_dma_tag_t tag, size_t size, size_t align,
  unmap:
 	bus_dmamem_unmap(tag, b->kaddr, b->size);
  free1:
-	bus_dmamem_free(tag, b->segs, b->nsegs);
+	bus_dmamem_free(tag, b->segs, b->nsegs); //!this needs adjusting
  free0:
 	kmem_free(b->segs, b->nsegs_alloc * sizeof(*b->segs));
 	kmem_free(b, sizeof(*b));
@@ -420,7 +420,7 @@ usb_dmaaddr(usb_dma_t *dma, unsigned int offset)
 void
 usb_syncmem(usb_dma_t *p, bus_addr_t offset, bus_size_t len, int ops)
 {
-
+	//printf("usb syncmem\n");
 	bus_dmamap_sync(p->udma_block->tag, p->udma_block->map,
 	    p->udma_offs + offset, len, ops);
 }
