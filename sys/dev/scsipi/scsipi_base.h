@@ -54,6 +54,7 @@ static __inline struct scsipi_xfer *scsipi_make_xs_locked(struct scsipi_periph *
  * Make a scsipi_xfer, and return a pointer to it.
  */
 
+#ifndef SEL4
 static __inline struct scsipi_xfer *
 scsipi_make_xs_internal(struct scsipi_periph *periph, struct scsipi_generic *cmd,
     int cmdlen, u_char *data_addr, int datalen, int retries, int timeout,
@@ -100,5 +101,5 @@ scsipi_make_xs_locked(struct scsipi_periph *periph, struct scsipi_generic *cmd,
 	return scsipi_make_xs_internal(periph, cmd, cmdlen, data_addr,
 	    datalen, retries, timeout, bp, flags | XS_CTL_NOSLEEP);
 }
-
+#endif
 #endif /* _DEV_SCSIPI_SCSIPI_BASE_H_ */

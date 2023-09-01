@@ -250,6 +250,8 @@ struct speedtab {
  */
 TAILQ_HEAD(ttylist_head, tty);		/* the ttylist is a TAILQ */
 
+int	 b_to_q(const u_char *, int, struct clist *);
+
 #ifdef _KERNEL
 
 extern kmutex_t	tty_lock;

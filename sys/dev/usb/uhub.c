@@ -210,8 +210,6 @@ static usbd_status
 usbd_get_hub_desc(struct usbd_device *dev, usb_hub_descriptor_t *hd, int speed)
 {
 
-	printf("\nusbd_get_hub_desc called\n");
-
 	usb_device_request_t req;
 	usbd_status err;
 	int nports;
@@ -255,7 +253,6 @@ usbd_get_hub_desc(struct usbd_device *dev, usb_hub_descriptor_t *hd, int speed)
 		USETW2(req.wValue, UDESC_HUB, 0);
 		USETW(req.wIndex, 0);
 		USETW(req.wLength, USB_HUB_DESCRIPTOR_SIZE);
-		printf("getting hub descriptor");
 		err = usbd_do_request(dev, &req, hd);
 		nports = hd->bNbrPorts;
 		if (!err && nports > 7) {
@@ -299,7 +296,6 @@ uhub_match(device_t parent, cfdata_t match, void *aux)
 	 * The subclass for hubs seems to be 0 for some and 1 for others,
 	 * so we just ignore the subclass.
 	 */
-	printf("class is %d\n", uaa->uaa_class);
 	if (uaa->uaa_class == UDCLASS_HUB)
 		return matchvalue;
 	return UMATCH_NONE;
@@ -308,7 +304,6 @@ uhub_match(device_t parent, cfdata_t match, void *aux)
 void
 uhub_attach(device_t parent, device_t self, void *aux)
 {
-	printf("\nuhub_attach called!\n");
 	struct uhub_softc *sc = device_private(self);
 	struct usb_attach_arg *uaa = aux;
 	struct usbd_device *dev = uaa->uaa_device;
@@ -1015,7 +1010,7 @@ uhub_childdet(device_t self, device_t child)
 
 	if (!devhub->ud_hub)
 		/* should never happen; children are only created after init */
-		panic("hub not fully initialised, but child deleted?");
+        aprint_error("hub not fully initialised, but child deleted?");
 
 	nports = devhub->ud_hub->uh_hubdesc.bNbrPorts;
 	for (port = 1; port <= nports; port++) {

@@ -1,4 +1,4 @@
-/*	$NetBSD: event.h,v 1.55 2023/07/28 18:19:01 christos Exp $	*/
+/*	$NetBSD: event.h,v 1.54 2022/07/19 00:46:00 thorpej Exp $	*/
 
 /*-
  * Copyright (c) 1999,2000,2001 Jonathan Lemon <jlemon@FreeBSD.org>
@@ -130,6 +130,7 @@ _EV_SET(struct kevent *_kevp, uintptr_t _ident, uint32_t _filter,
 /*
  * hint flag for in-kernel use - must not equal any existing note
  */
+#define NOTE_SUBMIT	0x01000000U		/* initial knote submission */
 #ifdef _KERNEL
 #define NOTE_SUBMIT	0x01000000U		/* initial knote submission */
 #endif
@@ -182,7 +183,53 @@ _EV_SET(struct kevent *_kevp, uintptr_t _ident, uint32_t _filter,
  * programs which pull in <sys/proc.h> or <sys/select.h>.
  */
 #include <sys/queue.h>
-struct knote;
+//struct knote;
+struct knote {
+	SLIST_ENTRY(knote)	kn_link;	/* f: for fd */
+	SLIST_ENTRY(knote)	kn_selnext;	/* o: for struct selinfo */
+	TAILQ_ENTRY(knote)	kn_tqe;		/* q: for struct kqueue */
+	struct kqueue		*kn_kq;		/* q: which queue we are on */
+	struct kevent		kn_kevent;	/* (see below for locking) */
+	uint32_t		kn_status;	/* q: flags below */
+	uint32_t		kn_sfflags;	/*    saved filter flags */
+	uintptr_t		kn_sdata;	/*    saved data field */
+	void			*kn_obj;	/*    monitored obj */
+	const struct filterops	*kn_fop;
+	struct kfilter		*kn_kfilter;
+	void 			*kn_hook;
+	int			kn_hookid;
+
+#define	KN_ACTIVE	0x01U			/* event has been triggered */
+#define	KN_QUEUED	0x02U			/* event is on queue */
+#define	KN_DISABLED	0x04U			/* event is disabled */
+#define	KN_DETACHED	0x08U			/* knote is detached */
+#define	KN_MARKER	0x10U			/* is a marker */
+#define	KN_BUSY		0x20U			/* is being scanned */
+#define	KN_WILLDETACH	0x40U			/* being detached imminently */
+/* Toggling KN_BUSY also requires kn_kq->kq_fdp->fd_lock. */
+#define __KN_FLAG_BITS \
+    "\20" \
+    "\1ACTIVE" \
+    "\2QUEUED" \
+    "\3DISABLED" \
+    "\4DETACHED" \
+    "\5MARKER" \
+    "\6BUSY" \
+    "\7WILLDETACH"
+
+
+/*
+ * The only time knote::kn_flags can be modified without synchronization
+ * is during filter attach, because the knote has not yet been published.
+ * This is usually to set EV_CLEAR or EV_ONESHOT as mandatory flags for
+ * that filter.
+ */
+#define	kn_id		kn_kevent.ident
+#define	kn_filter	kn_kevent.filter
+#define	kn_flags	kn_kevent.flags		/* q */
+#define	kn_fflags	kn_kevent.fflags	/* o */
+#define	kn_data		kn_kevent.data		/* o */
+};
 SLIST_HEAD(klist, knote);
 
 
@@ -202,7 +249,26 @@ struct kfilter_mapping {
 /* map name to filter (len ignored) */
 #define KFILTER_BYNAME		_IOWR('k', 1, struct kfilter_mapping)
 
+//#define	KNOTE(list, hint)	if (!SLIST_EMPTY(list)) knote(list, hint)
+struct filterops {
+	int	f_flags;		/* flags; see below */
+	int	(*f_attach)	(struct knote *);
+					/* called when knote is ADDed */
+	void	(*f_detach)	(struct knote *);
+					/* called when knote is DELETEd */
+	int	(*f_event)	(struct knote *, long);
+					/* called when event is triggered */
+	int	(*f_touch)	(struct knote *, struct kevent *, long);
+};
+
+#define	FILTEROP_ISFD	__BIT(0)	/* ident == file descriptor */
+#define	FILTEROP_MPSAFE	__BIT(1)	/* does not require KERNEL_LOCK */
+
+extern const struct filterops seltrue_filtops;
+
 #ifdef _KERNEL
+
+void	klist_init(struct klist *);
 
 #define	KNOTE(list, hint)	if (!SLIST_EMPTY(list)) knote(list, hint)
 
@@ -350,7 +416,7 @@ int	kqueue(void);
 int	kqueue1(int);
 #ifndef __LIBC12_SOURCE__
 int	kevent(int, const struct kevent *, size_t, struct kevent *, size_t,
-		    const struct timespec *) __RENAME(__kevent100);
+		    const struct timespec *) __RENAME(__kevent50);
 #endif
 #endif /* !_POSIX_C_SOURCE */
 __END_DECLS

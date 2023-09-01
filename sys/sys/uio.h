@@ -74,6 +74,17 @@ enum uio_seg {
 	UIO_SYSSPACE		/* from system space */
 };
 
+struct vmspace;
+
+struct uio {
+	struct	iovec *uio_iov;	/* pointer to array of iovecs */
+	int	uio_iovcnt;	/* number of iovecs in array */
+	off_t	uio_offset;	/* offset into file this uio corresponds to */
+	size_t	uio_resid;	/* residual i/o count */
+	enum	uio_rw uio_rw;	/* see above */
+	struct	vmspace *uio_vmspace;
+};
+
 #ifdef __UIO_EXPOSE
 
 struct vmspace;

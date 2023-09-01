@@ -206,6 +206,9 @@
 	(__link_set_end(set) - __link_set_start(set))
 
 
+#define	__read_mostly						\
+    __attribute__((__section__(".data.read_mostly")))
+
 #ifdef _KERNEL
 
 /*
