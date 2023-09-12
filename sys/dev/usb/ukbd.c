@@ -49,7 +49,9 @@ __KERNEL_RCSID(0, "$NetBSD: ukbd.c,v 1.162 2023/01/10 18:20:10 mrg Exp $");
 #include <sys/param.h>
 #include <sys/systm.h>
 #include <sys/callout.h>
-// #include <sys/kernel.h>
+#ifndef SEL4
+#include <sys/kernel.h>
+#endif
 #include <sys/device.h>
 #include <sys/ioctl.h>
 #include <sys/file.h>
@@ -508,7 +510,9 @@ ukbd_attach(device_t parent, device_t self, void *aux)
 
 	if (sc->sc_console_keyboard) {
 		DPRINTF(("%s: console keyboard sc=%p\n", __func__, sc));
-		//wskbd_cnattach(&ukbd_consops, sc, &ukbd_keymapdata);
+#ifndef SEL4
+		wskbd_cnattach(&ukbd_consops, sc, &ukbd_keymapdata);
+#endif
 	}
 	ukbd_enable(sc, 1); //SEL4: moved out to enable keyboard
 
@@ -538,19 +542,17 @@ ukbd_attach(device_t parent, device_t self, void *aux)
 	callout_reset(&sc->sc_ledreset, mstohz(400), ukbd_delayed_leds_off,
 	    sc);
 	usbd_delay_ms(0, 400);
-	// ukbd_delayed_leds_off(&sc);
+#ifndef SEL4
+	ukbd_delayed_leds_off(&sc);
+#endif
 
 	sc->sc_wskbddev = config_found(self, &a, NULL, CFARGS_NONE);
 
 	sc->sc_attached = true;
 
     /* Set up shared memory regions */
-	// printf("Allocing kbd_buffer_ring\n");
     kbd_buffer_ring = kmem_alloc(sizeof(*kbd_buffer_ring), 0);
-	// printf("about to go into ring init\n");
     ring_init(kbd_buffer_ring, (ring_buffer_t *)rx_free, (ring_buffer_t *)rx_used, NULL, 1);
-	// printf("rx_free is %p\n", rx_free);
-	// printf("free_ring is %p\n", kbd_buffer_ring->free_ring);
 	sel4cp_notify(42);
 	return;
 }
@@ -636,8 +638,10 @@ ukbd_detach(device_t self, int flags)
 	}
 #endif
 	/* No need to do reference counting of ukbd, wskbd has all the goo. */
-	// if (sc->sc_wskbddev != NULL)
-	// 	rv = config_detach(sc->sc_wskbddev, flags);
+#ifndef SEL4
+	if (sc->sc_wskbddev != NULL)
+		rv = config_detach(sc->sc_wskbddev, flags);
+#endif
 
 	callout_halt(&sc->sc_delay, NULL);
 	callout_halt(&sc->sc_ledreset, NULL);
@@ -712,9 +716,6 @@ ukbd_intr(void *cookie, void *ibuf, u_int len)
 		printf("\n");
 	}
 #endif
-    // for (i = 0; i < len; i++) 
-    //      printf(" 0x%02x", ((char *)ibuf)[i]);
-	// printf("\n");
 
 	// If ring not full:
 	// check if empty, then enqueue
@@ -941,13 +942,17 @@ ukbd_decode(struct ukbd_softc *sc, struct ukbd_data *ud)
 		return;
 	}
 #endif
-	//s = spltty();
+#ifndef SEL4
+	s = spltty();
+#endif
 	// test output: should probably send this to a separate PD
 	for (i = 0; i < nkeys; i++) {
 		key = ibuf[i];
-		//wskbd_input(sc->sc_wskbddev,
-		    //key&RELEASE ? WSCONS_EVENT_KEY_UP : WSCONS_EVENT_KEY_DOWN,
-		    //key&CODEMASK);
+#ifndef SEL4
+		wskbd_input(sc->sc_wskbddev,
+		    key&RELEASE ? WSCONS_EVENT_KEY_UP : WSCONS_EVENT_KEY_DOWN,
+		    key&CODEMASK);
+#endif
 		int index = 0;
         int up = key&RELEASE ? WSCONS_EVENT_KEY_UP : WSCONS_EVENT_KEY_DOWN;
         if (up == WSCONS_EVENT_KEY_DOWN) {
@@ -957,18 +962,6 @@ ukbd_decode(struct ukbd_softc *sc, struct ukbd_data *ud)
                     break;
                 }
             }
-			// printf("index is %d\n", index);
-			// keysym_t keypress = hidkbd_keydesc_us[index+1];
-			// switch(keypress) {
-			// 	case KS_BackSpace:
-			// 		printf("%c %c", keypress, keypress);
-			// 		break;
-			// 	case KS_Return:
-			// 		printf("\n");
-			// 		break;
-			// 	default:
-			// 		printf("%c", keypress);
-			// }
         }
 	}
 }

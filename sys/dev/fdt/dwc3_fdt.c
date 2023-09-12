@@ -131,7 +131,7 @@ static void
 dwc3_fdt_enable_phy(struct xhci_softc *sc, const int phandle, u_int rev)
 {
 	const char *max_speed, *phy_type;
-	u_int phyif_utmi_bits;
+	u_int phyif_utmi_bits = 0;
 	uint32_t val;
 
 	val = RD4(sc, DWC3_GUSB2PHYCFG(0));

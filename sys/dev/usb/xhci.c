@@ -172,7 +172,9 @@ static void xhci_pipe_restart_async_task(void *);
 static void xhci_pipe_restart_async(struct usbd_pipe *);
 
 static usbd_status xhci_configure_endpoint(struct usbd_pipe *);
-//static usbd_status xhci_unconfigure_endpoint(struct usbd_pipe *);
+#ifndef SEL4
+static usbd_status xhci_unconfigure_endpoint(struct usbd_pipe *);
+#endif
 static void xhci_reset_endpoint(struct usbd_pipe *);
 static usbd_status xhci_stop_endpoint_cmd(struct xhci_softc *,
     struct xhci_slot *, u_int, uint32_t);
@@ -2124,25 +2126,12 @@ xhci_open(struct usbd_pipe *pipe)
 		return USBD_IOERROR;
 
 	/* Root Hub */
-	struct pipe_method_init *pmi = kmem_alloc(sizeof(struct pipe_method_init), 0);
 	if (dev->ud_depth == 0 && dev->ud_powersrc->up_portno == 0) {
-		// pipe->up_methods = kmem_alloc(sizeof(struct usbd_pipe_methods), 0) //added
 		switch (ed->bEndpointAddress) {
 		case USB_CONTROL_ENDPOINT:
-			// pmi->pipe = pipe;
-			// pmi->method_ptr = ROOTHUB_CTRL;
-			// sel4cp_ppcall(PIPE_INIT_CHANNEL, seL4_MessageInfo_new((uint64_t) pmi,1,0,0));
 			pipe->up_methods = &roothub_ctrl_methods;
 			break;
 		case UE_DIR_IN | USBROOTHUB_INTR_ENDPT:
-			/*
-				*SEL4: because these functions will be called from
-				hardware_interrupt PD, need the memory address of the
-				structure in there instead of the one in xhci_stub PD.
-			*/ 
-			// pmi->pipe = pipe;
-			// pmi->method_ptr = XHCI_ROOT_INTR;
-			// sel4cp_ppcall(PIPE_INIT_CHANNEL, seL4_MessageInfo_new((uint64_t) pmi,1,0,0));
 			pipe->up_methods = (struct usbd_pipe_methods*) xhci_root_intr_pointer;
 			break;
 		default:
@@ -2159,29 +2148,17 @@ xhci_open(struct usbd_pipe *pipe)
 
 	switch (xfertype) {
 	case UE_CONTROL:
-		// pmi->pipe = pipe;
-		// pmi->method_ptr = XHCI_DEVICE_CTRL;
-		// sel4cp_ppcall(PIPE_INIT_CHANNEL, seL4_MessageInfo_new((uint64_t) pmi,1,0,0));
 		pipe->up_methods = &xhci_device_ctrl_methods;
 		break;
 	case UE_ISOCHRONOUS:
-		// pmi->pipe = pipe;
-		// pmi->method_ptr = XHCI_DEVICE_ISOC;
-		// sel4cp_ppcall(PIPE_INIT_CHANNEL, seL4_MessageInfo_new((uint64_t) pmi,1,0,0));
 		pipe->up_methods = &xhci_device_isoc_methods;
 		pipe->up_serialise = false;
 		xpipe->xp_isoc_next = -1;
 		break;
 	case UE_BULK:
-		// pmi->pipe = pipe;
-		// pmi->method_ptr = XHCI_DEVICE_BULK;
-		// sel4cp_ppcall(PIPE_INIT_CHANNEL, seL4_MessageInfo_new((uint64_t) pmi,1,0,0));
 		pipe->up_methods = &xhci_device_bulk_methods;
 		break;
 	case UE_INTERRUPT:
-		// pmi->pipe = pipe;
-		// pmi->method_ptr = XHCI_DEVICE_INTR;
-		// sel4cp_ppcall(PIPE_INIT_CHANNEL, seL4_MessageInfo_new((uint64_t) pmi,1,0,0));
 		pipe->up_methods = &xhci_device_intr_methods;
 		break;
 	default:
@@ -4229,6 +4206,7 @@ xhci_roothub_ctrl_locked(struct usbd_bus *bus, usb_device_request_t *req,
 		case UHF_PORT_INDICATOR:
 			return -1;
 		case UHF_C_PORT_CONNECTION:
+			printf("writing CSC port :%d --- %x\n", port, v | XHCI_PS_CSC);
 			xhci_op_write_4(sc, port, v | XHCI_PS_CSC);
 			break;
 		case UHF_C_PORT_ENABLE:
@@ -4303,7 +4281,9 @@ xhci_roothub_ctrl_locked(struct usbd_bus *bus, usb_device_request_t *req,
 		if (v & XHCI_PS_CCS)	i |= UPS_CURRENT_CONNECT_STATUS;
 		if (v & XHCI_PS_PED)	i |= UPS_PORT_ENABLED;
 		if (v & XHCI_PS_OCA)	i |= UPS_OVERCURRENT_INDICATOR;
-		//if (v & XHCI_PS_SUSP)	i |= UPS_SUSPEND;
+#ifndef SEL4
+		if (v & XHCI_PS_SUSP)	i |= UPS_SUSPEND;
+#endif
 		if (v & XHCI_PS_PR)	i |= UPS_RESET;
 		if (v & XHCI_PS_PP) {
 			if (i & UPS_OTHER_SPEED)
@@ -5046,7 +5026,9 @@ xhci_device_intr_abort(struct usbd_xfer *xfer)
 static void
 xhci_device_intr_close(struct usbd_pipe *pipe)
 {
-	//struct xhci_softc * const sc = XHCI_PIPE2SC(pipe);
+#ifndef SEL4
+	struct xhci_softc * const sc = XHCI_PIPE2SC(pipe);
+#endif
 
 	XHCIHIST_FUNC();
 	XHCIHIST_CALLARGS("%#jx", (uintptr_t)pipe, 0, 0, 0);

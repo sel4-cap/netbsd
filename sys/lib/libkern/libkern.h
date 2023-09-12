@@ -62,7 +62,7 @@ LIBKERN_INLINE u_long ulmin(u_long, u_long) __unused;
 LIBKERN_INLINE int abs(int) __unused;
 LIBKERN_INLINE long labs(long) __unused;
 LIBKERN_INLINE long long llabs(long long) __unused;
-LIBKERN_INLINE intmax_t imaxabs(intmax_t) __unused;
+//LIBKERN_INLINE intmax_t imaxabs(intmax_t) __unused;
 
 LIBKERN_INLINE int isspace(int) __unused;
 LIBKERN_INLINE int isascii(int) __unused;
@@ -139,11 +139,11 @@ llabs(long long j)
 	return(j < 0 ? -j : j);
 }
 
-LIBKERN_INLINE intmax_t
-imaxabs(intmax_t j)
-{
-	return(j < 0 ? -j : j);
-}
+// LIBKERN_INLINE intmax_t
+// //imaxabs(intmax_t j)
+// {
+// 	return(j < 0 ? -j : j);
+// }
 
 LIBKERN_INLINE int
 isspace(int ch)
@@ -240,11 +240,13 @@ tolower(int ch)
 
 #define __KASSERTSTR  "kernel %sassertion \"%s\" failed: file \"%s\", line %d "
 
+#ifndef SEL4
 #ifdef NDEBUG						/* tradition! */
 #define	assert(e)	((void)0)
 #else
 #define	assert(e)	(__predict_true((e)) ? (void)0 :		    \
 			    kern_assert(__KASSERTSTR, "", #e, __FILE__, __LINE__))
+#endif
 #endif
 
 #ifdef __COVERITY__

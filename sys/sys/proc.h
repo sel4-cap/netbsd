@@ -70,6 +70,10 @@
 
 #include <sys/lwp.h>
 
+struct proc {
+	int empty;
+};
+
 #if defined(_KMEMUSER) || defined(_KERNEL)
 
 #if defined(_KERNEL_OPT)

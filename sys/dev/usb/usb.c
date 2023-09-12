@@ -1,4 +1,3 @@
-//TODO: vimdiff this file
 /*	$NetBSD: usb.c,v 1.200 2022/03/13 11:28:52 riastradh Exp $	*/
 
 /*
@@ -54,19 +53,23 @@ __KERNEL_RCSID(0, "$NetBSD: usb.c,v 1.200 2022/03/13 11:28:52 riastradh Exp $");
 #include <sys/kthread.h>
 #include <sys/proc.h>
 #include <sys/conf.h>
-// #include <sys/fcntl.h>
-// #include <sys/poll.h>
+#include <sys/fcntl.h>
+#include <sys/poll.h>
 #include <sys/select.h>
-// #include <sys/vnode.h>
-// #include <sys/signalvar.h>
+#include <sys/vnode.h>
+#ifndef SEL4
+#include <sys/signalvar.h>
+#endif
 #include <sys/intr.h>
-// #include <sys/module.h>
+#include <sys/module.h>
 #include <sys/mutex.h>
 #include <sys/bus.h>
 #include <sys/once.h>
 #include <sys/atomic.h>
-// #include <sys/sysctl.h>
-// #include <sys/compat_stub.h>
+#include <sys/sysctl.h>
+#ifndef SEL4
+#include <sys/compat_stub.h>
+#endif
 #include <sys/sdt.h>
 
 #include <dev/usb/usb.h>
@@ -235,9 +238,13 @@ const struct cdevsw usb_cdevsw = {
 };
 #endif
 
-// Static void	usb_discover(struct usb_softc *);
+#ifndef SEL4
+Static void	usb_discover(struct usb_softc *);
+#endif
 Static void	usb_create_event_thread(device_t);
-// Static void	usb_event_thread(void *);
+#ifndef SEL4
+Static void	usb_event_thread(void *);
+#endif
 Static void	usb_task_thread(void *);
 
 /*
@@ -253,11 +260,15 @@ struct usb_event_q {
 Static SIMPLEQ_HEAD(, usb_event_q) usb_events =
 	SIMPLEQ_HEAD_INITIALIZER(usb_events);
 Static int usb_nevents = 0;
-// Static struct selinfo usb_selevent;
+#ifndef SEL4
+Static struct selinfo usb_selevent;
+#endif
 Static kmutex_t usb_event_lock;
 Static kcondvar_t usb_event_cv;
 /* XXX this is gross and broken */
-// Static proc_t *usb_async_proc;  /* process that wants USB SIGIO */
+#ifndef SEL4
+Static proc_t *usb_async_proc;  /* process that wants USB SIGIO */
+#endif
 Static void *usb_async_sih;
 Static int usb_dev_open = 0;
 Static struct usb_event *usb_alloc_event(void);
@@ -270,7 +281,9 @@ Static void usb_soft_intr(void *);
 Static const char *usbrev_str[] = USBREV_STR;
 
 static int usb_match(device_t, cfdata_t, void *);
-// void usb_attach(device_t, device_t, void *);
+#ifndef SEL4 //moved
+void usb_attach(device_t, device_t, void *);
+#endif
 static int usb_detach(device_t, int);
 static int usb_activate(device_t, enum devact);
 static void usb_childdet(device_t, device_t);
@@ -294,7 +307,7 @@ usb_match(device_t parent, cfdata_t match, void *aux)
 void
 usb_attach(device_t parent, device_t self, void *aux)
 {
-	// static ONCE_DECL(init_control);
+	static ONCE_DECL(init_control);
 	struct usb_softc *sc = device_private(self);
 	int usbrev;
 
@@ -417,7 +430,9 @@ usb_once_init(void)
 
 	USBHIST_LINK_STATIC(usbhist);
 
-	// selinit(&usb_selevent);
+#ifndef SEL4
+	selinit(&usb_selevent);
+#endif
 	mutex_init(&usb_event_lock, MUTEX_DEFAULT, IPL_NONE);
 	cv_init(&usb_event_cv, "usbrea");
 
@@ -436,7 +451,6 @@ usb_once_init(void)
 		if (kthread_create(PRI_NONE, KTHREAD_MPSAFE, NULL,
 		    usb_task_thread, taskq, &taskq->task_thread_lwp,
 		    "%s", taskq->name)) {
-			//printf("unable to create task thread: %s\n", taskq->name);
 			panic("usb_create_event_thread task");
 		}
 		/*
@@ -446,10 +460,14 @@ usb_once_init(void)
 	}
 
 	KASSERT(usb_async_sih == NULL);
-	// usb_async_sih = softint_establish(SOFTINT_CLOCK | SOFTINT_MPSAFE,
-	//    usb_async_intr, NULL);
+#ifndef SEL4
+	usb_async_sih = softint_establish(SOFTINT_CLOCK | SOFTINT_MPSAFE,
+	   usb_async_intr, NULL);
+#endif
 
-	// usb_init_ddb(); //? kernel debugger (not necessary)
+#ifndef SEL4
+	usb_init_ddb(); //? kernel debugger (not necessary)
+#endif
 
 	return 0;
 }
@@ -537,8 +555,6 @@ usb_create_event_thread(device_t self)
 	if (kthread_create(PRI_NONE, 0, NULL,
 	    usb_event_thread, sc, &sc->sc_event_thread,
 	    "%s", device_xname(self))) {
-		//printf("%s: unable to create event thread for\n",
-		//        device_xname(self));
 		panic("usb_create_event_thread");
 	}
 }
@@ -1185,7 +1201,6 @@ usbkqfilter(dev_t dev, struct knote *kn)
 void
 usb_discover(struct usb_softc *sc)
 {
-	//printf("usb discover\n");
 	struct usbd_bus *bus = sc->sc_bus;
 
 	USBHIST_FUNC(); USBHIST_CALLED(usbdebug);
@@ -1204,10 +1219,8 @@ usb_discover(struct usb_softc *sc)
 	 * Also, we now have bus->ub_lock held, and in combination
 	 * with ub_exploring, avoids interferring with polling.
 	 */
-	//printf("does not early return\n");
 	SDT_PROBE1(usb, kernel, bus, discover__start,  bus);
 	while (bus->ub_needsexplore && !sc->sc_dying) {
-		//printf("...........................................................In while loop\n");
 		bus->ub_needsexplore = 0;
 		mutex_exit(sc->sc_bus->ub_lock);
 		SDT_PROBE1(usb, kernel, bus, explore__start,  bus);
@@ -1215,7 +1228,6 @@ usb_discover(struct usb_softc *sc)
 		SDT_PROBE1(usb, kernel, bus, explore__done,  bus);
 		mutex_enter(bus->ub_lock);
 	}
-	//printf("out of while loop\n");
 	SDT_PROBE1(usb, kernel, bus, discover__done,  bus);
 }
 
@@ -1259,7 +1271,6 @@ usb_get_next_event(struct usb_event *ue)
 	ueq = SIMPLEQ_FIRST(&usb_events);
 #ifdef DIAGNOSTIC
 	if (ueq == NULL) {
-		//printf("usb: usb_nevents got out of sync! %d\n", usb_nevents);
 		usb_nevents = 0;
 		return 0;
 	}
@@ -1309,16 +1320,22 @@ Static void
 usb_add_event(int type, struct usb_event *uep)
 {
 	struct usb_event_q *ueq;
-	// struct timeval thetime;
+#ifndef SEL4
+	struct timeval thetime;
+#endif
 
 	USBHIST_FUNC(); USBHIST_CALLED(usbdebug);
 
-	// microtime(&thetime);
+#ifndef SEL4
+	microtime(&thetime);
+#endif
 	/* Don't want to wait here with usb_event_lock held */
 	ueq = (struct usb_event_q *)(void *)uep;
 	ueq->ue = *uep;
 	ueq->ue.ue_type = type;
-	// TIMEVAL_TO_TIMESPEC(&thetime, &ueq->ue.ue_time);
+#ifndef SEL4
+	TIMEVAL_TO_TIMESPEC(&thetime, &ueq->ue.ue_time);
+#endif
 	SDT_PROBE1(usb, kernel, event, add,  uep);
 
 	mutex_enter(&usb_event_lock);
@@ -1335,24 +1352,28 @@ usb_add_event(int type, struct usb_event *uep)
 	}
 	SIMPLEQ_INSERT_TAIL(&usb_events, ueq, next);
 	cv_signal(&usb_event_cv);
-	// selnotify(&usb_selevent, 0, 0); //selnotify is a kernel wakeup function to be used for select/poll operations
-	// if (atomic_load_relaxed(&usb_async_proc) != NULL) {
-	// 	// kpreempt_disable(); //kernel preemption control
-	// 	softint_schedule(usb_async_sih); //! this needs implementing. Schedule a software interrupt
-	// 	// kpreempt_enable();
-	// }
+#ifndef SEL4
+	selnotify(&usb_selevent, 0, 0); //selnotify is a kernel wakeup function to be used for select/poll operations
+	if (atomic_load_relaxed(&usb_async_proc) != NULL) {
+		kpreempt_disable(); //kernel preemption control
+		softint_schedule(usb_async_sih);
+		kpreempt_enable();
+	}
+#endif
 	mutex_exit(&usb_event_lock);
 }
 
 Static void
 usb_async_intr(void *cookie)
 {
-	// proc_t *proc;
+#ifndef SEL4
+	proc_t *proc;
 
 	mutex_enter(&proc_lock);
-	// if ((proc = atomic_load_relaxed(&usb_async_proc)) != NULL)
-	// 	psignal(proc, SIGIO);
+	if ((proc = atomic_load_relaxed(&usb_async_proc)) != NULL)
+		psignal(proc, SIGIO);
 	mutex_exit(&proc_lock);
+#endif
 }
 
 Static void

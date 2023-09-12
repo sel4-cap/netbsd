@@ -281,6 +281,7 @@ typedef int32_t __devmajor_t, __devminor_t;
 				 (((dev_t)(y) <<  0) & 0x000000ffU)))
 #endif
 
+#ifndef SEL4
  #ifdef	_BSD_CLOCK_T_
  typedef	_BSD_CLOCK_T_		clock_t;
  #undef	_BSD_CLOCK_T_
@@ -295,6 +296,7 @@ typedef	_BSD_PTRDIFF_T_		ptrdiff_t;
 typedef	_BSD_SIZE_T_		size_t;
 #define _SIZE_T
 #undef	_BSD_SIZE_T_
+#endif
 #endif
 
  #ifdef	_BSD_SSIZE_T_

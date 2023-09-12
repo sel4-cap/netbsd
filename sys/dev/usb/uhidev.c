@@ -52,8 +52,10 @@ __KERNEL_RCSID(0, "$NetBSD: uhidev.c,v 1.94 2022/11/04 19:46:55 jmcneill Exp $")
 #include <sys/kernel.h>
 #include <sys/kmem.h>
 #include <sys/lwp.h>
-//#include <sys/rndsource.h>
-//#include <sys/signalvar.h>
+#ifndef SEL4
+#include <sys/rndsource.h>
+#include <sys/signalvar.h>
+#endif
 #include <sys/systm.h>
 #include <sys/xcall.h>
 
@@ -94,7 +96,9 @@ struct uhidev_softc {
 		device_t	sc_dev;
 		void		(*sc_intr)(void *, void *, u_int);
 		void		*sc_cookie;
-		//krndsource_t	sc_rndsource;
+#ifndef SEL4
+		krndsource_t	sc_rndsource;
+#endif
 		int		sc_in_rep_size;
 		uint8_t		sc_report_id;
 		uint8_t		sc_state;
@@ -141,7 +145,9 @@ static int uhidev_maxrepid(void *, int);
 static int uhidevprint(void *, const char *);
 
 static int uhidev_match(device_t, cfdata_t, void *);
-// static void uhidev_attach(device_t, device_t, void *);
+#ifndef SEL4
+static void uhidev_attach(device_t, device_t, void *);
+#endif
 static void uhidev_childdet(device_t, device_t);
 static int uhidev_detach(device_t, int);
 
@@ -218,7 +224,9 @@ uhidev_attach(device_t parent, device_t self, void *aux)
 		 * Wacom Intuos2 (XD-0912-U) requires longer idle time to
 		 * initialize the device with 0x0202.
 		 */
-			// DELAY(500000);
+#ifndef SEL4
+			DELAY(500000);
+#endif
 		}
 	}
 	(void)usbd_set_idle(iface, 0, 0);
@@ -428,8 +436,10 @@ uhidev_attach(device_t parent, device_t self, void *aux)
 			 * XXXSMP -- could be detached in the middle of
 			 * sleeping for allocation in rnd_attach_source
 			 */
-			//rnd_attach_source(&scd->sc_rndsource,
-			    //device_xname(dev), RND_TYPE_TTY, RND_FLAG_DEFAULT);
+#ifndef SEL4
+			rnd_attach_source(&scd->sc_rndsource,
+			    device_xname(dev), RND_TYPE_TTY, RND_FLAG_DEFAULT);
+#endif
 		}
 	}
 	kmem_free(repsizes, nrepid * sizeof(*repsizes));
@@ -484,14 +494,16 @@ uhidev_childdet(device_t self, device_t child)
 	 * (Actually this can't happen right now because there's no
 	 * rescan method, but if there were, it could.)
 	 */
-	//rnd_detach_source(&sc->sc_subdevs[i].sc_rndsource);
+#ifndef SEL4
+	rnd_detach_source(&sc->sc_subdevs[i].sc_rndsource);
+#endif
 }
 
 static int
 uhidev_detach(device_t self, int flags)
 {
 	struct uhidev_softc *sc = device_private(self);
-	int rv;
+	int rv = 9;
 
 	DPRINTF(("uhidev_detach: sc=%p flags=%d\n", sc, flags));
 
@@ -503,9 +515,11 @@ uhidev_detach(device_t self, int flags)
 	 * refusing detachment.  If they do detach, the pipes can no
 	 * longer be in use.
 	 */
-	// rv = config_detach_children(self, flags);
+#ifndef SEL4
+	rv = config_detach_children(self, flags);
 	if (rv)
 		return rv;
+#endif
 
 	KASSERTMSG(sc->sc_refcnt == 0,
 	    "%s: %d refs remain", device_xname(sc->sc_dev), sc->sc_refcnt);
@@ -583,12 +597,11 @@ uhidev_intr(struct usbd_xfer *xfer, void *addr, usbd_status status)
 		printf("uhidev_intr: bad repid %d\n", rep);
 		return;
 	}
-	//printf("repID: %d\n", rep);
 	scd = &sc->sc_subdevs[rep];
-	// printf("uhidev_intr: rep=%d, scd=%p state=%#x\n",
-	// 	    rep, scd, scd->sc_state);
-	/* if (!(atomic_load_acquire(&scd->sc_state) & UHIDEV_OPEN)) */
-	/* 	return; */
+#ifndef SEL4
+	 if (!(atomic_load_acquire(&scd->sc_state) & UHIDEV_OPEN))
+	 	return; 
+#endif
 #ifdef UHIDEV_DEBUG
 	if (scd->sc_in_rep_size != cc) {
 		DPRINTF(("%s: expected %d bytes, got %d\n",
@@ -600,9 +613,9 @@ uhidev_intr(struct usbd_xfer *xfer, void *addr, usbd_status status)
 			device_xname(sc->sc_dev)));
 		return;
 	}
-	//rnd_add_uint32(&scd->sc_rndsource, (uintptr_t)(sc->sc_ibuf));
-	//printf("going to intr: ");
-	//printf("%p\n", scd->sc_intr);
+#ifndef SEL4
+	rnd_add_uint32(&scd->sc_rndsource, (uintptr_t)(sc->sc_ibuf));
+#endif
 	scd->sc_intr(scd->sc_cookie, p, cc);
 }
 
@@ -909,7 +922,6 @@ out:	if (error) {
 		    scd->sc_state & ~UHIDEV_OPEN);
 	}
 	mutex_exit(&sc->sc_lock);
-	//printf("\n1");
 	return error;
 }
 
@@ -1042,7 +1054,9 @@ uhidev_close(struct uhidev *scd)
 	 * until after uhidev_close returns.
 	 */
 	mutex_exit(&sc->sc_lock);
-	//xc_barrier(XC_HIGHPRI);
+#ifndef SEL4
+	xc_barrier(XC_HIGHPRI);
+#endif
 	mutex_enter(&sc->sc_lock);
 	KASSERT((scd->sc_state & UHIDEV_OPEN) == 0);
 	scd->sc_intr = NULL;

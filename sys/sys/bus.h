@@ -36,6 +36,7 @@ typedef unsigned long paddr_t;
 #define __HAVE_NEW_STYLE_BUS_H
 #ifdef __HAVE_NEW_STYLE_BUS_H
 
+#include <sys/proc.h>
 #include <machine/bus_defs.h>
 
 struct bus_space_reservation {

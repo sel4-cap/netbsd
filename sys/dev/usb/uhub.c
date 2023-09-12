@@ -50,9 +50,13 @@ __KERNEL_RCSID(0, "$NetBSD: uhub.c,v 1.161 2022/04/06 22:01:45 mlelstv Exp $");
 #include <sys/kernel.h>
 #include <sys/kmem.h>
 #include <sys/proc.h>
-// #include <sys/sysctl.h>
+#ifndef SEL4
+#include <sys/sysctl.h>
+#endif
 #include <sys/systm.h>
-// #include <sys/kcov.h>
+#ifndef SEL4
+#include <sys/kcov.h>
+#endif
 #include <sys/sdt.h>
 
 #include <dev/usb/uhub.h>
@@ -105,7 +109,7 @@ SDT_PROBE_DEFINE2(usb, hub, interrupt, ,
 
 #ifdef USB_DEBUG
 #ifndef UHUB_DEBUG
-#define uhubdebug 0
+#define uhubdebug 
 #else
 static int uhubdebug = 0;
 
@@ -177,7 +181,9 @@ struct uhub_softc {
 	((sc)->sc_status[(port) / 8] & (1 << ((port) % 8)))
 
 Static usbd_status uhub_explore(struct usbd_device *);
-// Static void uhub_intr(struct usbd_xfer *, void *, usbd_status);
+#ifndef SEL4
+Static void uhub_intr(struct usbd_xfer *, void *, usbd_status);
+#endif
 
 
 /*
@@ -187,7 +193,9 @@ Static usbd_status uhub_explore(struct usbd_device *);
  */
 
 static int uhub_match(device_t, cfdata_t, void *);
-// static void uhub_attach(device_t, device_t, void *);
+#ifndef SEL4
+static void uhub_attach(device_t, device_t, void *);
+#endif
 static int uhub_rescan(device_t, const char *, const int *);
 static void uhub_childdet(device_t, device_t);
 static int uhub_detach(device_t, int);

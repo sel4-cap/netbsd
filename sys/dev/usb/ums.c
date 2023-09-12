@@ -86,20 +86,28 @@ struct ums_softc {
 	char	sc_dying;
 };
 
-//Static void ums_intr(void *, void *, u_int);
+#ifndef SEL4
+Static void ums_intr(void *, void *, u_int);
+#endif
 
 Static int	ums_enable(void *);
-//Static void	ums_disable(void *);
-//Static int	ums_ioctl(void *, u_long, void *, int, struct lwp *);
+#ifndef SEL4
+Static void	ums_disable(void *);
+Static int	ums_ioctl(void *, u_long, void *, int, struct lwp *);
+#endif
 
 static const struct wsmouse_accessops ums_accessops = {
 	ums_enable,
-	//ums_ioctl,
-	//ums_disable,
+#ifndef SEL4
+	ums_ioctl,
+	ums_disable,
+#endif
 };
 
 static int ums_match(device_t, cfdata_t, void *);
-//static void ums_attach(device_t, device_t, void *);
+#ifndef SEL4
+static void ums_attach(device_t, device_t, void *);
+#endif
 static void ums_childdet(device_t, device_t);
 static int ums_detach(device_t, int);
 static int ums_activate(device_t, enum devact);
@@ -207,7 +215,9 @@ ums_attach(device_t parent, device_t self, void *aux)
 		}
 	}
 
-//	tpcalib_init(&sc->sc_ms.sc_tpcalib);
+#ifndef SEL4
+	tpcalib_init(&sc->sc_ms.sc_tpcalib);
+#endif
 
 	/* calibrate the pointer if it reports absolute events */
 	if (sc->sc_ms.flags & HIDMS_ABS) {
@@ -233,8 +243,10 @@ ums_attach(device_t parent, device_t self, void *aux)
 			}
 			hid_end_parse(d);
 		}
-        	// tpcalib_ioctl(&sc->sc_ms.sc_tpcalib, WSMOUSEIO_SCALIBCOORDS,
-        	//     (void *)&sc->sc_ms.sc_calibcoords, 0, 0);
+#ifndef SEL4
+        	tpcalib_ioctl(&sc->sc_ms.sc_tpcalib, WSMOUSEIO_SCALIBCOORDS,
+        	    (void *)&sc->sc_ms.sc_calibcoords, 0, 0);
+#endif
 	}
 
 	hidms_attach(self, &sc->sc_ms, &ums_accessops);
@@ -247,7 +259,6 @@ ums_attach(device_t parent, device_t self, void *aux)
 			sc->sc_alwayson = false;
 		}
 	}
-	printf("\n\nReady for mouse wiggle\n\n");
 }
 
 static int
@@ -305,7 +316,6 @@ ums_intr(void *cookie, void *ibuf, u_int len)
 Static int
 ums_enable(void *v)
 {
-    printf("enabling mouse\n");
 	struct ums_softc *sc = v;
 	int error = 0;
 

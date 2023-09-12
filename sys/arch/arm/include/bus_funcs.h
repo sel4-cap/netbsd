@@ -777,10 +777,6 @@ void bus_dmamap_sync(bus_dma_tag_t, bus_dmamap_t, bus_addr_t, bus_size_t, int);
 #define	bus_dmatag_destroy(t)					\
 	0
 
-/*
-	? should in theory work? Flushing from base+offset to base+offset.
-	There are post and pre ops tho, not sure how they would affect things.
-*/
 #define bus_dmamap_sync(t, dmam, o, len, f) \
     void* h = ((void*) dmam->dm_segs->ds_addr);					\
 	if (f == BUS_DMASYNC_PREREAD || f == BUS_DMASYNC_PREWRITE) { \

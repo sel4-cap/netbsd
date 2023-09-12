@@ -33,6 +33,11 @@
 #ifndef _SYS_LWP_H_
 #define _SYS_LWP_H_
 
+#ifdef SEL4
+#include <machine/proc.h>		/* Machine-dependent proc substruct. */
+// struct proc {};
+#endif
+
 #if defined(_KERNEL) || defined(_KMEMUSER)
 
 #include <sys/param.h>
@@ -48,7 +53,7 @@
 #include <sys/syncobj.h>
 #include <sys/resource.h>
 
-#if defined(_KERNEL)
+#if defined(_KERNEL) || defined(SEL4)
 struct lwp;
 /* forward declare this for <machine/cpu.h> so it can get l_cpu. */
 static __inline struct cpu_info *lwp_getcpu(struct lwp *);
