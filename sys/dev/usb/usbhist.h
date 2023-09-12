@@ -88,7 +88,7 @@ USBHIST_DECL(usbhist);
 #define USBHIST_INIT(NAME,N)
 #define USBHIST_LINK_STATIC(NAME)
 #define USBHIST_LOGN(N,NAME,FMT,A,B,C,D)		printf("%s#n@n: ", __func__); printf(FMT,A,B,C,D); printf("\n")
-#define USBHIST_LOGM(N,NAME,FMT,A,B,C,D)		do { } while(0)
+#define USBHIST_LOGM(N,NAME,FMT,A,B,C,D)		printf("%s#n@n: ", __func__); printf(FMT,A,B,C,D); printf("\n")
 #define USBHIST_LOG(NAME,FMT,A,B,C,D)			printf("%s#n@n: ", __func__); printf(FMT,A,B,C,D); printf("\n")
 #define USBHIST_CALLARGS(NAME,FMT,A,B,C,D)		printf("%s#n@n: called: ", __func__); printf(FMT,A,B,C,D); printf("\n")
 #define USBHIST_CALLARGSN(NAME,N,FMT,A,B,C,D) 	printf("%s#n@n: called: ", __func__); printf(FMT,A,B,C,D); printf("\n")
