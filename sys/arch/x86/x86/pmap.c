@@ -1,4 +1,4 @@
-/*	$NetBSD: pmap.c,v 1.425 2023/07/26 21:45:28 riastradh Exp $	*/
+/*	$NetBSD: pmap.c,v 1.423 2022/09/24 11:05:47 riastradh Exp $	*/
 
 /*
  * Copyright (c) 2008, 2010, 2016, 2017, 2019, 2020 The NetBSD Foundation, Inc.
@@ -130,7 +130,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: pmap.c,v 1.425 2023/07/26 21:45:28 riastradh Exp $");
+__KERNEL_RCSID(0, "$NetBSD: pmap.c,v 1.423 2022/09/24 11:05:47 riastradh Exp $");
 
 #include "opt_user_ldt.h"
 #include "opt_lockdebug.h"
@@ -1351,19 +1351,7 @@ pmap_bootstrap(vaddr_t kva_start)
 #endif
 
 	/*
-	 * Allocate space for the Interrupt Descriptor Table (IDT),
-	 * Global Descriptor Table (GDT), and Local Descriptor Table
-	 * (LDT).
-	 *
-	 * Currently there is an initial temporary GDT allocated on the
-	 * stack by the caller of init386/init_x86_64, which is (among
-	 * other things) needed on i386 for %fs-relative addressing for
-	 * CPU-local data (CPUVAR(...), curcpu(), curlwp).  This
-	 * initial temporary GDT will be popped off the stack before we
-	 * can enter main, so we need to make sure there is space for a
-	 * second temporary GDT to continue existing when we enter main
-	 * before we allocate space for the permanent GDT with
-	 * uvm_km(9) in gdt_init via cpu_startup and switch to that.
+	 * Allocate space for the IDT, GDT and LDT.
 	 */
 	idt_vaddr = pmap_bootstrap_valloc(1);
 	idt_paddr = pmap_bootstrap_palloc(1);
@@ -3574,8 +3562,6 @@ pmap_load(void)
 	struct pmap *pmap, *oldpmap;
 	struct lwp *l;
 	uint64_t ncsw;
-	int ilevel __diagused;
-	u_long psl __diagused;
 
 	kpreempt_disable();
  retry:
@@ -3589,12 +3575,12 @@ pmap_load(void)
 	__insn_barrier();
 
 	/* should be able to take ipis. */
-	KASSERTMSG((ilevel = ci->ci_ilevel) < IPL_HIGH, "ilevel=%d", ilevel);
+	KASSERT(ci->ci_ilevel < IPL_HIGH);
 #ifdef XENPV
 	/* Check to see if interrupts are enabled (ie; no events are masked) */
-	KASSERTMSG((psl = x86_read_psl()) == 0, "psl=0x%lx", psl);
+	KASSERT(x86_read_psl() == 0);
 #else
-	KASSERTMSG(((psl = x86_read_psl()) & PSL_I) != 0, "psl=0x%lx", psl);
+	KASSERT((x86_read_psl() & PSL_I) != 0);
 #endif
 
 	KASSERT(l != NULL);

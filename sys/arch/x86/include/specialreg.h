@@ -1,4 +1,4 @@
-/*	$NetBSD: specialreg.h,v 1.208 2023/07/27 00:34:07 msaitoh Exp $	*/
+/*	$NetBSD: specialreg.h,v 1.201 2022/12/30 14:50:52 msaitoh Exp $	*/
 
 /*
  * Copyright (c) 2014-2020 The NetBSD Foundation, Inc.
@@ -466,7 +466,6 @@
 #define CPUID_SEF_MAWAU		__BITS(21, 17) /* MAWAU for BND{LD,ST}X */
 #define CPUID_SEF_RDPID		__BIT(22) /* RDPID and IA32_TSC_AUX */
 #define CPUID_SEF_KL		__BIT(23) /* Key Locker */
-#define CPUID_SEF_BUS_LOCK_DETECT __BIT(24) /* OS bus-lock detection */
 #define CPUID_SEF_CLDEMOTE	__BIT(25) /* Cache line demote */
 #define CPUID_SEF_MOVDIRI	__BIT(27) /* MOVDIRI instruction */
 #define CPUID_SEF_MOVDIR64B	__BIT(28) /* MOVDIR64B instruction */
@@ -481,7 +480,7 @@
 	"b\14AVX512_BITALG\0" "b\15TME_EN\0" "b\16AVX512_VPOPCNTDQ\0"	      \
 	"b\20LA57\0"							      \
 	"f\21\5MAWAU\0"			"b\26RDPID\0"	"b\27KL\0"	      \
-	"b\30BUS_LOCK_DETECT" "b\31CLDEMOTE\0"		"b\33MOVDIRI\0"	      \
+			"b\31CLDEMOTE\0"		"b\33MOVDIRI\0"	      \
 	"b\34MOVDIR64B\0" "b\35ENQCMD\0" "b\36SGXLC\0"	"b\37PKS\0"
 
 /* %ecx = 0, %edx */
@@ -869,7 +868,6 @@
 #define CPUID_CAPEX_CLZERO	   __BIT(0)  /* CLZERO instruction */
 #define CPUID_CAPEX_IRPERF	   __BIT(1)  /* InstRetCntMsr */
 #define CPUID_CAPEX_XSAVEERPTR	   __BIT(2)  /* RstrFpErrPtrs by XRSTOR */
-#define CPUID_CAPEX_INVLPGB	   __BIT(3)  /* INVLPGB instruction */
 #define CPUID_CAPEX_RDPRU	   __BIT(4)  /* RDPRU instruction */
 #define CPUID_CAPEX_MBE		   __BIT(6)  /* Memory Bandwidth Enforcement */
 #define CPUID_CAPEX_MCOMMIT	   __BIT(8)  /* MCOMMIT instruction */
@@ -890,10 +888,9 @@
 #define CPUID_CAPEX_CPPC	   __BIT(27) /* Collaborative Processor Perf. Control */
 #define CPUID_CAPEX_PSFD	   __BIT(28) /* Predictive Store Forward Dis */
 #define CPUID_CAPEX_BTC_NO	   __BIT(29) /* Branch Type Confusion NO */
-#define CPUID_CAPEX_IBPB_RET	   __BIT(30) /* Clear RET address predictor */
 
 #define CPUID_CAPEX_FLAGS	"\20"					   \
-	"\1CLZERO"	"\2IRPERF"	"\3XSAVEERPTR"	"\4INVLPGB"	   \
+	"\1CLZERO"	"\2IRPERF"	"\3XSAVEERPTR"			   \
 	"\5RDPRU"			"\7MBE"				   \
 	"\11MCOMMIT"	"\12WBNOINVD"	"\13B10"			   \
 	"\15IBPB"	"\16INT_WBINVD"	"\17IBRS"	"\20STIBP"	   \
@@ -901,7 +898,7 @@
 							"\24IBRS_SAMEMODE" \
 	"\25EFER_LSMSLE_UN"				"\30PPIN"	   \
 	"\31SSBD"	"\32VIRT_SSBD"	"\33SSB_NO"	"\34CPPC"	   \
-	"\35PSFD"	"\36BTC_NO"	"\37IBPB_RET"
+	"\35PSFD"	"\36BTC_NO"
 
 /* %ecx */
 #define CPUID_CAPEX_PerfTscSize	__BITS(17,16)	/* Perf. tstamp counter size */
@@ -939,10 +936,6 @@
 #define CPUID_AMD_SVM_TLBICTL	      __BIT(24) /* TLB Intercept Control */
 #define CPUID_AMD_SVM_VNMI	      __BIT(25) /* NMI Virtualization */
 #define CPUID_AMD_SVM_IBSVIRT	      __BIT(26) /* IBS Virtualization */
-#define CPUID_AMD_SVM_XLVTOFFFLTCHG   __BIT(27) /* Ext LVToffset FLT changed */
-#define CPUID_AMD_SVM_VMCBADRCHKCHG   __BIT(28) /* VMCB addr check changed */
-#define CPUID_AMD_SVM_BUSLOCKTHRESH   __BIT(29) /* Bus Lock Threshold */
-
 
 #define CPUID_AMD_SVM_FLAGS	 "\20"					\
 	"\1" "NP"	"\2" "LbrVirt"	"\3" "SVML"	"\4" "NRIPS"	\
@@ -953,8 +946,8 @@
 						"\20" "V_VMSAVE_VMLOAD"	\
 	"\21" "VGIF"	"\22" "GMET"	"\23x2AVIC"	"\24SSSCHECK"	\
 	"\25" "SPEC_CTRL" "\26" "ROGPT"		"\30HOST_MCE_OVERRIDE"	\
-	"\31" "TLBICTL"	"\32VNMI" "\33IBSVIRT" "\34ExtLvtOffsetFaultChg" \
-	"\35VmcbAddrChkChg" "\36BusLockThreshold"
+	"\31" "TLBICTL"	"\32VNMI"	"\33IBSVIRT"	"\34B27"	\
+	"\35B28"
 
 /*
  * AMD Instruction-Based Sampling Capabilities.
@@ -1057,26 +1050,21 @@
 
 /* %eax */
 #define CPUID_AMDEXT2_NONESTEDDBP __BIT(0) /* No nested data breakpoints */
-#define CPUID_AMDEXT2_FGKBNOSERIAL __BIT(1) /* {FS,GS,K}BASE WRMSR !serializ */
 #define CPUID_AMDEXT2_LFENCESERIAL __BIT(2) /* LFENCE always serializing */
 #define CPUID_AMDEXT2_SMMPGCFGLCK __BIT(3) /* SMM Paging configuration lock */
 #define CPUID_AMDEXT2_NULLSELCLRB __BIT(6) /* Null segment selector clr base */
 #define CPUID_AMDEXT2_UPADDRIGN	  __BIT(7) /* Upper Address Ignore */
 #define CPUID_AMDEXT2_AUTOIBRS	  __BIT(8) /* Automatic IBRS */
 #define CPUID_AMDEXT2_NOSMMCTL	  __BIT(9) /* SMM_CTL MSR is not supported */
-#define CPUID_AMDEXT2_FSRS	  __BIT(10) /* Fast Short Rep Stosb */
-#define CPUID_AMDEXT2_FSRC	  __BIT(11) /* Fast Short Rep Cmpsb */
 #define CPUID_AMDEXT2_PREFETCHCTL __BIT(13) /* Prefetch control MSR */
 #define CPUID_AMDEXT2_CPUIDUSRDIS __BIT(17) /* CPUID dis. for non-priv. soft */
-#define CPUID_AMDEXT2_EPSF	  __BIT(18) /* Enhanced Predictive Store Fwd */
 
 #define CPUID_AMDEXT2_FLAGS	 "\20"					      \
-	"\1NoNestedDataBp" "\2FsGsKernelGsBaseNonSerializing"		      \
-				"\3LfenceAlwaysSerialize" "\4SmmPgCfgLock"    \
+	"\1NoNestedDataBp"	"\3LfenceAlwaysSerialize" "\4SmmPgCfgLock"    \
 			     "\7NullSelectClearsBase" "\10UpperAddressIgnore" \
-	"\11AutomaticIBRS" "\12NoSmmCtlMSR"	"\13FSRS"	"\14FSRC"     \
+	"\11AutomaticIBRS" "\12NoSmmCtlMSR"				      \
 			"\16PrefetchCtlMSR"				      \
-			"\22CpuidUserDis"	"\23EPSF"
+			"\22CpuidUserDis"
 
 /*
  * AMD Extended Performance Monitoring and Debug
@@ -1094,8 +1082,7 @@
 /* %ebx */
 #define CPUID_AXPERF_NCPC      __BITS(3, 0)	/* Num of Core PMC counters */
 #define CPUID_AXPERF_NLBRSTACK __BITS(9, 4)	/* Num of LBR Stack entries */
-#define CPUID_AXPERF_NNBPC     __BITS(15, 10)	/* Num of NorthBridge PMCs */
-#define CPUID_AXPERF_NUMCPC    __BITS(21, 16)	/* Num of UMC PMCs */
+#define CPUID_AXPERF_NNBPC     __BITS(15, 10)	/* Num of Northbridge PMC */
 
 /*
  * Centaur Extended Feature flags.
@@ -1396,7 +1383,6 @@
 #define MSR_DE_CFG	0xc0011029
 #define 	DE_CFG_ERRATA_721	0x00000001
 #define 	DE_CFG_LFENCE_SERIALIZE	__BIT(1)
-#define 	DE_CFG_ERRATA_ZENBLEED	__BIT(9)
 #define 	DE_CFG_ERRATA_1021	__BIT(13)
 
 #define MSR_BU_CFG2	0xc001102a

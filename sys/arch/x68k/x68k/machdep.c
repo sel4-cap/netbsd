@@ -1,4 +1,4 @@
-/*	$NetBSD: machdep.c,v 1.210 2023/03/28 20:01:57 andvar Exp $	*/
+/*	$NetBSD: machdep.c,v 1.209 2022/07/16 04:55:35 isaki Exp $	*/
 
 /*
  * Copyright (c) 1988 University of Utah.
@@ -39,7 +39,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: machdep.c,v 1.210 2023/03/28 20:01:57 andvar Exp $");
+__KERNEL_RCSID(0, "$NetBSD: machdep.c,v 1.209 2022/07/16 04:55:35 isaki Exp $");
 
 #include "opt_ddb.h"
 #include "opt_kgdb.h"
@@ -503,7 +503,7 @@ cpu_reboot(int howto, char *bootstr)
 		/*resettodr();*/
 	}
 
-	/* Disable interrupts. */
+	/* Disable interrputs. */
 	splhigh();
 
 	if (howto & RB_DUMP)

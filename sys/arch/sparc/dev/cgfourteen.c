@@ -1,4 +1,4 @@
-/*	$NetBSD: cgfourteen.c,v 1.95 2023/06/13 10:11:17 macallan Exp $ */
+/*	$NetBSD: cgfourteen.c,v 1.93 2022/05/25 21:01:04 macallan Exp $ */
 
 /*
  * Copyright (c) 1996
@@ -168,21 +168,6 @@ static void cg14_copycols(void *, int, int, int, int);
 static void cg14_erasecols(void *, int, int, int, long);
 static void cg14_copyrows(void *, int, int, int);
 static void cg14_eraserows(void *, int, int, long);
-
-/* 
- * issue ALU instruction:
- * sxi(OPCODE, srcA, srcB, dest, count)
- */
-#define sxi(inst, a, b, d, cnt) \
-	sx_wait(sc->sc_sx); \
-	sx_write(sc->sc_sx, SX_INSTRUCTIONS, inst((a), (b), (d), (cnt)))
-
-/*
- * issue memory referencing instruction:
- * sxm(OPCODE, address, start register, count)
- */
-#define sxm(inst, addr, reg, count) sta((addr) & ~7, ASI_SX, inst((reg), (count), (addr) & 7))
-
 #endif /* NSX > 0 */
 
 #endif
@@ -373,7 +358,7 @@ cgfourteenattach(device_t parent, device_t self, void *aux)
 		    sc->sc_fbaddr, 0, 0, 0) & 0xfffff000;
 		aprint_normal_dev(sc->sc_dev, "using %s\n", 
 		    device_xname(sc->sc_sx->sc_dev));
-		aprint_normal_dev(sc->sc_dev, "fb paddr: %08x\n",
+		aprint_debug_dev(sc->sc_dev, "fb paddr: %08x\n",
 		    sc->sc_fb_paddr);
 		sx_write(sc->sc_sx, SX_PAGE_BOUND_LOWER, sc->sc_fb_paddr);
 		sx_write(sc->sc_sx, SX_PAGE_BOUND_UPPER,
@@ -394,7 +379,7 @@ cgfourteenattach(device_t parent, device_t self, void *aux)
  * the last close. This kind of nonsense is needed to give screenblank
  * a fighting chance of working.
  */
- 
+
 int
 cgfourteenopen(dev_t dev, int flags, int mode, struct lwp *l)
 {
@@ -582,9 +567,8 @@ cgfourteenmmap(dev_t dev, off_t off, int prot)
 			0, prot, BUS_SPACE_MAP_LINEAR));
 	} else if (off >= CG14_SXIO_VOFF &&
 		   off < (CG14_SXIO_VOFF + 0x03ffffff)) {
-		off -= CG14_SXIO_VOFF;
 		return (bus_space_mmap(sc->sc_sx->sc_tag, 0x800000000LL,
-			sc->sc_fb_paddr + off,
+			sc->sc_fb_paddr + (off - CG14_SXIO_VOFF),
 			prot, BUS_SPACE_MAP_LINEAR));
 #endif
 	} else
@@ -772,13 +756,13 @@ cg14_setup_wsdisplay(struct cgfourteen_softc *sc, int is_cons)
 		sc->sc_defaultscreen_descr.capabilities = ri->ri_caps;
 		sc->sc_defaultscreen_descr.nrows = ri->ri_rows;
 		sc->sc_defaultscreen_descr.ncols = ri->ri_cols;
-		glyphcache_init_align(&sc->sc_gc, sc->sc_fb.fb_type.fb_height + 5,
+		glyphcache_init(&sc->sc_gc, sc->sc_fb.fb_type.fb_height + 5,
 			(sc->sc_vramsize / sc->sc_fb.fb_type.fb_width) - 
 			 sc->sc_fb.fb_type.fb_height - 5,
 			sc->sc_fb.fb_type.fb_width,
 			ri->ri_font->fontwidth,
 			ri->ri_font->fontheight,
-			defattr, 4);
+			defattr);
 	if (is_cons) {
 		wsdisplay_cnattach(&sc->sc_defaultscreen_descr, ri, 0, 0,
 		    defattr);
@@ -1220,20 +1204,20 @@ cg14_rectfill(struct cgfourteen_softc *sc, int x, int y, int wi, int he,
 		pptr = addr;
 		cnt = wi;
 		if (pre) {
-			sxm(SX_STBS, pptr, 8, pre - 1);
+			sta(pptr & ~7, ASI_SX, SX_STBS(8, pre - 1, pptr & 7));
 			pptr += pre;
 			cnt -= pre;
 		}
 		/* now do the aligned pixels in 32bit chunks */
 		while(cnt > 3) {
 			words = uimin(32, cnt >> 2);
-			sxm(SX_STS, pptr, 8, words - 1);
+			sta(pptr & ~7, ASI_SX, SX_STS(8, words - 1, pptr & 7));
 			pptr += words << 2;
 			cnt -= words << 2;
 		}
 		/* do any remaining pixels byte-wise again */
 		if (cnt > 0)
-			sxm(SX_STBS, pptr, 8, cnt - 1);
+			sta(pptr & ~7, ASI_SX, SX_STBS(8, cnt - 1, pptr & 7));
 		addr += stride;
 	}
 }
@@ -1291,25 +1275,28 @@ cg14_invert(struct cgfourteen_softc *sc, int x, int y, int wi, int he)
 	for (line = 0; line < he; line++) {
 		pptr = addr;
 		/* load a whole scanline */
-		sxm(SX_LD, pptr, 8, words - 1);
+		sta(pptr & ~7, ASI_SX, SX_LD(8, words - 1, pptr & 7));
 		reg = 8;
 		if (pre) {
 			cg14_set_mask(sc, lmask);
-			sxi(SX_ROPB, 8, 8, 40, 0);
+			sx_write(sc->sc_sx, SX_INSTRUCTIONS,
+			    SX_ROPB(8, 8, 40, 0));
 			reg++;
 		}
 		if (cnt > 0) {
 			cg14_set_mask(sc, 0xffffffff);
 			/* XXX handle cnt > 16 */
-			sxi(SX_ROP, reg, reg, reg + 32, cnt - 1);
+			sx_write(sc->sc_sx, SX_INSTRUCTIONS,
+			    SX_ROP(reg, reg, reg + 32, cnt - 1));
 			reg += cnt;
 		}
 		if (post) {
 			cg14_set_mask(sc, rmask);
-			sxi(SX_ROPB, reg, 7, reg + 32, 0);
+			sx_write(sc->sc_sx, SX_INSTRUCTIONS,
+			    SX_ROPB(reg, 7, reg + 32, 0));
 			reg++;
 		}
-		sxm(SX_ST, pptr, 40, words - 1);		
+		sta(pptr & ~7, ASI_SX, SX_ST(40, words - 1, pptr & 7));		
 		addr += stride;
 	}
 }
@@ -1320,7 +1307,7 @@ cg14_slurp(int reg, uint32_t addr, int cnt)
 	int num;
 	while (cnt > 0) {
 		num = uimin(32, cnt);
-		sxm(SX_LD, addr, reg, num - 1);
+		sta(addr & ~7, ASI_SX, SX_LD(reg, num - 1, addr & 7));
 		cnt -= num;
 		reg += num;
 		addr += (num << 2);
@@ -1333,7 +1320,7 @@ cg14_spit(int reg, uint32_t addr, int cnt)
 	int num;
 	while (cnt > 0) {
 		num = uimin(32, cnt);
-		sxm(SX_ST, addr, reg, num - 1);
+		sta(addr & ~7, ASI_SX, SX_ST(reg, num - 1, addr & 7));
 		cnt -= num;
 		reg += num;
 		addr += (num << 2);
@@ -1368,8 +1355,10 @@ cg14_bitblt(void *cookie, int xs, int ys, int xd, int yd,
 			dptr = daddr;
 			cnt = wi;
 			if (pre > 0) {
-				sxm(SX_LDB, sptr, 32, pre - 1);
-				sxm(SX_STB, dptr, 32, pre - 1);
+				sta(sptr & ~7, ASI_SX,
+				    SX_LDB(32, pre - 1, sptr & 7));
+				sta(dptr & ~7, ASI_SX,
+				    SX_STB(32, pre - 1, dptr & 7));
 				cnt -= pre;
 				sptr += pre;
 				dptr += pre;
@@ -1384,8 +1373,10 @@ cg14_bitblt(void *cookie, int xs, int ys, int xd, int yd,
 				cnt -= num << 2;
 			}
 			if (cnt > 0) {
-				sxm(SX_LDB, sptr, 32, cnt - 1);
-				sxm(SX_STB, dptr, 32, cnt - 1);
+				sta(sptr & ~7, ASI_SX,
+				    SX_LDB(32, cnt - 1, sptr & 7));
+				sta(dptr & ~7, ASI_SX,
+				    SX_STB(32, cnt - 1, dptr & 7));
 			}
 			saddr += skip;
 			daddr += skip;
@@ -1398,15 +1389,17 @@ cg14_bitblt(void *cookie, int xs, int ys, int xd, int yd,
 			dptr = daddr;
 			cnt = wi;
 			while(cnt > 31) {
-				sxm(SX_LDB, sptr, 32, 31);
-				sxm(SX_STB, dptr, 32, 31);
+				sta(sptr & ~7, ASI_SX, SX_LDB(32, 31, sptr & 7));
+				sta(dptr & ~7, ASI_SX, SX_STB(32, 31, dptr & 7));
 				sptr += 32;
 				dptr += 32;
 				cnt -= 32;
 			}
 			if (cnt > 0) {
-				sxm(SX_LDB, sptr, 32, cnt - 1);
-				sxm(SX_STB, dptr, 32, cnt - 1);
+				sta(sptr & ~7, ASI_SX,
+				    SX_LDB(32, cnt - 1, sptr & 7));
+				sta(dptr & ~7, ASI_SX,
+				    SX_STB(32, cnt - 1, dptr & 7));
 			}
 			saddr += skip;
 			daddr += skip;
@@ -1451,22 +1444,22 @@ cg14_bitblt_gc(void *cookie, int xs, int ys, int xd, int yd,
 	
 	for (line = 0; line < he; line++) {
 		/* read source line, in all quads */
-		sxm(SX_LDUQ0, saddr, 8, swi - 1);
+		sta(saddr & ~7, ASI_SX, SX_LDUQ0(8, swi - 1, saddr & 7));
 		/* now write it out */
 		dd = daddr;
 		r = dreg;
 		if (in > 0) {
-			sxm(SX_STB, dd, r, in - 1);
+			sta(dd & ~7, ASI_SX, SX_STB(r, in - 1, dd & 7));
 			dd += in;
 			r += in;
 		}
 		if (q > 0) {
-			sxm(SX_STUQ0, dd, r, q - 1);
+			sta(dd & ~7, ASI_SX, SX_STUQ0(r, q - 1, dd & 7));
 			r += q << 2;
 			dd += q << 2;
 		}
 		if (out > 0) {
-			sxm(SX_STB, dd, r, out - 1);
+			sta(dd & ~7, ASI_SX, SX_STB(r, out - 1, dd & 7));
 		}
 		saddr += stride;
 		daddr += stride;
@@ -1525,7 +1518,7 @@ cg14_putchar(void *cookie, int row, int col, u_int c, long attr)
 			for (i = 0; i < he; i++) {
 				reg = *data8;
 				cg14_set_mask(sc, reg << 24);
-				sxm(SX_STBS, addr, 8, wi - 1);
+				sta(addr & ~7, ASI_SX, SX_STBS(8, wi - 1, addr & 7));
 				data8++;
 				addr += stride;
 			}
@@ -1537,7 +1530,7 @@ cg14_putchar(void *cookie, int row, int col, u_int c, long attr)
 			for (i = 0; i < he; i++) {
 				reg = *data16;
 				cg14_set_mask(sc, reg << 16);
-				sxm(SX_STBS, addr, 8, wi - 1);
+				sta(addr & ~7, ASI_SX, SX_STBS(8, wi - 1, addr & 7));
 				data16++;
 				addr += stride;
 			}
@@ -1686,20 +1679,20 @@ cg14_putchar_aa(void *cookie, int row, int col, u_int c, long attr)
 		cnt = wi;
 		if (in != 0) {
 			in = 4 - in;	/* pixels to write until aligned */
-			sxm(SX_STB, next, 8, in - 1);
+			sta(next & ~7, ASI_SX, SX_STB(8, in - 1, next & 7));
 			next += in;
 			reg = 8 + in;
 			cnt -= in;
 		}
 		q = cnt >> 2;	/* number of writes we can do in quads */
 		if (q > 0) {
-			sxm(SX_STUQ0, next, reg, q - 1);
+			sta(next & ~7, ASI_SX, SX_STUQ0(reg, q - 1, next & 7));
 			next += (q << 2);
 			cnt -= (q << 2);
 			reg += (q << 2);
 		}
 		if (cnt > 0) {
-			sxm(SX_STB, next, reg, cnt - 1);
+			sta(next & ~7, ASI_SX, SX_STB(reg, cnt - 1, next & 7));
 		}
 			
 		addr += stride;

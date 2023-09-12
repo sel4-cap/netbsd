@@ -1,4 +1,4 @@
-/*	$NetBSD: plcomreg.h,v 1.8 2023/04/11 12:56:07 riastradh Exp $	*/
+/*	$NetBSD: plcomreg.h,v 1.7 2023/01/24 06:56:40 mlelstv Exp $	*/
 
 /*-
  * Copyright (c) 2001 ARM Ltd
@@ -29,8 +29,6 @@
  * SUCH DAMAGE.
 */
 
-#ifndef	_SYS_ARCH_EVBARM_DEV_PLCOMREG_H_
-#define	_SYS_ARCH_EVBARM_DEV_PLCOMREG_H_
 
 #define	PLCOM_FREQ	1843200	/* 16-bit baud rate divisor */
 #define	PLCOM_TOLERANCE	30	/* baud rate tolerance, in 0.1% units */
@@ -175,5 +173,3 @@
 
 #define	PL010COM_UART_SIZE	0x100
 #define	PL011COM_UART_SIZE	0x1000
-
-#endif	/* _SYS_ARCH_EVBARM_DEV_PLCOMREG_H_ */

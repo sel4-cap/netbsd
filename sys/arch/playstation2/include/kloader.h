@@ -1,4 +1,4 @@
-/*	$NetBSD: kloader.h,v 1.8 2023/03/26 19:10:33 andvar Exp $	*/
+/*	$NetBSD: kloader.h,v 1.7 2020/09/06 17:19:47 riastradh Exp $	*/
 
 /*-
  * Copyright (c) 2004 The NetBSD Foundation, Inc.
@@ -34,7 +34,7 @@
 
 #include <mips/cpuregs.h>
 
-/* Playstation 2 port kloader don't need bootinfo */
+/* Playstaion 2 port kloader don't need bootinfo */
 #define	KLOADER_NO_BOOTINFO
 #define PG_VADDR(pg)	MIPS_PHYS_TO_KSEG0(VM_PAGE_TO_PHYS(pg))
 #include <dev/kloader.h>

@@ -1,4 +1,4 @@
-/*	$NetBSD: xen_intr.c,v 1.31 2023/02/25 00:32:13 riastradh Exp $	*/
+/*	$NetBSD: xen_intr.c,v 1.30 2022/05/24 14:00:23 bouyer Exp $	*/
 
 /*-
  * Copyright (c) 1998, 2001 The NetBSD Foundation, Inc.
@@ -30,7 +30,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: xen_intr.c,v 1.31 2023/02/25 00:32:13 riastradh Exp $");
+__KERNEL_RCSID(0, "$NetBSD: xen_intr.c,v 1.30 2022/05/24 14:00:23 bouyer Exp $");
 
 #include "opt_multiprocessor.h"
 #include "opt_pci.h"
@@ -83,28 +83,19 @@ static const char *xen_ipi_names[XEN_NIPIS] = XEN_IPI_NAMES;
 void
 x86_disable_intr(void)
 {
-
-	kpreempt_disable();
 	curcpu()->ci_vcpu->evtchn_upcall_mask = 1;
-	kpreempt_enable();
-
-	__insn_barrier();
+	x86_lfence();
 }
 
 void
 x86_enable_intr(void)
 {
-	struct cpu_info *ci;
-
+	volatile struct vcpu_info *_vci = curcpu()->ci_vcpu;
 	__insn_barrier();
-
-	kpreempt_disable();
-	ci = curcpu();
-	ci->ci_vcpu->evtchn_upcall_mask = 0;
-	__insn_barrier();
-	if (__predict_false(ci->ci_vcpu->evtchn_upcall_pending))
+	_vci->evtchn_upcall_mask = 0;
+	x86_lfence(); /* unmask then check (avoid races) */
+	if (__predict_false(_vci->evtchn_upcall_pending))
 		hypervisor_force_callback();
-	kpreempt_enable();
 }
 
 #endif /* !XENPVHVM */
@@ -112,27 +103,20 @@ x86_enable_intr(void)
 u_long
 xen_read_psl(void)
 {
-	u_long psl;
 
-	kpreempt_disable();
-	psl = curcpu()->ci_vcpu->evtchn_upcall_mask;
-	kpreempt_enable();
-
-	return psl;
+	return (curcpu()->ci_vcpu->evtchn_upcall_mask);
 }
 
 void
 xen_write_psl(u_long psl)
 {
-	struct cpu_info *ci;
+	struct cpu_info *ci = curcpu();
 
-	kpreempt_disable();
-	ci = curcpu();
 	ci->ci_vcpu->evtchn_upcall_mask = psl;
-	__insn_barrier();
-	if (__predict_false(ci->ci_vcpu->evtchn_upcall_pending) && psl == 0)
+	xen_rmb();
+	if (ci->ci_vcpu->evtchn_upcall_pending && psl == 0) {
 	    	hypervisor_force_callback();
-	kpreempt_enable();
+	}
 }
 
 void *

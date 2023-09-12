@@ -1,4 +1,4 @@
-/*	$NetBSD: locore_mips3.S,v 1.116 2023/02/23 14:56:00 riastradh Exp $	*/
+/*	$NetBSD: locore_mips3.S,v 1.115 2020/05/24 07:15:24 simonb Exp $	*/
 
 /*
  * Copyright (c) 1997 Jonathan Stone (hereinafter referred to as the author)
@@ -92,7 +92,7 @@
 #include <mips/asm.h>
 #include <mips/cpuregs.h>
 
-RCSID("$NetBSD: locore_mips3.S,v 1.116 2023/02/23 14:56:00 riastradh Exp $")
+RCSID("$NetBSD: locore_mips3.S,v 1.115 2020/05/24 07:15:24 simonb Exp $")
 
 #include "assym.h"
 
@@ -809,11 +809,6 @@ NESTED_NOPROFILE(cpu_trampoline, 0, ra)
 	nop
 	beqz	MIPS_CURLWP, 1b
 	 nop
-	/*
-	 * No membar needed because we're not switching from a
-	 * previous lwp, and the idle lwp we're switching to can't be
-	 * holding locks already; see cpu_switchto.
-	 */
 	PTR_S	MIPS_CURLWP, CPU_INFO_CURLWP(a0)
 
 #ifdef _LP64

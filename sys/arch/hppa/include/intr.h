@@ -1,4 +1,4 @@
-/*	$NetBSD: intr.h,v 1.4 2023/07/12 06:45:24 mrg Exp $	*/
+/*	$NetBSD: intr.h,v 1.2 2022/02/26 03:02:25 macallan Exp $	*/
 /*	$OpenBSD: intr.h,v 1.26 2009/12/29 13:11:40 jsing Exp $	*/
 
 /*-
@@ -39,13 +39,6 @@
 #include <sys/evcnt.h>
 
 #ifndef _LOCORE
-
-#if defined(_KERNEL) || defined(_KMEMUSER)
-typedef int ipl_t;
-typedef struct {
-	ipl_t _ipl;
-} ipl_cookie_t;
-#endif
 
 #ifdef _KERNEL
 
@@ -162,6 +155,11 @@ void spllower(int);
  */
 #define	spl0()		spllower(0)
 #define	splx(x)		spllower(x)
+
+typedef int ipl_t;
+typedef struct {
+	ipl_t _ipl;
+} ipl_cookie_t;
 
 static inline ipl_cookie_t
 makeiplcookie(ipl_t ipl)

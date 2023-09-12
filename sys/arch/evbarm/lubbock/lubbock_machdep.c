@@ -1,4 +1,4 @@
-/*	$NetBSD: lubbock_machdep.c,v 1.44 2023/06/19 03:59:24 nisimura Exp $ */
+/*	$NetBSD: lubbock_machdep.c,v 1.42 2021/08/17 22:00:29 andvar Exp $ */
 
 /*
  * Copyright (c) 2002, 2003, 2005  Genetec Corporation.  All rights reserved.
@@ -112,7 +112,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: lubbock_machdep.c,v 1.44 2023/06/19 03:59:24 nisimura Exp $");
+__KERNEL_RCSID(0, "$NetBSD: lubbock_machdep.c,v 1.42 2021/08/17 22:00:29 andvar Exp $");
 
 #include "opt_arm_debug.h"
 #include "opt_console.h"
@@ -347,40 +347,52 @@ read_ttb(void)
  * using the 2nd page tables.
  */
 
-static const struct pmap_devmap lubbock_devmap[] = {
-    DEVMAP_ENTRY(
-	    LUBBOCK_OBIO_VBASE,
-	    LUBBOCK_OBIO_PBASE,
-	    LUBBOCK_OBIO_SIZE
-    ),
-    DEVMAP_ENTRY(
-	    LUBBOCK_GPIO_VBASE,
-	    PXA2X0_GPIO_BASE,
-	    PXA250_GPIO_SIZE
-    ),
-    DEVMAP_ENTRY(
-	    LUBBOCK_CLKMAN_VBASE,
-	    PXA2X0_CLKMAN_BASE,
-	    PXA2X0_CLKMAN_SIZE
-    ),
-    DEVMAP_ENTRY(
-	    LUBBOCK_INTCTL_VBASE,
-	    PXA2X0_INTCTL_BASE,
-	    PXA2X0_INTCTL_SIZE
-    ),
-    DEVMAP_ENTRY(
-	    LUBBOCK_FFUART_VBASE,
-	    PXA2X0_FFUART_BASE,
-	    4 * COM_NPORTS
-    ),
-    DEVMAP_ENTRY(
-	    LUBBOCK_BTUART_VBASE,
-	    PXA2X0_BTUART_BASE,
-	    4 * COM_NPORTS
-    ),
+#define	_A(a)	((a) & ~L1_S_OFFSET)
+#define	_S(s)	(((s) + L1_S_SIZE - 1) & ~(L1_S_SIZE-1))
 
-    DEVMAP_ENTRY_END
+static const struct pmap_devmap lubbock_devmap[] = {
+    {
+	    LUBBOCK_OBIO_VBASE,
+	    _A(LUBBOCK_OBIO_PBASE),
+	    _S(LUBBOCK_OBIO_SIZE),
+	    VM_PROT_READ|VM_PROT_WRITE, PTE_NOCACHE,
+    },
+    {
+	    LUBBOCK_GPIO_VBASE,
+	    _A(PXA2X0_GPIO_BASE),
+	    _S(PXA250_GPIO_SIZE),
+	    VM_PROT_READ|VM_PROT_WRITE, PTE_NOCACHE,
+    },
+    {
+	    LUBBOCK_CLKMAN_VBASE,
+	    _A(PXA2X0_CLKMAN_BASE),
+	    _S(PXA2X0_CLKMAN_SIZE),
+	    VM_PROT_READ|VM_PROT_WRITE, PTE_NOCACHE,
+    },
+    {
+	    LUBBOCK_INTCTL_VBASE,
+	    _A(PXA2X0_INTCTL_BASE),
+	    _S(PXA2X0_INTCTL_SIZE),
+	    VM_PROT_READ|VM_PROT_WRITE, PTE_NOCACHE,
+    },
+    {
+	    LUBBOCK_FFUART_VBASE,
+	    _A(PXA2X0_FFUART_BASE),
+	    _S(4 * COM_NPORTS),
+	    VM_PROT_READ|VM_PROT_WRITE, PTE_NOCACHE,
+    },
+    {
+	    LUBBOCK_BTUART_VBASE,
+	    _A(PXA2X0_BTUART_BASE),
+	    _S(4 * COM_NPORTS),
+	    VM_PROT_READ|VM_PROT_WRITE, PTE_NOCACHE,
+    },
+
+    {0, 0, 0, 0,}
 };
+
+#undef	_A
+#undef	_S
 
 /*
  * vaddr_t initarm(...)

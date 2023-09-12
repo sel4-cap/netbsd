@@ -1,4 +1,4 @@
-/*	$NetBSD: if_esreg.h,v 1.10 2023/06/24 05:31:04 msaitoh Exp $	*/
+/*	$NetBSD: if_esreg.h,v 1.8 2022/05/31 08:43:14 andvar Exp $	*/
 
 /*
  * Copyright (c) 1995 Michael L. Hitch
@@ -87,7 +87,7 @@ union smcregs {
 
 /* EPH Status Register */
 #define	EPHSR_16COL	0x1000		/* 16 collisions reached */
-#define	EPHSR_MULCOL	0x0400		/* Multiple collisions */
+#define	EPHSR_MULCOL	0x0400		/* Multiple collsions */
 #define	EPHSR_TX_SUC	0x0100		/* Last transmit successful */
 #define	EPHSR_LOST_CAR	0x0004		/* Lost carrier */
 
@@ -148,7 +148,7 @@ union smcregs {
 #define	IST_TX		0x02		/* TX complete */
 #define	IST_RX		0x01		/* RX complete */
 
-/* Interrupt Acknowledge Register */
+/* Interrupt Acknowlege Register */
 #define	ACK_RX_OVRN	IST_RX_OVRN
 #define	ACK_TX_EMPTY	IST_TX_EMPTY
 #define	ACK_TX		IST_TX

@@ -1,11 +1,11 @@
-/*	$NetBSD: mainbus.c,v 1.6 2023/05/07 12:41:49 skrll Exp $	*/
+/*	$NetBSD: mainbus.c,v 1.5 2022/09/11 15:31:12 skrll Exp $	*/
 
 /*-
- * Copyright (c) 2022 The NetBSD Foundation, Inc.
+ * Copyright (c) 2014 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * This code is derived from software contributed to The NetBSD Foundation
- * by Nick Hudson
+ * by Matt Thomas of 3am Software Foundry.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,67 +29,29 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "locators.h"
 #include "opt_console.h"
-#include "opt_efi.h"
-#include "opt_modular.h"
 
 #include <sys/cdefs.h>
 
-__RCSID("$NetBSD: mainbus.c,v 1.6 2023/05/07 12:41:49 skrll Exp $");
+__RCSID("$NetBSD: mainbus.c,v 1.5 2022/09/11 15:31:12 skrll Exp $");
 
 #include <sys/param.h>
-#include <sys/types.h>
-
 #include <sys/bus.h>
 #include <sys/device.h>
 #include <sys/systm.h>
 
-#include <uvm/uvm_extern.h>
-
 #include <dev/fdt/fdtvar.h>
 
-#ifdef CONSADDR
-#include <dev/ic/comreg.h>
-#include <dev/ic/comvar.h>
-#endif
-
-#include <machine/sysreg.h>
+static int mainbus_match(device_t, cfdata_t, void *);
+static void mainbus_attach(device_t, device_t, void *);
 
 extern struct bus_space riscv_generic_bs_tag;
 
-bus_space_tag_t
-fdtbus_bus_tag_create(int phandle, uint32_t flags)
-{
-        return &riscv_generic_bs_tag;
-}
+CFATTACH_DECL_NEW(mainbus, 0,
+    mainbus_match, mainbus_attach, NULL, NULL);
 
-static inline bool
-cpu_earlydevice_va_p(void)
-{
-
-	return __SHIFTOUT(csr_satp_read(), SATP_MODE);
-}
-
-void com_platform_early_putchar(char);
-
-void __noasan
-com_platform_early_putchar(char c)
-{
-#ifdef CONSADDR
-#define CONSADDR_VA	(VM_KERNEL_IO_BASE + (CONSADDR & SEGOFSET))
-
-	volatile uint8_t *uartaddr = cpu_earlydevice_va_p() ?
-	    (volatile uint8_t *)CONSADDR_VA :
-	    (volatile uint8_t *)CONSADDR;
-
-	while ((uartaddr[com_lsr] & LSR_TXRDY) == 0)
-		;
-
-	uartaddr[com_data] = c;
-#endif
-}
-
-static int
+int
 mainbus_match(device_t parent, cfdata_t cf, void *aux)
 {
 	static int once = 0;
@@ -101,27 +63,23 @@ mainbus_match(device_t parent, cfdata_t cf, void *aux)
 	return 1;
 }
 
-
-static void
-mainbus_attach_devicetree(device_t self)
-{
-	struct fdt_attach_args faa = {
-		.faa_name = "",
-		.faa_phandle = OF_peer(0),
-		.faa_bst = &riscv_generic_bs_tag,
-	};
-
-	aprint_normal("\n");
-
-	config_found(self, &faa, NULL, CFARGS(.iattr = "fdt"));
-}
-
-static void
+void
 mainbus_attach(device_t parent, device_t self, void *aux)
 {
-	if (fdtbus_get_data() != NULL) {
-		mainbus_attach_devicetree(self);
+	const struct fdt_console *cons = fdtbus_get_console();
+	struct fdt_attach_args faa;
+
+	if (cons != NULL) {
+		faa.faa_phandle = fdtbus_get_stdout_phandle();
 	}
+
+	faa.faa_phandle = OF_peer(0);
+	config_found(self, &faa, NULL, CFARGS_NONE);
 }
 
-CFATTACH_DECL_NEW(mainbus, 0, mainbus_match, mainbus_attach, NULL, NULL);
+
+bus_space_tag_t
+fdtbus_bus_tag_create(int phandle, uint32_t flags)
+{
+        return &riscv_generic_bs_tag;
+}

@@ -1,4 +1,4 @@
-/*	$NetBSD: rd.c,v 1.126 2023/04/21 23:01:59 tsutsui Exp $	*/
+/*	$NetBSD: rd.c,v 1.124 2022/12/03 16:56:40 tsutsui Exp $	*/
 
 /*-
  * Copyright (c) 1996, 1997 The NetBSD Foundation, Inc.
@@ -72,7 +72,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: rd.c,v 1.126 2023/04/21 23:01:59 tsutsui Exp $");
+__KERNEL_RCSID(0, "$NetBSD: rd.c,v 1.124 2022/12/03 16:56:40 tsutsui Exp $");
 
 #include "opt_useleds.h"
 
@@ -581,9 +581,9 @@ rdident(device_t parent, struct rd_softc *sc, struct hpibbus_attach_args *ha)
 		return 0;
 
 	/*
-	 * The supported device ID is probed.
+	 * The supported dvice ID is probed.
 	 * Check if the specified physical unit is actually supported
-	 * by brand-new HP-IB emulator devices like HPDisk and HPDrive etc.
+	 * by brandnew HP-IB emulator devices like HPDisk and HPDrive etc.
 	 */
 	/*
 	 * Reset device and collect description
@@ -646,7 +646,7 @@ rdident(device_t parent, struct rd_softc *sc, struct hpibbus_attach_args *ha)
 #endif
 
 	/*
-	 * Take care of a couple of anomalies:
+	 * Take care of a couple of anomolies:
 	 * 1. 7945A, 7946A, and 7941A all return same HW id
 	 * 2. 9122S and 9134D both return same HW id
 	 * 3. 9122D and 9134L both return same HW id
@@ -1075,6 +1075,7 @@ rdgo(void *arg)
 	hpibgo(ctlr, slave, C_EXEC, sc->sc_addr, sc->sc_resid, rw, rw != 0);
 }
 
+/* ARGSUSED */
 static void
 rdintr(void *arg)
 {
@@ -1217,7 +1218,7 @@ rderror(int unit)
 	}
 	/*
 	 * Unit requests release for internal maintenance.
-	 * We just delay awhile and try again later.  Use exponentially
+	 * We just delay awhile and try again later.  Use expontially
 	 * increasing backoff ala ethernet drivers since we don't really
 	 * know how long the maintenance will take.  With RDWAITC and
 	 * RDRETRY as defined, the range is 1 to 32 seconds.

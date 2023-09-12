@@ -1,4 +1,4 @@
-/* $NetBSD: exec_multiboot2.c,v 1.6 2023/08/04 07:21:57 rin Exp $ */
+/* $NetBSD: exec_multiboot2.c,v 1.5 2021/07/21 23:16:08 jmcneill Exp $ */
 
 /*
  * Copyright (c) 2019 The NetBSD Foundation, Inc.
@@ -976,10 +976,7 @@ mbi_elf_sections(struct multiboot_package *mbp, void *buf)
 {
 	size_t len = 0;
 	struct multiboot_tag_elf_sections *mbt = buf;
-	union {
-		Elf32_Ehdr e32;
-		Elf64_Ehdr e64;
-	} ehdr;
+	Elf_Ehdr ehdr;
 	int class;
 	Elf32_Ehdr *ehdr32 = NULL;
 	Elf64_Ehdr *ehdr64 = NULL;
@@ -994,21 +991,21 @@ mbi_elf_sections(struct multiboot_package *mbp, void *buf)
 	/*
 	 * Check this is a ELF header
 	 */
-	if (memcmp(&ehdr.e32.e_ident, ELFMAG, SELFMAG) != 0)
+	if (memcmp(&ehdr.e_ident, ELFMAG, SELFMAG) != 0)
 		goto out;
 
-	class = ehdr.e32.e_ident[EI_CLASS];
+	class = ehdr.e_ident[EI_CLASS];
 
 	switch (class) {
 	case ELFCLASS32:
-		ehdr32 = &ehdr.e32;
+		ehdr32 = (Elf32_Ehdr *)&ehdr;
 		shnum = ehdr32->e_shnum;
 		shentsize = ehdr32->e_shentsize;
 		shstrndx = ehdr32->e_shstrndx;
 		shoff = ehdr32->e_shoff;
 		break;
 	case ELFCLASS64:
-		ehdr64 = &ehdr.e64;
+		ehdr64 = (Elf64_Ehdr *)&ehdr;
 		shnum = ehdr64->e_shnum;
 		shentsize = ehdr64->e_shentsize;
 		shstrndx = ehdr64->e_shstrndx;

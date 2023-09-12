@@ -1,4 +1,4 @@
-/*	$NetBSD: db_disasm.c,v 1.10 2023/05/07 12:41:48 skrll Exp $	*/
+/*	$NetBSD: db_disasm.c,v 1.9 2022/05/28 10:36:22 andvar Exp $	*/
 
 /*-
  * Copyright (c) 2014 The NetBSD Foundation, Inc.
@@ -31,13 +31,12 @@
 
 #include <sys/cdefs.h>
 
-__RCSID("$NetBSD: db_disasm.c,v 1.10 2023/05/07 12:41:48 skrll Exp $");
+__RCSID("$NetBSD: db_disasm.c,v 1.9 2022/05/28 10:36:22 andvar Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>
 
 #include <riscv/db_machdep.h>
-#include <riscv/frame.h>
 #include <riscv/insn.h>
 
 #include <ddb/db_access.h>

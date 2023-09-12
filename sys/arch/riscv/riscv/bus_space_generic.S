@@ -1,4 +1,4 @@
-/*	$NetBSD: bus_space_generic.S,v 1.4 2023/05/07 12:41:48 skrll Exp $	*/
+/*	$NetBSD: bus_space_generic.S,v 1.3 2022/10/31 12:50:49 simonb Exp $	*/
 
 /*-
  * Copyright (c) 2022 The NetBSD Foundation, Inc.
@@ -33,7 +33,7 @@
 #include <riscv/asm.h>
 #include "assym.h"
 
-RCSID("$NetBSD: bus_space_generic.S,v 1.4 2023/05/07 12:41:48 skrll Exp $")
+RCSID("$NetBSD: bus_space_generic.S,v 1.3 2022/10/31 12:50:49 simonb Exp $")
 
 
 /* void bs_c_1(a0: tag, a1: src, srcoffset, dst, dstoffset, count); */
@@ -217,9 +217,6 @@ ENTRY_NP(generic_bs_rr_2)
 	PTR_L	a5, BS_STRIDE(a0)	/* stride */
 	li	t0, 1
 	srl	t0, t0, a5		/* delta = 1 << stride */
-// if (delta < 2)
-//     delta = 2
-
 
 	PTR_SLL	a2, a2, a5		/* offset <<= stride */
 	PTR_ADD	a2, a2, a1		/* add to address */
@@ -243,7 +240,6 @@ END(generic_bs_rr_2)
 /* void bs_rr_8(a0: tag, a1: addr, a2: offset, a3: datap, a4: count); */
 
 
-
 /* void bs_w_1(a0: tag, a1: addr, a2: offset, a3: value); */
 ENTRY_NP(generic_bs_w_1)
 	PTR_L	a5, BS_STRIDE(a0)	/* stride */
@@ -259,7 +255,7 @@ ENTRY_NP(generic_bs_w_2)
 	PTR_L	a5, BS_STRIDE(a0)	/* stride */
 	PTR_SLL	a2, a2, a5		/* offset <<= stride */
 	PTR_ADD	a2, a2, a1		/* add to address */
-	sh	a3, 0(a2)		/* store 16-bit */
+	sh	a3 ,0(a2)		/* store 16-bit */
 	ret
 END(generic_bs_w_2)
 

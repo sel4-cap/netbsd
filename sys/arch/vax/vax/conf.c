@@ -1,4 +1,4 @@
-/*	$NetBSD: conf.c,v 1.69 2023/02/06 13:13:05 tsutsui Exp $	*/
+/*	$NetBSD: conf.c,v 1.68 2015/07/05 02:10:53 matt Exp $	*/
 
 /*-
  * Copyright (c) 1982, 1986 The Regents of the University of California.
@@ -32,7 +32,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: conf.c,v 1.69 2023/02/06 13:13:05 tsutsui Exp $");
+__KERNEL_RCSID(0, "$NetBSD: conf.c,v 1.68 2015/07/05 02:10:53 matt Exp $");
 
 #include "opt_cputype.h"
 
@@ -45,27 +45,11 @@ __KERNEL_RCSID(0, "$NetBSD: conf.c,v 1.69 2023/02/06 13:13:05 tsutsui Exp $");
  */
 #include <dev/cons.h>
 
-#include "gpx.h"
 #include "lcg.h"
 #include "qv.h"
 #include "smg.h"
 #include "spx.h"
 #include "wskbd.h"
-
-#if NGPX > 0
-#if NWSKBD > 0
-#define gpxcngetc wskbd_cngetc
-#else
-static int
-gpxcngetc(dev_t dev)
-{
-	return 0;
-}
-#endif
-
-#define gpxcnputc wsdisplay_cnputc
-#define gpxcnpollc nullcnpollc
-#endif /* NGPX > 0 */
 
 #if NLCG > 0
 #if NWSKBD > 0
@@ -126,7 +110,6 @@ spxcngetc(dev_t dev)
 
 cons_decl(gen);
 cons_decl(dz);
-cons_decl(gpx);
 cons_decl(qd);
 cons_decl(lcg);
 cons_decl(qv);
@@ -149,9 +132,6 @@ struct	consdev constab[]={
 #if NQD
 	cons_init(qd),
 #endif
-#endif
-#if NGPX
-	cons_init(gpx),
 #endif
 #if NLCG
 	cons_init(lcg),

@@ -1,4 +1,4 @@
-/*	$NetBSD: db_interface.c,v 1.3 2023/06/12 19:04:14 skrll Exp $	*/
+/*	$NetBSD: db_interface.c,v 1.2 2022/10/26 23:38:08 riastradh Exp $	*/
 
 /*
  * Mach Operating System
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: db_interface.c,v 1.3 2023/06/12 19:04:14 skrll Exp $");
+__KERNEL_RCSID(0, "$NetBSD: db_interface.c,v 1.2 2022/10/26 23:38:08 riastradh Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_multiprocessor.h"
@@ -118,23 +118,20 @@ kdb_trap(int type, db_regs_t *regs)
 	} else {
 		if (old_ddb_cpu != cpu_me) {
 			KASSERT(cpu_is_paused(cpu_me));
-			cpu_pause();
+			cpu_pause(regs);
 			splx(s);
 			return 1;
 		}
 	}
-	KASSERT(!cpu_is_paused(cpu_me));
+	KASSERT(! cpu_is_paused(cpu_me));
 #endif
-	struct cpu_info * const ci = curcpu();
 
 	ddb_regs = *regs;
-	ci->ci_ddb_regs = &ddb_regs;
 	db_active++;
 	cnpollc(1);
 	db_trap(type, 0 /*code*/);
 	cnpollc(0);
 	db_active--;
-	ci->ci_ddb_regs = NULL;
 	*regs = ddb_regs;
 
 #if defined(MULTIPROCESSOR)
@@ -143,7 +140,7 @@ kdb_trap(int type, db_regs_t *regs)
 	} else {
 		cpu_resume(ddb_cpu);
 		if (first_in_ddb)
-			cpu_pause();
+			cpu_pause(regs);
 	}
 #endif
 

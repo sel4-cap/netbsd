@@ -1,4 +1,4 @@
-/*	$NetBSD: netbookpro_machdep.c,v 1.3 2023/04/21 15:00:27 skrll Exp $	*/
+/*	$NetBSD: netbookpro_machdep.c,v 1.1 2011/08/06 03:53:40 kiyohara Exp $	*/
 /*
  * Copyright (c) 2011 KIYOHARA Takashi
  * All rights reserved.
@@ -25,7 +25,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: netbookpro_machdep.c,v 1.3 2023/04/21 15:00:27 skrll Exp $");
+__KERNEL_RCSID(0, "$NetBSD: netbookpro_machdep.c,v 1.1 2011/08/06 03:53:40 kiyohara Exp $");
 
 #include <sys/systm.h>
 #include <sys/device.h>
@@ -64,14 +64,16 @@ static int __unused enable_console(void (*)(struct consdev *),
 static void disable_consoles(void);
 static void cn_nonprobe(struct consdev *);
 
+#define	_A(a)	((a) & L1_S_FRAME)
+#define	_S(s)	(((s) + L1_S_SIZE - 1) & L1_S_FRAME)
 const struct pmap_devmap machdep_devmap[] = {
-	/* Framebuffer */
-	DEVMAP_ENTRY(
+	{	/* Framebuffer */
 		0x14000000,
-		0x14000000,
-		0x00400000
+		_A(0x14000000),
+		_S(0x00400000),
+		VM_PROT_READ|VM_PROT_WRITE, PTE_NOCACHE,
 	},
-	DEVMAP_ENTRY_END
+	{ 0, 0, 0, 0, 0, }
 };
 
 static struct pxa2x0_gpioconf netbookpro_boarddep_gpioconf[] = {
@@ -148,7 +150,7 @@ consinit(void)
 static int __unused
 enable_console(void (*init)(struct consdev *), void (*probe)(struct consdev *))
 {
-	struct consdev *cp;
+	struct consdev *cp;	
 
 	for (cp = constab; cp->cn_probe; cp++) {
 		if (cp->cn_init == init) {
@@ -162,7 +164,7 @@ enable_console(void (*init)(struct consdev *), void (*probe)(struct consdev *))
 static void
 disable_consoles(void)
 {
-	struct consdev *cp;
+	struct consdev *cp;	
 
 	for (cp = constab; cp->cn_probe; cp++)
 		cp->cn_probe = cn_nonprobe;

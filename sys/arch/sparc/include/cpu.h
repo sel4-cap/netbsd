@@ -1,4 +1,4 @@
-/*	$NetBSD: cpu.h,v 1.111 2023/07/13 12:06:20 riastradh Exp $ */
+/*	$NetBSD: cpu.h,v 1.110 2021/08/14 17:51:19 ryo Exp $ */
 
 /*
  * Copyright (c) 1992, 1993
@@ -406,8 +406,6 @@ struct cpu_info {
 
 /* Kernel only things. */
 #if defined(_KERNEL)
-
-#include <sys/mutex.h>
 
 /*
  * definitions of cpu-dependent requirements

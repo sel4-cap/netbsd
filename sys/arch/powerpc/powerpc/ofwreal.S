@@ -1,4 +1,4 @@
-/*	$NetBSD: ofwreal.S,v 1.17 2023/06/24 05:31:05 msaitoh Exp $	*/
+/*	$NetBSD: ofwreal.S,v 1.16 2021/08/20 20:25:27 andvar Exp $	*/
 
 /*
  * Copyright (C) 1996 Wolfgang Solfrank.
@@ -247,7 +247,7 @@ copy:
 	blr
 
 /*
- * Restore everything related to the mmu from the saveare pointed to by r3.
+ * Restore everyting related to the mmu from the saveare pointed to by r3.
  */
 restoremmu:
 	mfmsr	%r12

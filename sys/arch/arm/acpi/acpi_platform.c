@@ -1,4 +1,4 @@
-/* $NetBSD: acpi_platform.c,v 1.36 2023/04/07 08:55:29 skrll Exp $ */
+/* $NetBSD: acpi_platform.c,v 1.35 2023/01/24 06:56:40 mlelstv Exp $ */
 
 /*-
  * Copyright (c) 2018 The NetBSD Foundation, Inc.
@@ -35,7 +35,7 @@
 #include "opt_multiprocessor.h"
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: acpi_platform.c,v 1.36 2023/04/07 08:55:29 skrll Exp $");
+__KERNEL_RCSID(0, "$NetBSD: acpi_platform.c,v 1.35 2023/01/24 06:56:40 mlelstv Exp $");
 
 #include <sys/param.h>
 #include <sys/bus.h>
@@ -45,6 +45,7 @@ __KERNEL_RCSID(0, "$NetBSD: acpi_platform.c,v 1.36 2023/04/07 08:55:29 skrll Exp
 #include <sys/kprintf.h>
 
 #include <dev/fdt/fdtvar.h>
+#include <arm/fdt/arm_fdtvar.h>
 
 #include <uvm/uvm_extern.h>
 
@@ -407,15 +408,15 @@ acpi_platform_uart_freq(void)
 	return 0;
 }
 
-static const struct fdt_platform acpi_platform = {
-	.fp_devmap = acpi_platform_devmap,
-	.fp_bootstrap = acpi_platform_bootstrap,
-	.fp_startup = acpi_platform_startup,
-	.fp_init_attach_args = acpi_platform_init_attach_args,
-	.fp_device_register = acpi_platform_device_register,
-	.fp_reset = acpi_platform_reset,
-	.fp_delay = gtmr_delay,
-	.fp_uart_freq = acpi_platform_uart_freq,
+static const struct arm_platform acpi_platform = {
+	.ap_devmap = acpi_platform_devmap,
+	.ap_bootstrap = acpi_platform_bootstrap,
+	.ap_startup = acpi_platform_startup,
+	.ap_init_attach_args = acpi_platform_init_attach_args,
+	.ap_device_register = acpi_platform_device_register,
+	.ap_reset = acpi_platform_reset,
+	.ap_delay = gtmr_delay,
+	.ap_uart_freq = acpi_platform_uart_freq,
 };
 
-FDT_PLATFORM(acpi, "netbsd,generic-acpi", &acpi_platform);
+ARM_PLATFORM(acpi, "netbsd,generic-acpi", &acpi_platform);

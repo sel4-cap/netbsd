@@ -1,4 +1,4 @@
-/*	$NetBSD: fpu.c,v 1.3 2023/05/07 12:41:49 skrll Exp $	*/
+/*	$NetBSD: fpu.c,v 1.2 2021/08/03 23:12:14 andvar Exp $	*/
 
 /*-
  * Copyright (c) 2014 The NetBSD Foundation, Inc.
@@ -30,7 +30,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: fpu.c,v 1.3 2023/05/07 12:41:49 skrll Exp $");
+__KERNEL_RCSID(0, "$NetBSD: fpu.c,v 1.2 2021/08/03 23:12:14 andvar Exp $");
 
 #include "opt_multiprocessor.h"
 
@@ -43,7 +43,6 @@ __KERNEL_RCSID(0, "$NetBSD: fpu.c,v 1.3 2023/05/07 12:41:49 skrll Exp $");
 #include <sys/pcu.h>
 
 #include <riscv/locore.h>
-#include <riscv/frame.h>
 
 static void fpu_state_save(lwp_t *);
 static void fpu_state_load(lwp_t *, u_int);
@@ -56,35 +55,26 @@ const pcu_ops_t pcu_fpu_ops = {
 	.pcu_state_release = fpu_state_release
 };
 
-static void
-fpu_disable(void)
-{
-	csr_sstatus_clear(SR_FS);
-}
-
-static void
-fpu_enable(void)
-{
-	csr_sstatus_clear(SR_FS);
-	csr_sstatus_set(__SHIFTIN(SR_FS_CLEAN, SR_FS));
-}
-
 void
 fpu_state_save(lwp_t *l)
 {
-//	struct trapframe * const tf = l->l_md.md_utf;
+	struct trapframe * const tf = l->l_md.md_utf;
 	struct pcb * const pcb = lwp_getpcb(l);
 	struct fpreg * const fp = &pcb->pcb_fpregs;
 
 	KASSERT(l->l_pcu_cpu[PCU_FPU] == curcpu());
 
+	// Don't do anything if the FPU is already off.
+	if ((tf->tf_sr & SR_EF) == 0)
+		return;
+
 	curcpu()->ci_ev_fpu_saves.ev_count++;
 
 	// Enable FPU to save FP state
-	fpu_enable();
+	(void) riscvreg_status_set(SR_EF);
 
 	// Save FCSR
-	fp->r_fcsr = fcsr_read();
+	fp->r_fcsr = riscvreg_fcsr_read();
 
 	// Save FP register values.
 	__asm(	"fsd	f0, (0*%1)(%0)"
@@ -120,10 +110,10 @@ fpu_state_save(lwp_t *l)
 	"\n\t"	"fsd	f30, (30*%1)(%0)"
 	"\n\t"	"fsd	f31, (31*%1)(%0)"
 	   ::	"r"(fp->r_fpreg),
-		"i"(sizeof(fp->r_fpreg[0])) : "memory");
+		"i"(sizeof(fp->r_fpreg[0])));
 
 	// Disable the FPU
-	fpu_disable();
+	riscvreg_status_clear(SR_EF);
 }
 
 void
@@ -133,8 +123,7 @@ fpu_state_load(lwp_t *l, u_int flags)
 	struct pcb * const pcb = lwp_getpcb(l);
 	struct fpreg * const fp = &pcb->pcb_fpregs;
 
-	KASSERT(l == curlwp);
-//	KASSERT(l->l_pcu_cpu[PCU_FPU] == curcpu());
+	KASSERT(l->l_pcu_cpu[PCU_FPU] == curcpu());
 
 	// If this is the first time the state is being loaded, zero it first.
 	if (__predict_false((flags & PCU_VALID) == 0)) {
@@ -142,8 +131,7 @@ fpu_state_load(lwp_t *l, u_int flags)
 	}
 
 	// Enable the FP when this lwp return to userspace.
-	tf->tf_sr &= ~SR_FS;
-	tf->tf_sr |= __SHIFTIN(SR_FS_CLEAN, SR_FS);
+	tf->tf_sr |= SR_EF;
 
 	// If this is a simple reenable, set the FPU enable flag and return
 	if (flags & PCU_REENABLE) {
@@ -155,7 +143,7 @@ fpu_state_load(lwp_t *l, u_int flags)
 
 
 	// Enabling to load FP state.  Interrupts will remain on.
-	fpu_enable();
+	(void) riscvreg_status_set(SR_EF);
 
 	// load FP registers and establish processes' FP context.
 	__asm(	"fld	f0, (0*%1)(%0)"
@@ -191,17 +179,15 @@ fpu_state_load(lwp_t *l, u_int flags)
 	"\n\t"	"fld	f30, (30*%1)(%0)"
 	"\n\t"	"fld	f31, (31*%1)(%0)"
 	   ::	"r"(fp->r_fpreg),
-		"i"(sizeof(fp->r_fpreg[0])): "memory");
+		"i"(sizeof(fp->r_fpreg[0])));
 
 	// load FPCSR and disable FPU again
-	fcsr_write(fp->r_fcsr);
-
-	fpu_disable();
+	riscvreg_fcsr_write(fp->r_fcsr);
+	riscvreg_status_clear(SR_EF);
 }
 
 void
 fpu_state_release(lwp_t *l)
 {
-	l->l_md.md_utf->tf_sr &= ~SR_FS;
-	fpu_disable();
+	l->l_md.md_utf->tf_sr &= ~SR_EF;
 }

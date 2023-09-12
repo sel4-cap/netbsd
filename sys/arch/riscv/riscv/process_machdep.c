@@ -1,4 +1,4 @@
-/*	$NetBSD: process_machdep.c,v 1.5 2023/05/07 12:41:49 skrll Exp $	*/
+/*	$NetBSD: process_machdep.c,v 1.4 2020/11/04 07:09:46 skrll Exp $	*/
 
 /*-
  * Copyright (c) 2014 The NetBSD Foundation, Inc.
@@ -31,14 +31,13 @@
 
 #include <sys/cdefs.h>
 
-__RCSID("$NetBSD: process_machdep.c,v 1.5 2023/05/07 12:41:49 skrll Exp $");
+__RCSID("$NetBSD: process_machdep.c,v 1.4 2020/11/04 07:09:46 skrll Exp $");
 
 #include <sys/param.h>
 #include <sys/ptrace.h>
 
 #include <uvm/uvm_extern.h>
 
-#include <riscv/frame.h>
 #include <riscv/locore.h>
 
 int

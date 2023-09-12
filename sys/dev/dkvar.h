@@ -48,17 +48,13 @@ struct dk_softc {
 	u_int32_t		 sc_flags;	/* flags */
 #define DK_XNAME_SIZE 8
 	char			 sc_xname[DK_XNAME_SIZE]; /* external name */
-	#ifndef SEL4
 	struct disk		 sc_dkdev;	/* generic disk info */
-	#endif
 	kmutex_t		 sc_iolock;	/* protects buffer queue */
 	struct bufq_state	*sc_bufq;	/* buffer queue */
 	int			 sc_dtype;	/* disk type */
 	struct buf		*sc_deferred;	/* retry after start failed */
 	int			 sc_busy;	/* processing buffers */
-#ifndef SEL4
 	krndsource_t		 sc_rnd_source;	/* entropy source */
-#endif
 };
 
 /* sc_flags:

@@ -1,4 +1,4 @@
-/*	$NetBSD: arm32_machdep.c,v 1.146 2023/04/07 08:55:30 skrll Exp $	*/
+/*	$NetBSD: arm32_machdep.c,v 1.145 2023/01/19 08:03:51 mlelstv Exp $	*/
 
 /*
  * Copyright (c) 1994-1998 Mark Brinicombe.
@@ -42,7 +42,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: arm32_machdep.c,v 1.146 2023/04/07 08:55:30 skrll Exp $");
+__KERNEL_RCSID(0, "$NetBSD: arm32_machdep.c,v 1.145 2023/01/19 08:03:51 mlelstv Exp $");
 
 #include "opt_arm_debug.h"
 #include "opt_arm_start.h"
@@ -85,8 +85,6 @@ __KERNEL_RCSID(0, "$NetBSD: arm32_machdep.c,v 1.146 2023/04/07 08:55:30 skrll Ex
 #include <machine/pcb.h>
 
 #if defined(FDT)
-#include <dev/fdt/fdtvar.h>
-
 #include <arm/fdt/arm_fdtvar.h>
 #include <arch/evbarm/fdt/platform.h>
 #endif
@@ -303,9 +301,9 @@ cpu_startup(void)
 	pmap_postinit();
 
 #ifdef FDT
-	const struct fdt_platform * const plat = fdt_platform_find();
-	if (plat->fp_startup != NULL)
-		plat->fp_startup();
+	const struct arm_platform * const plat = arm_fdt_platform();
+	if (plat->ap_startup != NULL)
+		plat->ap_startup();
 #endif
 
 	/*
@@ -895,7 +893,7 @@ extern char KERNEL_BASE_phys[];
 void
 cpu_kernel_vm_init(paddr_t memory_start, psize_t memory_size)
 {
-	const struct fdt_platform *plat = fdt_platform_find();
+	const struct arm_platform *plat = arm_fdt_platform();
 
 #ifdef __HAVE_MM_MD_DIRECT_MAPPED_PHYS
 	const bool mapallmem_p = true;
@@ -916,7 +914,7 @@ cpu_kernel_vm_init(paddr_t memory_start, psize_t memory_size)
 
 	arm32_bootmem_init(memory_start, memory_size, KERNEL_BASE_PHYS);
 	arm32_kernel_vm_init(KERNEL_VM_BASE, ARM_VECTORS_HIGH, 0,
-	    plat->fp_devmap(), mapallmem_p);
+	    plat->ap_devmap(), mapallmem_p);
 }
 #endif
 

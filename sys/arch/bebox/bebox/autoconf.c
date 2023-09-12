@@ -1,4 +1,4 @@
-/*	$NetBSD: autoconf.c,v 1.28 2023/06/19 08:40:29 msaitoh Exp $	*/
+/*	$NetBSD: autoconf.c,v 1.27 2015/12/13 19:38:09 christos Exp $	*/
 
 /*-
  * Copyright (c) 1990 The Regents of the University of California.
@@ -44,7 +44,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: autoconf.c,v 1.28 2023/06/19 08:40:29 msaitoh Exp $");
+__KERNEL_RCSID(0, "$NetBSD: autoconf.c,v 1.27 2015/12/13 19:38:09 christos Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>
@@ -122,7 +122,7 @@ findroot(void)
 		return;
 	p = rdev->rootdevice;
 	if (strncmp(p, "/dev/disk/", 10) != 0)
-		/* unknown device... */
+		/* unknwon device... */
 		return;
 	p += 10;
 	if (strncmp(p, "scsi/", 5) == 0) {
@@ -155,7 +155,7 @@ findroot(void)
 	} else if (strcmp(p, "floppy") == 0)
 		return;
 	else
-		/* unknown disk... */
+		/* unknwon disk... */
 		return;
 
 	if (*(p + 0) != '0' || *(p + 1) != '_' || !isdigit(*(p + 2)))

@@ -1,4 +1,4 @@
-/* $NetBSD: pvh_consinit.c,v 1.4 2023/07/22 19:13:17 mrg Exp $ */
+/* $NetBSD: pvh_consinit.c,v 1.2 2020/05/03 17:23:14 bouyer Exp $ */
 
 /*
  * Copyright (c) 2020 Manuel Bouyer.
@@ -26,7 +26,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: pvh_consinit.c,v 1.4 2023/07/22 19:13:17 mrg Exp $");
+__KERNEL_RCSID(0, "$NetBSD: pvh_consinit.c,v 1.2 2020/05/03 17:23:14 bouyer Exp $");
 
 #include "xencons.h"
 #include <sys/param.h>
@@ -41,8 +41,6 @@ __KERNEL_RCSID(0, "$NetBSD: pvh_consinit.c,v 1.4 2023/07/22 19:13:17 mrg Exp $")
 #include <xen/include/public/hvm/hvm_op.h>
 #include <xen/include/public/hvm/params.h>
 
-#include "xen_def_cons.h"
-
 static int pvh_xenconscn_getc(dev_t);
 static void pvh_xenconscn_putc(dev_t, int);
 static void pvh_xenconscn_pollc(dev_t, int);
@@ -53,7 +51,7 @@ static struct consdev pvh_xencons = {
 };
 
 
-int
+void
 xen_pvh_consinit(void)
 {
 	/*
@@ -61,35 +59,21 @@ xen_pvh_consinit(void)
 	 * boot stage.
 	 */
 	static int initted = 0;
-	if (xendomain_is_dom0()) {
-		union xen_cmdline_parseinfo xcp;
-		xen_parse_cmdline(XEN_PARSE_CONSOLE, &xcp);
-#ifdef CONS_OVERRIDE
-                if (strcmp(default_consinfo.devname, "tty0") == 0 ||
-		    strcmp(default_consinfo.devname, "pc") == 0) {
-#else
-		if (strcmp(xcp.xcp_console, "tty0") == 0 || /* linux name */
-		    strcmp(xcp.xcp_console, "pc") == 0) { /* NetBSD name */
-#endif /* CONS_OVERRIDE */
-			return 0; /* native console code will do it */
-		}
-	}
 	if (initted == 0 && !xendomain_is_dom0()) {
 		/* pmap not up yet, fall back to printk() */
 		cn_tab = &pvh_xencons;
 		initted++;
-		return 1;
+		return;
 	} else if (initted > 1) {
-		return 1;
+		return;
 	}
 	initted++;
 	if (xendomain_is_dom0()) {
-		/* we know we're using Xen's console at this point */
 		xenconscn_attach(); /* no ring in this case */
 		initted++; /* don't init console twice */
-		return 1;
+		return;
 	}
-
+		
 #if NXENCONS > 0
 	/* we can now map the xencons rings. */
 	struct xen_hvm_param xen_hvm_param;
@@ -114,7 +98,6 @@ xen_pvh_consinit(void)
 	xen_start_info.console.domU.evtchn = xen_hvm_param.value;
 	xenconscn_attach();
 #endif
-	return 1;
 }
 
 static int

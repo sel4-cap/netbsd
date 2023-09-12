@@ -1,7 +1,7 @@
-/*      $NetBSD: rtc.c,v 1.19 2023/02/03 23:13:01 tsutsui Exp $        */
+/*      $NetBSD: rtc.c,v 1.18 2014/11/20 16:34:25 christos Exp $        */
 /*
  * Copyright (c) 1998 Darrin Jewell
- * Copyright (c) 1997 Rolf Grossmann
+ * Copyright (c) 1997 Rolf Grossmann 
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: rtc.c,v 1.19 2023/02/03 23:13:01 tsutsui Exp $");
+__KERNEL_RCSID(0, "$NetBSD: rtc.c,v 1.18 2014/11/20 16:34:25 christos Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>          /* for panic */
@@ -57,9 +57,7 @@ __KERNEL_RCSID(0, "$NetBSD: rtc.c,v 1.19 2023/02/03 23:13:01 tsutsui Exp $");
 /* #define RTC_DEBUG */
 
 u_char new_clock;
-
-/* will get memory mapped in rtc_init */
-volatile u_int *scr2 = (u_int *)NEXT_P_SCR2;
+volatile u_int *scr2 = (u_int *)NEXT_P_SCR2; /* will get memory mapped in rtc_init */
 
 static int gettime_old(todr_chip_handle_t, struct clock_ymdhms *);
 static int settime_old(todr_chip_handle_t, struct clock_ymdhms *);
@@ -75,15 +73,16 @@ void
 rtc_init(void)
 {
 	static struct todr_chip_handle tch;
-	uint8_t val;
-
+	u_char val;
+	
 	scr2 = (u_int *)IIOV(NEXT_P_SCR2);
 	val = rtc_read(RTC_STATUS);
 	new_clock = (val & RTC_NEW_CLOCK) ? 1 : 0;
 
-	printf("Looks like a %s clock chip.\n", new_clock ?
-	    "MCS1850 (new style)" :
-	    "MC68HC68T1 (old style)");
+	printf("Looks like a %s clock chip.\n",
+			(new_clock?
+					"MCS1850 (new style)":
+					"MC68HC68T1 (old style)"));
 
 #ifdef RTC_DEBUG
 	rtc_print();
@@ -142,20 +141,20 @@ rtc_print(void)
 }
 
 
-uint8_t
-rtc_read(uint8_t reg)
+u_char
+rtc_read(u_char reg)
 {
 	int i;
 	u_int tmp;
-	uint8_t val;
+	u_char val;
 
 	*scr2 = (*scr2 & ~(SCR2_RTDATA | SCR2_RTCLK)) | SCR2_RTCE;
 	DELAY(1);
 
 	val = reg;
-	for (i = 0; i < 8; i++) {
+	for (i=0; i<8; i++) {
 		tmp = *scr2 & ~(SCR2_RTDATA | SCR2_RTCLK);
-		if ((val & 0x80) != 0)
+		if (val & 0x80)
 			tmp |= SCR2_RTDATA;
 
 		*scr2 = tmp;
@@ -169,9 +168,9 @@ rtc_read(uint8_t reg)
 	}
 
 	val = 0;			/* should be anyway */
-	for (i = 0; i < 8; i++) {
+	for (i=0; i<8; i++) {
 		val <<= 1;
-
+	
 		tmp = *scr2 & ~(SCR2_RTDATA | SCR2_RTCLK);
 
 		*scr2 = tmp | SCR2_RTCLK;
@@ -179,31 +178,31 @@ rtc_read(uint8_t reg)
 		*scr2 = tmp;
 		DELAY(1);
 
-		if ((*scr2 & SCR2_RTDATA) != 0)
+		if (*scr2 & SCR2_RTDATA)
 			val |= 1;
 	}
 
-	*scr2 &= ~(SCR2_RTDATA | SCR2_RTCLK | SCR2_RTCE);
+	*scr2 &= ~(SCR2_RTDATA|SCR2_RTCLK|SCR2_RTCE);
 	DELAY(1);
 
 	return val;
 }
 
 void
-rtc_write(uint8_t reg, uint8_t v)
+rtc_write(u_char reg, u_char v)
 {
 	int i;
 	u_int tmp;
-	uint8_t val;
+	u_char val;
 
 	*scr2 = (*scr2 & ~(SCR2_RTDATA | SCR2_RTCLK)) | SCR2_RTCE;
 	DELAY(1);
 
-	val = reg | RTC_WRITE;
+	val = reg|RTC_WRITE;
 
-	for (i = 0; i < 8; i++) {
+	for (i=0; i<8; i++) {
 		tmp = *scr2 & ~(SCR2_RTDATA | SCR2_RTCLK);
-		if ((val & 0x80) != 0)
+		if (val & 0x80)
 			tmp |= SCR2_RTDATA;
 
 		*scr2 = tmp;
@@ -218,9 +217,9 @@ rtc_write(uint8_t reg, uint8_t v)
 
 	DELAY(1);
 
-	for (i = 0; i < 8; i++) {
+	for (i=0; i<8; i++) {
 		tmp = *scr2 & ~(SCR2_RTDATA | SCR2_RTCLK);
-		if ((v & 0x80) != 0)
+		if (v & 0x80)
 			tmp |= SCR2_RTDATA;
 
 		*scr2 = tmp;
@@ -233,7 +232,7 @@ rtc_write(uint8_t reg, uint8_t v)
 		v <<= 1;
 	}
 
-	*scr2 &= ~(SCR2_RTDATA | SCR2_RTCLK | SCR2_RTCE);
+	*scr2 &= ~(SCR2_RTDATA|SCR2_RTCLK|SCR2_RTCE);
 	DELAY(1);
 }
 
@@ -250,19 +249,18 @@ poweroff(void)
 
 	t = rtc_read(reg);	/* seconds */
 	/* wait for clock to tick */
-	while(t == rtc_read(reg))
-		continue;
+	while(t == rtc_read(reg));
 
 	DELAY(850000);	/* hardware bug workaround ? */
 
-	if (new_clock) {
+	if(new_clock) {
 		reg = RTC_CONTROL;
 	} else {
 		reg = RTC_INTRCTL;
 	}
 
 	rtc_write(reg, rtc_read(reg)|(RTC_PDOWN));
-
+	
 	printf("....................."); /* @@@ work around some sort of bug. */
 
 	panic("Failed to poweroff!");
@@ -272,42 +270,36 @@ poweroff(void)
 int
 gettime_old(todr_chip_handle_t tch, struct clock_ymdhms *dt)
 {
-	uint8_t h, y;
-
+	u_char h, y;
+	
 	y = bcdtobin(rtc_read(RTC_YR));
 	if (y >= 69) {
-		dt->dt_year = 1900 + y;
+		dt->dt_year = 1900+y;
 	} else {
-		dt->dt_year = 2000 + y;
+		dt->dt_year = 2000+y;
 	}
 
-	dt->dt_mon  = bcdtobin(rtc_read(RTC_MON)  & 0x1f);
-	dt->dt_day  = bcdtobin(rtc_read(RTC_DATE) & 0x3f);
-	dt->dt_wday = bcdtobin(rtc_read(RTC_DAY)  & 0x07);
+	dt->dt_mon	= bcdtobin(rtc_read(RTC_MON)&0x1f);
+	dt->dt_day	= bcdtobin(rtc_read(RTC_DATE)&0x3f);
+	dt->dt_wday = bcdtobin(rtc_read(RTC_DAY)&0x7);
 
 	h = rtc_read(RTC_HRS);
-	if ((h & 0x80) != 0) {
-		/* time is am/pm format */
-		dt->dt_hour = bcdtobin(h & 0x1f);
-		if ((h & 0x20) != 0) {
-			/* pm */
-			if (dt->dt_hour < 12)
-				dt->dt_hour += 12;
-		} else {
-			/* am */
-			if (dt->dt_hour == 12)
-				dt->dt_hour = 0;
+	if (h & 0x80) {			/* time is am/pm format */
+		dt->dt_hour = bcdtobin(h&0x1f);
+		if (h & 0x20) { /* pm */
+			if (dt->dt_hour < 12) dt->dt_hour += 12;
+		} else {  /* am */
+			if (dt->dt_hour == 12) dt->dt_hour = 0;
 		}
 #ifdef notdef
-	} else {
-		/* time is 24 hour format */
+	} else {	/* time is 24 hour format */
 		struct clock_ymdhms val;
 		val.dt_hour = bcdtobin(h & 0x3f);
 #endif
 	}
 
-	dt->dt_min = bcdtobin(rtc_read(RTC_MIN) & 0x7f);
-	dt->dt_sec = bcdtobin(rtc_read(RTC_SEC) & 0x7f);
+	dt->dt_min	= bcdtobin(rtc_read(RTC_MIN)&0x7f);
+	dt->dt_sec	= bcdtobin(rtc_read(RTC_SEC)&0x7f);
 
 	return 0;
 }
@@ -315,60 +307,53 @@ gettime_old(todr_chip_handle_t tch, struct clock_ymdhms *dt)
 int
 settime_old(todr_chip_handle_t tcr, struct clock_ymdhms *dt)
 {
-	uint8_t h;
+	u_char h;
 
 	/* Stop the clock */
-	rtc_write(RTC_CONTROL, rtc_read(RTC_CONTROL) & ~RTC_START);
+	rtc_write(RTC_CONTROL,rtc_read(RTC_CONTROL) & ~RTC_START);
 
 #ifdef RTC_DEBUG
-	printf("Setting RTC to 0x%08x.  Regs before:\n", secs);
+	printf("Setting RTC to 0x%08x.  Regs before:\n",secs);
 	rtc_print();
 #endif
 
-	rtc_write(RTC_SEC, bintobcd(dt->dt_sec));
-	rtc_write(RTC_MIN, bintobcd(dt->dt_min));
+	rtc_write(RTC_SEC,bintobcd(dt->dt_sec));
+	rtc_write(RTC_MIN,bintobcd(dt->dt_min));
 	h = rtc_read(RTC_HRS);
-	if ((h & 0x80) != 0) {
-		/* time is am/pm format */
+	if (h & 0x80) {		/* time is am/pm format */
 		if (dt->dt_hour == 0) {
-			rtc_write(RTC_HRS, bintobcd(12) | 0x80);
-		} else if (dt->dt_hour < 12) {
-			/* am */
-			rtc_write(RTC_HRS, bintobcd(dt->dt_hour) | 0x80);
+			rtc_write(RTC_HRS,bintobcd(12)|0x80);
+		} else if (dt->dt_hour < 12) {	/* am */
+			rtc_write(RTC_HRS,bintobcd(dt->dt_hour)|0x80);
 		} else if (dt->dt_hour == 12) {
-			rtc_write(RTC_HRS, bintobcd(12) | 0x80 | 0x20);
-		} else {
-			/* pm */
-			rtc_write(RTC_HRS,
-			    bintobcd(dt->dt_hour - 12) | 0x80 | 0x20);
-		}
-	} else {
-		/* time is 24 hour format */
-		rtc_write(RTC_HRS, bintobcd(dt->dt_hour));
+				rtc_write(RTC_HRS,bintobcd(12)|0x80|0x20);
+		} else 		/* pm */
+			rtc_write(RTC_HRS,bintobcd(dt->dt_hour-12)|0x80|0x20);
+	} else {	/* time is 24 hour format */
+			rtc_write(RTC_HRS,bintobcd(dt->dt_hour));
 	}
-	rtc_write(RTC_DAY, bintobcd(dt->dt_wday));
-	rtc_write(RTC_DATE, bintobcd(dt->dt_day));
-	rtc_write(RTC_MON, bintobcd(dt->dt_mon));
-	rtc_write(RTC_YR, bintobcd(dt->dt_year % 100));
+	rtc_write(RTC_DAY,bintobcd(dt->dt_wday));
+	rtc_write(RTC_DATE,bintobcd(dt->dt_day));
+	rtc_write(RTC_MON,bintobcd(dt->dt_mon));
+	rtc_write(RTC_YR,bintobcd(dt->dt_year%100));
 
 #ifdef RTC_DEBUG
-	printf("Regs after:\n", secs);
+	printf("Regs after:\n",secs);
 	rtc_print();
 #endif
 
 	/* restart the clock */
-	rtc_write(RTC_CONTROL, rtc_read(RTC_CONTROL) | RTC_START);
+	rtc_write(RTC_CONTROL,rtc_read(RTC_CONTROL) | RTC_START);
 	return 0;
 }
 
 int
 gettime_new(todr_chip_handle_t tch, struct timeval *tvp)
 {
-	tvp->tv_sec =
-	    rtc_read(RTC_CNTR0) << 24 |
-	    rtc_read(RTC_CNTR1) << 16 |
-	    rtc_read(RTC_CNTR2) <<  8 |
-	    rtc_read(RTC_CNTR3);
+	tvp->tv_sec = rtc_read(RTC_CNTR0) << 24 |
+			rtc_read(RTC_CNTR1) << 16 |
+			rtc_read(RTC_CNTR2) << 8	 |
+			rtc_read(RTC_CNTR3);
 	return 0;
 }
 
@@ -377,25 +362,25 @@ settime_new(todr_chip_handle_t tch, struct timeval *tvp)
 {
 
 	/* Stop the clock */
-	rtc_write(RTC_CONTROL, rtc_read(RTC_CONTROL) & ~RTC_START);
+	rtc_write(RTC_CONTROL,rtc_read(RTC_CONTROL) & ~RTC_START);
 
 #ifdef RTC_DEBUG
-	printf("Setting RTC to 0x%08x.  Regs before:\n", tvp->tv_sec);
+	printf("Setting RTC to 0x%08x.  Regs before:\n",tvp->tv_sec);
 	rtc_print();
 #endif
 
 	rtc_write(RTC_CNTR0, (tvp->tv_sec >> 24) & 0xff);
 	rtc_write(RTC_CNTR1, (tvp->tv_sec >> 16) & 0xff);
-	rtc_write(RTC_CNTR2, (tvp->tv_sec >>  8) & 0xff);
+	rtc_write(RTC_CNTR2, (tvp->tv_sec >> 8) & 0xff);
 	rtc_write(RTC_CNTR3, (tvp->tv_sec) & 0xff);
 
 #ifdef RTC_DEBUG
-	printf("Regs after:\n", secs);
+	printf("Regs after:\n",secs);
 	rtc_print();
 #endif
 
 	/* restart the clock */
-	rtc_write(RTC_CONTROL, rtc_read(RTC_CONTROL) | RTC_START);
+	rtc_write(RTC_CONTROL,rtc_read(RTC_CONTROL) | RTC_START);
 
 	return 0;
 }

@@ -1,4 +1,4 @@
-/*      $NetBSD: en.c,v 1.20 2023/02/12 08:25:09 tsutsui Exp $        */
+/*      $NetBSD: en.c,v 1.19 2018/03/08 03:12:02 mrg Exp $        */
 /*
  * Copyright (c) 1996 Rolf Grossmann
  * All rights reserved.
@@ -37,7 +37,6 @@
 #include <next68k/next68k/nextrom.h>
 #include "enreg.h"
 #include "dmareg.h"
-#include "samachdep.h"
 
 #include <stand.h>
 #include <netif.h>
@@ -46,6 +45,7 @@
 
 #include <lib/libkern/libkern.h>
 
+extern char *mg;
 #define	MON(type, off) (*(type *)((u_int) (mg) + off))
 
 #define PRINTF(x) printf x;
@@ -79,6 +79,8 @@ struct netif_driver en_driver = {
 	en_match, en_probe, en_init, en_get, en_put, en_end,
 	en_ifs, sizeof(en_ifs) / sizeof(en_ifs[0])
 };
+
+extern int turbo;
 
 /* ### int netdev_sock;
 static int open_count; */

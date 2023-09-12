@@ -131,7 +131,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: mini2440_machdep.c,v 1.21 2023/06/19 03:52:50 nisimura Exp $");
+__KERNEL_RCSID(0, "$NetBSD: mini2440_machdep.c,v 1.19 2021/08/17 22:00:29 andvar Exp $");
 
 #include "opt_arm_debug.h"
 #include "opt_console.h"
@@ -362,6 +362,9 @@ cpu_reboot(int howto, char *bootstr)
  * using the 2nd page tables.
  */
 
+#define	_A(a)	((a) & ~L1_S_OFFSET)
+#define	_S(s)	(((s) + L1_S_SIZE - 1) & ~(L1_S_SIZE-1))
+
 #define	_V(n)	(MINI2440_IO_VBASE + (n) * L1_S_SIZE)
 
 #define	GPIO_VBASE	_V(0)
@@ -371,29 +374,36 @@ cpu_reboot(int howto, char *bootstr)
 
 static const struct pmap_devmap mini2440_devmap[] = {
 	/* GPIO registers */
-	DEVMAP_ENTRY(
+	{
 		GPIO_VBASE,
-		S3C2440_GPIO_BASE,
-		S3C2440_GPIO_SIZE
-	),
-	DEVMAP_ENTRY(
+		_A(S3C2440_GPIO_BASE),
+		_S(S3C2440_GPIO_SIZE),
+		VM_PROT_READ|VM_PROT_WRITE, PTE_NOCACHE,
+	},
+	{
 		INTCTL_VBASE,
-		S3C2440_INTCTL_BASE,
-		S3C2440_INTCTL_SIZE
-	),
-	DEVMAP_ENTRY(
+		_A(S3C2440_INTCTL_BASE),
+		_S(S3C2440_INTCTL_SIZE),
+		VM_PROT_READ|VM_PROT_WRITE, PTE_NOCACHE,
+	},
+	{
 		CLKMAN_VBASE,
-		S3C2440_CLKMAN_BASE,
-		S3C24X0_CLKMAN_SIZE
-	),
-	/* UART registers for UART0, 1, 2. */
-	DEVMAP_ENTRY(
+		_A(S3C2440_CLKMAN_BASE),
+		_S(S3C24X0_CLKMAN_SIZE),
+		VM_PROT_READ|VM_PROT_WRITE, PTE_NOCACHE,
+	},
+	{	/* UART registers for UART0, 1, 2. */
 		UART_VBASE,
-		S3C2440_UART0_BASE,
-		S3C2440_UART_BASE(3) - S3C2440_UART0_BASE
-	),
-	DEVMAP_ENTRY_END
+		_A(S3C2440_UART0_BASE),
+		_S(S3C2440_UART_BASE(3) - S3C2440_UART0_BASE),
+		VM_PROT_READ|VM_PROT_WRITE, PTE_NOCACHE,
+	},
+
+	{ 0, 0, 0, 0 }
 };
+
+#undef	_A
+#undef	_S
 
 static inline	pd_entry_t *
 read_ttb(void)

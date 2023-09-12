@@ -1,4 +1,4 @@
-/*	$NetBSD: uts.c,v 1.16 2023/05/10 00:12:44 riastradh Exp $	*/
+/*	$NetBSD: uts.c,v 1.15 2022/03/28 12:44:17 riastradh Exp $	*/
 
 /*
  * Copyright (c) 2012 The NetBSD Foundation, Inc.
@@ -34,7 +34,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: uts.c,v 1.16 2023/05/10 00:12:44 riastradh Exp $");
+__KERNEL_RCSID(0, "$NetBSD: uts.c,v 1.15 2022/03/28 12:44:17 riastradh Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_usb.h"
@@ -100,7 +100,7 @@ Static void	uts_intr(void *, void *, u_int);
 Static int	uts_enable(void *);
 Static void	uts_disable(void *);
 #ifndef SEL4
-int	uts_ioctl(void *, u_long, void *, int, struct lwp *);
+Static int	uts_ioctl(void *, u_long, void *, int, struct lwp *);
 
 Static const struct wsmouse_accessops uts_accessops = {
 	uts_enable,
@@ -121,7 +121,8 @@ Static int	uts_activate(device_t, enum devact);
 CFATTACH_DECL2_NEW(uts, sizeof(struct uts_softc), uts_match, uts_attach,
     uts_detach, uts_activate, NULL, uts_childdet);
 
-Static int uts_match(device_t parent, cfdata_t match, void *aux)
+Static int
+uts_match(device_t parent, cfdata_t match, void *aux)
 {
 	struct uhidev_attach_arg *uha = aux;
 	int size;
@@ -137,10 +138,8 @@ Static int uts_match(device_t parent, cfdata_t match, void *aux)
 	return UMATCH_IFACECLASS;
 }
 
-#ifndef SEL4
-Static 
-#endif
-void uts_attach(device_t parent, device_t self, void *aux)
+void
+uts_attach(device_t parent, device_t self, void *aux)
 {
 	struct uts_softc *sc = device_private(self);
 	struct uhidev_attach_arg *uha = aux;
@@ -151,7 +150,7 @@ void uts_attach(device_t parent, device_t self, void *aux)
 	struct hid_data * d;
 	struct hid_item item;
 
-	printf("SEL4 debug: uts attach, mem sc: %p\n", sc);
+	aprint_normal("\n");
 
 	sc->sc_dev = self;
 	sc->sc_hdev = uha->parent;
@@ -221,12 +220,13 @@ void uts_attach(device_t parent, device_t self, void *aux)
 		} else {
 			aprint_error_dev(sc->sc_dev,
 			    "touchscreen has no range report\n");
-            printf("SEL4 debug: Touchscreen has no Z\n");
-			#ifndef SEL4
+#ifndef SEL4
 			return;
-			#endif
-		}
+#else
+            printf("SEL4 debug: Touchscreen has no Z\n");
+#endif
 	}
+}
 
 	/* multi-touch support would need HUD_CONTACTID and HUD_CONTACTMAX */
 
@@ -283,9 +283,8 @@ Static int
 uts_detach(device_t self, int flags)
 {
 	struct uts_softc *sc = device_private(self);
-	int error;
+	int rv = 0;
 
-	__USE(sc);
 	DPRINTF(("uts_detach: sc=%p flags=%d\n", sc, flags));
 
 	#ifndef SEL4
@@ -295,7 +294,8 @@ uts_detach(device_t self, int flags)
 	#endif
 
 	pmf_device_deregister(self);
-	return 0;
+
+	return rv;
 }
 
 Static void
@@ -379,10 +379,8 @@ uts_ioctl(void *v, u_long cmd, void *data, int flag, struct lwp *l)
 	return EPASSTHROUGH;
 }
 
-#ifndef SEL4
-Static 
-#endif
-void uts_intr(void *cookie, void *ibuf, u_int len)
+void
+uts_intr(void *cookie, void *ibuf, u_int len)
 {
 	struct uts_softc *sc = cookie;
 	int dx, dy, dz;
@@ -407,8 +405,8 @@ void uts_intr(void *cookie, void *ibuf, u_int len)
 		buttons |= 1;
 
 	if (dx != 0 || dy != 0 || dz != 0 || buttons != sc->sc_buttons) {
-		printf("SEL4 debug: uts_intr: x:%d y:%d z:%d buttons:%#x\n",
-		    dx, dy, dz, buttons);
+		DPRINTFN(10,("uts_intr: x:%d y:%d z:%d buttons:%#x\n",
+		    dx, dy, dz, buttons));
 		sc->sc_buttons = buttons;
 		#ifndef SEL4
 		if (sc->sc_wsmousedev != NULL) {

@@ -1,4 +1,4 @@
-/*	$NetBSD: fd.c,v 1.96 2023/06/24 05:31:04 msaitoh Exp $	*/
+/*	$NetBSD: fd.c,v 1.95 2023/01/06 10:28:28 tsutsui Exp $	*/
 
 /*
  * Copyright (c) 1995 Leo Weppelman.
@@ -44,7 +44,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: fd.c,v 1.96 2023/06/24 05:31:04 msaitoh Exp $");
+__KERNEL_RCSID(0, "$NetBSD: fd.c,v 1.95 2023/01/06 10:28:28 tsutsui Exp $");
 
 #include <sys/param.h>
 #include <sys/systm.h>
@@ -618,7 +618,7 @@ fdstrategy(struct buf *bp)
 			bp->b_error = EINVAL;
 			goto done;
 		}
-		/* Truncate it */
+		/* Trucate it */
 		if (bp->b_flags & B_RAW)
 			bp->b_bcount = sz << DEV_BSHIFT;
 		else

@@ -1,5 +1,5 @@
 #
-#	$NetBSD: GENERIC,v 1.120 2023/07/15 22:30:19 riastradh Exp $
+#	$NetBSD: GENERIC,v 1.115 2022/11/11 20:31:30 jmcneill Exp $
 #
 #	GENERIC ARM (aarch32) kernel
 #
@@ -16,7 +16,6 @@ options 	SOC_EXYNOS5422
 options 	SOC_IMX6DL
 options 	SOC_IMX6Q
 options 	SOC_IMX6QDL
-options 	SOC_IMX6SX
 options 	SOC_IMX7D
 options 	SOC_MESON8B
 options 	SOC_OMAP3
@@ -41,10 +40,6 @@ pseudo-device 	openfirm	# /dev/openfirm
 #options 	LOCKDEBUG
 #options 	UVMHIST		# kernhist for uvm/pmap subsystems
 #options 	PCI_CONFIG_DUMP	# verbosely dump PCI config space
-
-# Heartbeat checks
-options 	HEARTBEAT
-options 	HEARTBEAT_MAX_PERIOD_DEFAULT=15
 
 options 	MSGBUFSIZE=32768
 
@@ -83,11 +78,9 @@ options 	MSGBUFSIZE=32768
 #options 	EARLYCONS=tegra, CONSADDR=0x70006300
 
 #options 	EARLYCONS=vexpress, CONSADDR=0x1c090000
+#options 	EARLYCONS=virt, CONSADDR=0x09000000
 #options 	EARLYCONS=zynq, CONSADDR=0xe0001000
 #options 	EARLYCONS=rk3288, CONSADDR=0xff690000
-
-# The QEMU virt machine
-#options 	EARLYCONS=plcom, CONSADDR=0x09000000
 
 # Kernel Undefined Behavior Sanitizer (kUBSan). Use UBSAN_ALWAYS_FATAL
 # if you want panics instead of warnings.
@@ -141,8 +134,7 @@ cycvclkmgr* 	at fdt? pass 1		# Cyclone V clock manager
 cycvrstmgr* 	at fdt? pass 0		# Cyclone V reset manager
 exy5410clk* 	at fdt? pass 3		# Exynos5410 clock controller
 exy5422clk* 	at fdt? pass 3		# Exynos5422 clock controller
-imx6ccm* 	at fdt? pass 1		# i.MX6Q* CCM
-imx6sxccm* 	at fdt? pass 1		# i.MX6SX CCM
+imx6ccm* 	at fdt? pass 1		# i.MX6 CCM
 imx7dccm* 	at fdt? pass 2		# i.MX7D CCM
 meson8bclkc* 	at fdt? pass 2		# Amlogic Meson8b clock controller
 mesonresets* 	at fdt? pass 2		# Amlogic Meson misc. clock resets
@@ -635,5 +627,4 @@ bthub* at ubt?
 
 include "dev/bluetooth/bluetoothdevices.config"
 
-# Pull in optional local configuration - always at end
-cinclude	"arch/evbarm/conf/GENERIC.local"
+cinclude "arch/evbarm/conf/GENERIC.local"

@@ -1,4 +1,4 @@
-/*	$NetBSD: dca.c,v 1.8 2023/04/21 22:44:27 tsutsui Exp $	*/
+/*	$NetBSD: dca.c,v 1.7 2011/02/08 20:20:14 rmind Exp $	*/
 
 /*
  * Copyright (c) 1988 University of Utah.
@@ -103,6 +103,7 @@ dcainit(struct consdev *cp)
 	dca->dca_mcr = MCR_DTR | MCR_RTS;
 }
 
+/* ARGSUSED */
 #ifndef SMALL
 int
 dcagetchar(dev_t dev)
@@ -125,6 +126,7 @@ dcagetchar(dev_t dev)
 }
 #endif
 
+/* ARGSUSED */
 void
 dcaputchar(dev_t dev, int c)
 {
