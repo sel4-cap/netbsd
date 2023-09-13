@@ -72,12 +72,14 @@ __KERNEL_RCSID(0, "$NetBSD: scsiconf.c,v 1.303 2022/10/15 18:42:49 jmcneill Exp 
 
 #include "locators.h"
 
+#ifndef SEL4
 static const struct scsipi_periphsw scsi_probe_dev = {
 	NULL,
 	NULL,
 	NULL,
 	NULL,
 };
+#endif
 
 struct scsi_initq {
 	struct scsipi_channel *sc_channel;
@@ -102,7 +104,7 @@ CFATTACH_DECL3_NEW(scsibus, sizeof(struct scsibus_softc),
     scsibusrescan, scsidevdetached, DVF_DETACH_SHUTDOWN);
 
 extern struct cfdriver scsibus_cd;
-
+#ifndef SEL4
 static dev_type_open(scsibusopen);
 static dev_type_close(scsibusclose);
 static dev_type_ioctl(scsibusioctl);
@@ -121,6 +123,7 @@ const struct cdevsw scsibus_cdevsw = {
 	.d_discard = nodiscard,
 	.d_flag = D_OTHER | D_MPSAFE
 };
+#endif
 
 static int	scsibusprint(void *, const char *);
 static void	scsibus_discover_thread(void *);
@@ -189,8 +192,10 @@ scsibusattach(device_t parent, device_t self, void *aux)
 			chan->chan_adapter->adapt_max_periph = 256;
 	}
 
+#ifndef SEL4
 	if (atomic_inc_uint_nv(&chan_running(chan)) == 1)
 		mutex_init(chan_mtx(chan), MUTEX_DEFAULT, IPL_BIO);
+
 
 	cv_init(&chan->chan_cv_thr, "scshut");
 	cv_init(&chan->chan_cv_comp, "sccomp");
@@ -198,13 +203,15 @@ scsibusattach(device_t parent, device_t self, void *aux)
 
 	if (scsipi_adapter_addref(chan->chan_adapter))
 		return;
-
+#endif
+	
 	RUN_ONCE(&scsi_conf_ctrl, scsibus_init);
 
 	/* Initialize the channel structure first */
 	chan->chan_init_cb = NULL;
 	chan->chan_init_cb_arg = NULL;
 
+#ifndef SEL4
 	scsi_initq = malloc(sizeof(struct scsi_initq), M_DEVBUF, M_WAITOK);
 	scsi_initq->sc_channel = chan;
 	TAILQ_INSERT_TAIL(&scsi_initq_head, scsi_initq, scsi_initq);
@@ -213,16 +220,19 @@ scsibusattach(device_t parent, device_t self, void *aux)
 		aprint_error_dev(sc->sc_dev, "failed to init channel\n");
 		return;
 	}
-
-        /*
-         * Create the discover thread
-         */
-        if (kthread_create(PRI_NONE, 0, NULL, scsibus_discover_thread, sc,
-            &chan->chan_dthread, "%s-d", chan->chan_name)) {
-                aprint_error_dev(sc->sc_dev, "unable to create discovery "
-		    "thread for channel %d\n", chan->chan_channel);
-                return;
-        }
+#else 
+	printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!, Reached Scusi Init Queue\n");
+#endif
+	
+	/*
+	 * Create the discover thread
+	 */
+	if (kthread_create(PRI_NONE, 0, NULL, scsibus_discover_thread, sc,
+		&chan->chan_dthread, "%s-d", chan->chan_name)) {
+			aprint_error_dev(sc->sc_dev, "unable to create discovery "
+		"thread for channel %d\n", chan->chan_channel);
+			return;
+	}
 }
 
 static void
@@ -270,7 +280,9 @@ scsibus_config(struct scsibus_softc *sc)
 	cv_broadcast(&scsibus_qcv);
 	mutex_exit(&scsibus_qlock);
 
+#ifndef SEL4
 	free(scsi_initq, M_DEVBUF);
+#endif
 
 	scsipi_adapter_delref(chan->chan_adapter);
 
@@ -280,6 +292,7 @@ scsibus_config(struct scsibus_softc *sc)
 static int
 scsibusdetach(device_t self, int flags)
 {
+#ifndef SEL4
 	struct scsibus_softc *sc = device_private(self);
 	struct scsipi_channel *chan = sc->sc_channel;
 	int error;
@@ -313,6 +326,7 @@ scsibusdetach(device_t self, int flags)
 		membar_acquire();
 		mutex_destroy(chan_mtx(chan));
 	}
+#endif
 
 	return 0;
 }
@@ -347,10 +361,13 @@ scsi_report_luns(struct scsibus_softc *sc, int target,
 
 	memset(&replun, 0, sizeof(replun));
 
+#ifndef SEL4
 	periph = scsipi_alloc_periph(M_WAITOK);
 	periph->periph_channel = chan;
 	periph->periph_switch = &scsi_probe_dev;
-
+#else
+	printf("!!!!!!!!!!!!!!! Reaches scsi report luns\n");
+#endif
 	periph->periph_target = target;
 	periph->periph_lun = 0;
 	periph->periph_quirks = chan->chan_defquirks;
@@ -483,6 +500,7 @@ scsi_probe_bus(struct scsibus_softc *sc, int target, int lun)
 	 * Some HBAs provide an abstracted view of the bus; give them an
 	 * opportunity to re-scan it before we do.
 	 */
+#ifndef SEL4
 	scsipi_adapter_ioctl(chan, SCBUSIOLLSCAN, NULL, 0, curproc);
 
 	if ((error = scsipi_adapter_addref(chan->chan_adapter)) != 0)
@@ -502,6 +520,8 @@ scsi_probe_bus(struct scsibus_softc *sc, int target, int lun)
 	}
 
 	scsipi_adapter_delref(chan->chan_adapter);
+#endif
+	
 ret:
 	return (error);
 }
@@ -520,6 +540,7 @@ scsibusrescan(device_t sc, const char *ifattr, const int *locators)
 static void
 scsidevdetached(device_t self, device_t child)
 {
+#ifndef SEL4
 	struct scsibus_softc *sc = device_private(self);
 	struct scsipi_channel *chan = sc->sc_channel;
 	struct scsipi_periph *periph;
@@ -537,6 +558,7 @@ scsidevdetached(device_t self, device_t child)
 	scsipi_free_periph(periph);
 
 	mutex_exit(chan_mtx(chan));
+#endif
 }
 
 /*
@@ -570,12 +592,16 @@ scsibusprint(void *aux, const char *pnp)
 
 	dtype = scsipi_dtype(type);
 
+#ifndef SEL4
 	strnvisx(vendor, sizeof(vendor), inqbuf->vendor, 8,
 	    VIS_TRIM|VIS_SAFE|VIS_OCTAL);
 	strnvisx(product, sizeof(product), inqbuf->product, 16,
 	    VIS_TRIM|VIS_SAFE|VIS_OCTAL);
 	strnvisx(revision, sizeof(revision), inqbuf->revision, 4,
 	    VIS_TRIM|VIS_SAFE|VIS_OCTAL);
+#else
+	printf("strnvisx not impl\n");
+#endif
 
 	aprint_normal(" target %d lun %d: <%s, %s, %s> %s %s%s",
 		      target, lun, vendor, product, revision, dtype,
@@ -895,9 +921,13 @@ scsi_probe_device(struct scsibus_softc *sc, int target, int lun)
 	if (scsipi_lookup_periph(chan, target, lun) != NULL)
 		return (docontinue);
 
+#ifndef SEL4
 	periph = scsipi_alloc_periph(M_WAITOK);
 	periph->periph_channel = chan;
 	periph->periph_switch = &scsi_probe_dev;
+#else
+	printf("!!!!!!!!!!!!!!!!!!!!!!!!!! Reached Probe device\n");
+#endif
 
 	periph->periph_target = target;
 	periph->periph_lun = lun;
@@ -1007,10 +1037,14 @@ scsi_probe_device(struct scsibus_softc *sc, int target, int lun)
 	sa.scsipi_info.scsi_version = inqbuf.version;
 	sa.sa_inqptr = &inqbuf;
 
-	finger = scsipi_inqmatch(
+	finger = 0;
+#ifndef SEL4
+	// add this to ^^
+	scsipi_inqmatch(
 	    &sa.sa_inqbuf, scsi_quirk_patterns,
 	    sizeof(scsi_quirk_patterns)/sizeof(scsi_quirk_patterns[0]),
 	    sizeof(scsi_quirk_patterns[0]), &priority);
+#endif
 
 	if (finger != NULL)
 		quirks = finger->quirks;
@@ -1089,12 +1123,13 @@ scsi_probe_device(struct scsibus_softc *sc, int target, int lun)
 	locs[SCSIBUSCF_LUN] = lun;
 
 	KERNEL_LOCK(1, NULL);
+#ifndef SEL4
 	if ((cf = config_search(sc->sc_dev, &sa,
 				CFARGS(.submatch = config_stdsubmatch,
 				       .locators = locs))) != NULL) {
 		scsipi_insert_periph(chan, periph);
 
-		/*
+				/*
 		 * Determine supported opcodes and timeouts if available.
 		 * Only do this on peripherals reporting SCSI version 3
 		 * or greater - this command isn't in the SCSI-2 spec. and
@@ -1112,17 +1147,23 @@ scsi_probe_device(struct scsibus_softc *sc, int target, int lun)
 		config_attach(sc->sc_dev, cf, &sa, scsibusprint,
 		    CFARGS(.locators = locs));
 		KERNEL_UNLOCK_ONE(NULL);
+
 	} else {
 		scsibusprint(&sa, device_xname(sc->sc_dev));
 		aprint_normal(" not configured\n");
 		KERNEL_UNLOCK_ONE(NULL);
 		goto bad;
 	}
-
+#else
+	printf("config_search is actually necessary, scsiconf.c:1125\n");
+#endif
+	
 	return (docontinue);
 
 bad:
+#ifndef SEL4
 	scsipi_free_periph(periph);
+#endif
 	return (docontinue);
 }
 
@@ -1167,6 +1208,7 @@ scsibusclose(dev_t dev, int flag, int fmt,
 static int
 scsibusioctl(dev_t dev, u_long cmd, void *addr, int flag, struct lwp *l)
 {
+#ifndef SEL4
 	struct scsibus_softc *sc;
 	struct scsipi_channel *chan;
 	int error;
@@ -1215,4 +1257,7 @@ scsibusioctl(dev_t dev, u_long cmd, void *addr, int flag, struct lwp *l)
 	}
 
 	return (error);
+#else
+	return 0;
+#endif
 }

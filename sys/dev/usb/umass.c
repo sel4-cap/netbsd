@@ -153,6 +153,8 @@ __KERNEL_RCSID(0, "$NetBSD: umass.c,v 1.189 2022/09/22 14:27:52 riastradh Exp $"
 #include <dev/usb/umass_quirks.h>
 #include <dev/usb/umass_scsipi.h>
 
+//#include <dev/usb/scsibus.h>
+
 //#include <dev/scsipi/scsipi_all.h>
 //#include <dev/scsipi/scsipiconf.h>
 
@@ -883,6 +885,7 @@ umass_detach(device_t self, int flags)
 		switch (sc->sc_cmd) {
 		case UMASS_CPROTO_RBC:
 		case UMASS_CPROTO_SCSI:
+
 #if NSCSIBUS > 0
 			umass_scsi_detach(sc);
 #else

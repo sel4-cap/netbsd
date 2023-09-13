@@ -82,8 +82,8 @@ struct umass_scsipi_softc {
 	struct umassbus_softc	base;
 
 	struct atapi_adapter	sc_atapi_adapter;
-//#define sc_adapter sc_atapi_adapter._generic
-	//struct scsipi_channel sc_channel;
+#define sc_adapter sc_atapi_adapter._generic
+	struct scsipi_channel sc_channel;
 	usbd_status		sc_sync_status;
 	struct scsi_request_sense	sc_sense_cmd;
 };
@@ -96,8 +96,10 @@ struct umass_scsipi_softc {
 // Static void umass_scsipi_request(struct scsipi_channel *,
 // 				 scsipi_adapter_req_t, void *);
 Static void umass_scsipi_minphys(struct buf *);
+#ifndef SEL4
 Static int umass_scsipi_ioctl(struct scsipi_channel *, u_long,
 			      void *, int, proc_t *);
+#endif
 Static int umass_scsipi_getgeom(struct scsipi_periph *,
 				struct disk_parms *, u_long);
 
@@ -135,15 +137,15 @@ umass_scsi_attach(struct umass_softc *sc)
 
 	scbus = umass_scsipi_setup(sc);
 
-	// scbus->sc_channel.chan_bustype = &scsi_bustype;
-	// scbus->sc_channel.chan_ntargets = 2;
-	// scbus->sc_channel.chan_nluns = sc->maxlun + 1;
-	// scbus->sc_channel.chan_id = scbus->sc_channel.chan_ntargets - 1;
+	scbus->sc_channel.chan_bustype = &scsi_bustype;
+	scbus->sc_channel.chan_ntargets = 2;
+	scbus->sc_channel.chan_nluns = sc->maxlun + 1;
+	scbus->sc_channel.chan_id = scbus->sc_channel.chan_ntargets - 1;
 	DPRINTFM(UDMASS_USB, "sc %#jx: SCSI", (uintptr_t)sc, 0, 0, 0);
 
-	// scbus->base.sc_child =
-	//     config_found(sc->sc_dev, &scbus->sc_channel, scsiprint,
-	// 		 CFARGS(.iattr = "scsi"));
+	scbus->base.sc_child =
+	    config_found(sc->sc_dev, &scbus->sc_channel, scsiprint,
+			 CFARGS(.iattr = "scsi"));
 
 	return 0;
 }
@@ -360,7 +362,7 @@ umass_scsipi_minphys(struct buf *bp)
 		bp->b_bcount = UMASS_MAX_TRANSFER_SIZE;
 	minphys(bp);
 }
-
+#ifndef SEL4
 int
 umass_scsipi_ioctl(struct scsipi_channel *chan, u_long cmd,
     void *arg, int flag, proc_t *p)
@@ -379,6 +381,7 @@ umass_scsipi_ioctl(struct scsipi_channel *chan, u_long cmd,
 		return ENOTTY;
 	}
 }
+#endif
 
 Static int
 umass_scsipi_getgeom(struct scsipi_periph *periph, struct disk_parms *dp,
