@@ -113,15 +113,17 @@ Static struct umass_scsipi_softc *umass_scsipi_setup(struct umass_softc *);
 #if NATAPIBUS > 0
 Static void umass_atapi_probe_device(struct atapibus_softc *, int);
 
-// const struct scsipi_bustype umass_atapi_bustype = {
-// 	.bustype_type = SCSIPI_BUSTYPE_ATAPI,
-// 	.bustype_cmd = atapi_scsipi_cmd,
-// 	.bustype_interpret_sense = atapi_interpret_sense,
-// 	.bustype_printaddr = atapi_print_addr,
-// 	.bustype_kill_pending = scsi_kill_pending,
-// 	.bustype_async_event_xfer_mode = NULL,
-// };
+#ifndef SEL4
+const struct scsipi_bustype umass_atapi_bustype = {
+	.bustype_type = SCSIPI_BUSTYPE_ATAPI,
+	.bustype_cmd = atapi_scsipi_cmd,
+	.bustype_interpret_sense = atapi_interpret_sense,
+	.bustype_printaddr = atapi_print_addr,
+	.bustype_kill_pending = scsi_kill_pending,
+	.bustype_async_event_xfer_mode = NULL,
+};
 #endif
+#endif /* NATAPIBUS */
 
 
 #if NSCSIBUS > 0
@@ -135,15 +137,19 @@ umass_scsi_attach(struct umass_softc *sc)
 
 	scbus = umass_scsipi_setup(sc);
 
-	// scbus->sc_channel.chan_bustype = &scsi_bustype;
-	// scbus->sc_channel.chan_ntargets = 2;
-	// scbus->sc_channel.chan_nluns = sc->maxlun + 1;
-	// scbus->sc_channel.chan_id = scbus->sc_channel.chan_ntargets - 1;
+#ifndef SEL4
+	scbus->sc_channel.chan_bustype = &scsi_bustype;
+	scbus->sc_channel.chan_ntargets = 2;
+	scbus->sc_channel.chan_nluns = sc->maxlun + 1;
+	scbus->sc_channel.chan_id = scbus->sc_channel.chan_ntargets - 1;
+#endif
 	DPRINTFM(UDMASS_USB, "sc %#jx: SCSI", (uintptr_t)sc, 0, 0, 0);
 
-	// scbus->base.sc_child =
-	//     config_found(sc->sc_dev, &scbus->sc_channel, scsiprint,
-	// 		 CFARGS(.iattr = "scsi"));
+#ifndef SEL4
+	scbus->base.sc_child =
+	    config_found(sc->sc_dev, &scbus->sc_channel, scsiprint,
+			 CFARGS(.iattr = "scsi"));
+#endif
 
 	return 0;
 }
@@ -156,7 +162,7 @@ umass_scsi_detach(struct umass_softc *sc)
 	kmem_free(scbus, sizeof(*scbus));
 	sc->bus = NULL;
 }
-#endif
+#endif /* NATAPIBUS */
 
 #if NATAPIBUS > 0
 int
@@ -168,18 +174,20 @@ umass_atapi_attach(struct umass_softc *sc)
 	KASSERT(KERNEL_LOCKED_P());
 
 	scbus = umass_scsipi_setup(sc);
+#ifndef SEL4
 	scbus->sc_atapi_adapter.atapi_probe_device =  umass_atapi_probe_device;
 
-	// scbus->sc_channel.chan_bustype = &umass_atapi_bustype;
-	// scbus->sc_channel.chan_ntargets = 2;
-	// scbus->sc_channel.chan_nluns = 1;
+	scbus->sc_channel.chan_bustype = &umass_atapi_bustype;
+	scbus->sc_channel.chan_ntargets = 2;
+	scbus->sc_channel.chan_nluns = 1;
 
-	//scbus->sc_channel.chan_defquirks |= sc->sc_busquirks;
+	scbus->sc_channel.chan_defquirks |= sc->sc_busquirks;
 	DPRINTFM(UDMASS_USB, "sc %#jxp: ATAPI", (uintptr_t)sc, 0, 0, 0);
 
-	// scbus->base.sc_child =
-	//     config_found(sc->sc_dev, &scbus->sc_channel, atapiprint,
-	// 		 CFARGS(.iattr = "atapi"));
+	scbus->base.sc_child =
+	    config_found(sc->sc_dev, &scbus->sc_channel, atapiprint,
+			 CFARGS(.iattr = "atapi"));
+#endif
 
 	return 0;
 }
@@ -202,149 +210,153 @@ umass_scsipi_setup(struct umass_softc *sc)
 	scbus = kmem_zalloc(sizeof(*scbus), KM_SLEEP);
 	sc->bus = &scbus->base;
 
+#ifndef SEL4
 	/* Only use big commands for USB SCSI devices. */
 	/* Do not ask for timeouts.  */
-	//sc->sc_busquirks |= PQUIRK_ONLYBIG|PQUIRK_NOREPSUPPOPC;
+	sc->sc_busquirks |= PQUIRK_ONLYBIG|PQUIRK_NOREPSUPPOPC;
 
 	/* Fill in the adapter. */
-	// memset(&scbus->sc_adapter, 0, sizeof(scbus->sc_adapter));
-	// scbus->sc_adapter.adapt_dev = sc->sc_dev;
-	// scbus->sc_adapter.adapt_nchannels = 1;
-	//scbus->sc_adapter.adapt_request = umass_scsipi_request;
-	// scbus->sc_adapter.adapt_minphys = umass_scsipi_minphys;
-	// scbus->sc_adapter.adapt_ioctl = umass_scsipi_ioctl;
-	// scbus->sc_adapter.adapt_getgeom = umass_scsipi_getgeom;
-	//scbus->sc_adapter.adapt_flags = SCSIPI_ADAPT_MPSAFE;
+	memset(&scbus->sc_adapter, 0, sizeof(scbus->sc_adapter));
+	scbus->sc_adapter.adapt_dev = sc->sc_dev;
+	scbus->sc_adapter.adapt_nchannels = 1;
+	scbus->sc_adapter.adapt_request = umass_scsipi_request;
+	scbus->sc_adapter.adapt_minphys = umass_scsipi_minphys;
+	scbus->sc_adapter.adapt_ioctl = umass_scsipi_ioctl;
+	scbus->sc_adapter.adapt_getgeom = umass_scsipi_getgeom;
+	scbus->sc_adapter.adapt_flags = SCSIPI_ADAPT_MPSAFE;
 
 	/* Fill in the channel. */
-	// memset(&scbus->sc_channel, 0, sizeof(scbus->sc_channel));
-	// scbus->sc_channel.chan_adapter = &scbus->sc_adapter;
-	// scbus->sc_channel.chan_channel = 0;
-	//scbus->sc_channel.chan_flags = SCSIPI_CHAN_OPENINGS | SCSIPI_CHAN_NOSETTLE;
-	// scbus->sc_channel.chan_openings = 1;
-	// scbus->sc_channel.chan_max_periph = 1;
-	// scbus->sc_channel.chan_defquirks |= sc->sc_busquirks;
+	memset(&scbus->sc_channel, 0, sizeof(scbus->sc_channel));
+	scbus->sc_channel.chan_adapter = &scbus->sc_adapter;
+	scbus->sc_channel.chan_channel = 0;
+	scbus->sc_channel.chan_flags = SCSIPI_CHAN_OPENINGS | SCSIPI_CHAN_NOSETTLE;
+	scbus->sc_channel.chan_openings = 1;
+	scbus->sc_channel.chan_max_periph = 1;
+	scbus->sc_channel.chan_defquirks |= sc->sc_busquirks;
+#endif
 
 	return scbus;
 }
 
-// Static void
-// umass_scsipi_request(struct scsipi_channel *chan,
-// 		scsipi_adapter_req_t req, void *arg)
-// {
-// 	UMASSHIST_FUNC(); UMASSHIST_CALLED();
-// 	struct scsipi_adapter *adapt = chan->chan_adapter;
-// 	struct scsipi_periph *periph;
-// 	struct scsipi_xfer *xs;
-// 	struct umass_softc *sc = device_private(adapt->adapt_dev);
-// 	struct umass_scsipi_softc *scbus = (struct umass_scsipi_softc *)sc->bus;
-// 	struct scsipi_generic *cmd;
-// 	int cmdlen;
-// 	int dir;
-// #ifdef UMASS_DEBUG
-// 	microtime(&sc->tv);
-// #endif
-// 	switch(req) {
-// 	case ADAPTER_REQ_RUN_XFER:
-// 		xs = arg;
-// 		periph = xs->xs_periph;
-// 		DIF(UDMASS_UPPER, periph->periph_dbflags |= SCSIPI_DEBUG_FLAGS);
+#ifndef SEL4
+Static void
+umass_scsipi_request(struct scsipi_channel *chan,
+		scsipi_adapter_req_t req, void *arg)
+{
+	UMASSHIST_FUNC(); UMASSHIST_CALLED();
+	struct scsipi_adapter *adapt = chan->chan_adapter;
+	struct scsipi_periph *periph;
+	struct scsipi_xfer *xs;
+	struct umass_softc *sc = device_private(adapt->adapt_dev);
+	struct umass_scsipi_softc *scbus = (struct umass_scsipi_softc *)sc->bus;
+	struct scsipi_generic *cmd;
+	int cmdlen;
+	int dir;
+#ifdef UMASS_DEBUG
+	microtime(&sc->tv);
+#endif
+	switch(req) {
+	case ADAPTER_REQ_RUN_XFER:
+		xs = arg;
+		periph = xs->xs_periph;
+		DIF(UDMASS_UPPER, periph->periph_dbflags |= SCSIPI_DEBUG_FLAGS);
 
-// 		DPRINTFM(UDMASS_CMD, "sc %#jxp: %jd:%jd xs=%#jxp",
-// 		    (uintptr_t)sc, periph->periph_target, periph->periph_lun,
-// 		    (uintptr_t)xs);
-// 		DPRINTFM(UDMASS_CMD, "cmd=0x%02jx datalen=%jd (quirks=%#jx, "
-// 		    "poll=%jd)", xs->cmd->opcode, xs->datalen,
-// 		    periph->periph_quirks, !!(xs->xs_control & XS_CTL_POLL));
-// #if defined(UMASS_DEBUG) && defined(SCSIPI_DEBUG)
-// 		if (umassdebug & UDMASS_SCSI)
-// 			show_scsipi_xs(xs);
-// 		else if (umassdebug & ~UDMASS_CMD)
-// 			show_scsipi_cmd(xs);
-// #endif
+		DPRINTFM(UDMASS_CMD, "sc %#jxp: %jd:%jd xs=%#jxp",
+		    (uintptr_t)sc, periph->periph_target, periph->periph_lun,
+		    (uintptr_t)xs);
+		DPRINTFM(UDMASS_CMD, "cmd=0x%02jx datalen=%jd (quirks=%#jx, "
+		    "poll=%jd)", xs->cmd->opcode, xs->datalen,
+		    periph->periph_quirks, !!(xs->xs_control & XS_CTL_POLL));
+#if defined(UMASS_DEBUG) && defined(SCSIPI_DEBUG)
+		if (umassdebug & UDMASS_SCSI)
+			show_scsipi_xs(xs);
+		else if (umassdebug & ~UDMASS_CMD)
+			show_scsipi_cmd(xs);
+#endif
 
-// 		if (sc->sc_dying) {
-// 			xs->error = XS_DRIVER_STUFFUP;
-// 			goto done;
-// 		}
+		if (sc->sc_dying) {
+			xs->error = XS_DRIVER_STUFFUP;
+			goto done;
+		}
 
-// #ifdef UMASS_DEBUG
-// 		if (SCSIPI_BUSTYPE_TYPE(chan->chan_bustype->bustype_type) ==
-// 		    SCSIPI_BUSTYPE_ATAPI ?
-// 		    periph->periph_target != UMASS_ATAPI_DRIVE :
-// 		    periph->periph_target == chan->chan_id) {
-// 			DPRINTFM(UDMASS_SCSI, "sc %#jx: wrong SCSI ID %jd",
-// 			    (uintptr_t)sc, periph->periph_target, 0, 0);
-// 			xs->error = XS_DRIVER_STUFFUP;
-// 			goto done;
-// 		}
-// #endif
+#ifdef UMASS_DEBUG
+		if (SCSIPI_BUSTYPE_TYPE(chan->chan_bustype->bustype_type) ==
+		    SCSIPI_BUSTYPE_ATAPI ?
+		    periph->periph_target != UMASS_ATAPI_DRIVE :
+		    periph->periph_target == chan->chan_id) {
+			DPRINTFM(UDMASS_SCSI, "sc %#jx: wrong SCSI ID %jd",
+			    (uintptr_t)sc, periph->periph_target, 0, 0);
+			xs->error = XS_DRIVER_STUFFUP;
+			goto done;
+		}
+#endif
 
-// 		cmd = xs->cmd;
-// 		cmdlen = xs->cmdlen;
+		cmd = xs->cmd;
+		cmdlen = xs->cmdlen;
 
-// 		dir = DIR_NONE;
-// 		if (xs->datalen) {
-// 			switch (xs->xs_control &
-// 			    (XS_CTL_DATA_IN | XS_CTL_DATA_OUT)) {
-// 			case XS_CTL_DATA_IN:
-// 				dir = DIR_IN;
-// 				break;
-// 			case XS_CTL_DATA_OUT:
-// 				dir = DIR_OUT;
-// 				break;
-// 			}
-// 		}
+		dir = DIR_NONE;
+		if (xs->datalen) {
+			switch (xs->xs_control &
+			    (XS_CTL_DATA_IN | XS_CTL_DATA_OUT)) {
+			case XS_CTL_DATA_IN:
+				dir = DIR_IN;
+				break;
+			case XS_CTL_DATA_OUT:
+				dir = DIR_OUT;
+				break;
+			}
+		}
 
-// 		if (xs->datalen > UMASS_MAX_TRANSFER_SIZE) {
-// 			printf("umass_cmd: large datalen, %d\n", xs->datalen);
-// 			xs->error = XS_DRIVER_STUFFUP;
-// 			goto done;
-// 		}
+		if (xs->datalen > UMASS_MAX_TRANSFER_SIZE) {
+			printf("umass_cmd: large datalen, %d\n", xs->datalen);
+			xs->error = XS_DRIVER_STUFFUP;
+			goto done;
+		}
 
-// 		if (xs->xs_control & XS_CTL_POLL) {
-// 			/* Use sync transfer. XXX Broken! */
-// 			DPRINTFM(UDMASS_SCSI, "sync dir=%jd\n", dir, 0, 0, 0);
-// 			scbus->sc_sync_status = USBD_INVAL;
-// 			sc->sc_methods->wire_xfer(sc, periph->periph_lun, cmd,
-// 						  cmdlen, xs->data,
-// 						  xs->datalen, dir,
-// 						  xs->timeout, USBD_SYNCHRONOUS,
-// 						  umass_null_cb, xs);
-// 			DPRINTFM(UDMASS_SCSI, "done err=%jd",
-// 			    scbus->sc_sync_status, 0, 0, 0);
-// 			switch (scbus->sc_sync_status) {
-// 			case USBD_NORMAL_COMPLETION:
-// 				xs->error = XS_NOERROR;
-// 				break;
-// 			case USBD_TIMEOUT:
-// 				xs->error = XS_TIMEOUT;
-// 				break;
-// 			default:
-// 				xs->error = XS_DRIVER_STUFFUP;
-// 				break;
-// 			}
-// 			goto done;
-// 		} else {
-// 			DPRINTFM(UDMASS_SCSI, "async dir=%jd, cmdlen=%jd"
-// 			    " datalen=%jd", dir, cmdlen, xs->datalen, 0);
-// 			sc->sc_methods->wire_xfer(sc, periph->periph_lun, cmd,
-// 						  cmdlen, xs->data,
-// 						  xs->datalen, dir,
-// 						  xs->timeout, 0,
-// 						  umass_scsipi_cb, xs);
-// 			return;
-// 		}
+		if (xs->xs_control & XS_CTL_POLL) {
+			/* Use sync transfer. XXX Broken! */
+			DPRINTFM(UDMASS_SCSI, "sync dir=%jd\n", dir, 0, 0, 0);
+			scbus->sc_sync_status = USBD_INVAL;
+			sc->sc_methods->wire_xfer(sc, periph->periph_lun, cmd,
+						  cmdlen, xs->data,
+						  xs->datalen, dir,
+						  xs->timeout, USBD_SYNCHRONOUS,
+						  umass_null_cb, xs);
+			DPRINTFM(UDMASS_SCSI, "done err=%jd",
+			    scbus->sc_sync_status, 0, 0, 0);
+			switch (scbus->sc_sync_status) {
+			case USBD_NORMAL_COMPLETION:
+				xs->error = XS_NOERROR;
+				break;
+			case USBD_TIMEOUT:
+				xs->error = XS_TIMEOUT;
+				break;
+			default:
+				xs->error = XS_DRIVER_STUFFUP;
+				break;
+			}
+			goto done;
+		} else {
+			DPRINTFM(UDMASS_SCSI, "async dir=%jd, cmdlen=%jd"
+			    " datalen=%jd", dir, cmdlen, xs->datalen, 0);
+			sc->sc_methods->wire_xfer(sc, periph->periph_lun, cmd,
+						  cmdlen, xs->data,
+						  xs->datalen, dir,
+						  xs->timeout, 0,
+						  umass_scsipi_cb, xs);
+			return;
+		}
 
-// 		/* Return if command finishes early. */
-//  done:
-// 		scsipi_done(xs);
-// 		return;
-// 	default:
-// 		/* Not supported, nothing to do. */
-// 		;
-// 	}
-// }
+		/* Return if command finishes early. */
+ done:
+		scsipi_done(xs);
+		return;
+	default:
+		/* Not supported, nothing to do. */
+		;
+	}
+}
+#endif
 
 Static void
 umass_scsipi_minphys(struct buf *bp)

@@ -461,7 +461,7 @@ usbd_transfer(struct usbd_xfer *xfer)
             aprint_verbose("switch context root intr (upm_transfer)\n");
             pipe->up_methods = xhci_root_intr_pointer;
         } else if (pipe->up_methods == device_ctrl_pointer_other) {
-            aprint_verbose("should probs switch context device (upm_transfer)\n");
+            aprint_verbose("switch context device (upm_transfer)\n");
             pipe->up_methods = device_ctrl_pointer;
         }
 		err = pipe->up_methods->upm_transfer(xfer);
@@ -863,7 +863,7 @@ usbd_clear_endpoint_stall(struct usbd_pipe *pipe)
 	 * Clearing en endpoint stall resets the endpoint toggle, so
 	 * do the same to the HC toggle.
 	 */
-	// SDT_PROBE1(usb, device, pipe, clear__endpoint__toggle,  pipe);
+	SDT_PROBE1(usb, device, pipe, clear__endpoint__toggle,  pipe);
 	pipe->up_methods->upm_cleartoggle(pipe);
 
 	err = usbd_clear_endpoint_feature(dev,
