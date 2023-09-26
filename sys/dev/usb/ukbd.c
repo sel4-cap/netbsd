@@ -553,7 +553,7 @@ ukbd_attach(device_t parent, device_t self, void *aux)
     /* Set up shared memory regions */
     kbd_buffer_ring = kmem_alloc(sizeof(*kbd_buffer_ring), 0);
     ring_init(kbd_buffer_ring, (ring_buffer_t *)rx_free, (ring_buffer_t *)rx_used, NULL, 1);
-	sel4cp_notify(42);
+	microkit_notify(42);
 	return;
 }
 
@@ -722,7 +722,7 @@ ukbd_intr(void *cookie, void *ibuf, u_int len)
 	bool empty = ring_empty(kbd_buffer_ring);
 	int error = enqueue_used(kbd_buffer_ring, (uintptr_t) ibuf, sizeof(ibuf), (void *)0);
 	if (empty)
-		sel4cp_notify(45);
+		microkit_notify(45);
 
 	memset(ud->keys, 0, sizeof(ud->keys));
 
