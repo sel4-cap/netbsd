@@ -61,6 +61,8 @@ __KERNEL_RCSID(0, "$NetBSD: scsipiconf.c,v 1.45 2019/03/28 10:44:29 kardel Exp $
 #include <dev/scsipi/scsipiconf.h>
 #include <dev/scsipi/scsipi_base.h>
 
+#include <sys/kmem.h>
+
 
 /* Function pointers and stub routines for scsiverbose module */
 int (*scsipi_print_sense)(struct scsipi_xfer *, int) = scsipi_print_sense_stub;
@@ -98,8 +100,10 @@ scsipi_command(struct scsipi_periph *periph, struct scsipi_generic *cmd,
 	/*
 	 * execute unlocked to allow waiting for memory
 	 */
+#ifndef SEL4
 	xs = scsipi_make_xs_unlocked(periph, cmd, cmdlen, data_addr, datalen, retries,
 	    timeout, bp, flags);
+#endif
 	if (!xs)
 		return (ENOMEM);
 
@@ -120,8 +124,11 @@ scsipi_command(struct scsipi_periph *periph, struct scsipi_generic *cmd,
 void
 scsipi_load_verbose(void)
 {
+#ifndef SEL4
 	if (scsi_verbose_loaded == 0)
 		module_autoload("scsiverbose", MODULE_CLASS_MISC);
+#endif
+
 }
 
 /*
@@ -202,16 +209,22 @@ scsipi_inqmatch(struct scsipi_inquiry_pattern *inqbuf, const void *base,
 			continue;
 		priority = 2;
 		len = strlen(match->vendor);
+#ifndef SEL4
 		if (memcmp(inqbuf->vendor, match->vendor, len))
 			continue;
+#endif
 		priority += len;
 		len = strlen(match->product);
+#ifndef SEL4
 		if (memcmp(inqbuf->product, match->product, len))
 			continue;
+#endif
 		priority += len;
 		len = strlen(match->revision);
+#ifndef SEL4
 		if (memcmp(inqbuf->revision, match->revision, len))
 			continue;
+#endif
 		priority += len;
 
 #ifdef SCSIPI_DEBUG

@@ -519,6 +519,7 @@ usb_doattach(device_t self)
 	sc->sc_attach_thread = NULL;
 	if (!err) {
 		dev = sc->sc_port.up_dev;
+		printf("do attach, usb device class: %u\n", dev->ud_ddesc.bDeviceClass);
 		if (dev->ud_hub == NULL) {
 			sc->sc_dying = 1;
 			aprint_error("%s: root device is not a hub\n",

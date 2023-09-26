@@ -1194,9 +1194,11 @@ scsipi_inquiry3_ok(const struct scsipi_inquiry_data *ib)
 	for (size_t i = 0; i < __arraycount(scsipi_inquiry3_quirk); i++) {
 		const struct scsipi_inquiry3_pattern *q =
 		    &scsipi_inquiry3_quirk[i];
+#ifndef SEL4
 #define MATCH(field) \
     (q->field[0] ? memcmp(ib->field, q->field, sizeof(ib->field)) == 0 : 1)
 		if (MATCH(vendor) && MATCH(product) && MATCH(revision))
+#endif
 			return 0;
 	}
 	return 1;
@@ -1886,7 +1888,9 @@ scsipi_complete(struct scsipi_xfer *xs)
 			if ((xs->xs_control & XS_CTL_POLL) ||
 			    (chan->chan_flags & SCSIPI_CHAN_TACTIVE) == 0) {
 				/* XXX: quite extreme */
+#ifndef SEL4
 				kpause("xsbusy", false, hz, chan_mtx(chan));
+#endif
 			} else if (!callout_pending(&periph->periph_callout)) {
 				scsipi_periph_freeze_locked(periph, 1);
 				callout_reset(&periph->periph_callout,
@@ -2725,7 +2729,9 @@ scsipi_target_detach(struct scsipi_channel *chan, int target, int lun,
 				continue;
 			tdev = periph->periph_dev;
 			mutex_exit(chan_mtx(chan));
+#ifndef SEL4
 			error = config_detach(tdev, flags);
+#endif
 			if (error)
 				goto out;
 			mutex_enter(chan_mtx(chan));
@@ -2779,6 +2785,7 @@ void
 scsipi_adapter_delref(struct scsipi_adapter *adapt)
 {
 
+#ifndef SEL4
 	membar_release();
 	if (atomic_dec_uint_nv(&adapt->adapt_refcnt) == 0
 	    && adapt->adapt_enable != NULL) {
@@ -2787,6 +2794,8 @@ scsipi_adapter_delref(struct scsipi_adapter *adapt)
 		(void) scsipi_adapter_enable(adapt, 0);
 		scsipi_adapter_unlock(adapt);
 	}
+#endif
+
 }
 
 static struct scsipi_syncparam {

@@ -62,11 +62,15 @@ __KERNEL_RCSID(0, "$NetBSD: scsipi_ioctl.c,v 1.73 2019/12/27 09:41:51 msaitoh Ex
 //#include "scsibus.h"
 //#include "atapibus.h"
 
+#include <sys/kmem.h>
+
 struct scsi_ioctl {
 	LIST_ENTRY(scsi_ioctl) si_list;
 	struct buf si_bp;
+#ifndef SEL4
 	struct uio si_uio;
 	struct iovec si_iov;
+#endif
 	scsireq_t si_screq;
 	struct scsipi_periph *si_periph;
 };
@@ -91,7 +95,10 @@ si_get(void)
 #else
 	si = kmem_alloc(sizeof(struct scsi_ioctl), 0);
 #endif
+
+#ifndef SEL4
 	buf_init(&si->si_bp);
+#endif
 	mutex_enter(&si_lock);
 	LIST_INSERT_HEAD(&si_head, si, si_list);
 	mutex_exit(&si_lock);
@@ -105,8 +112,8 @@ si_free(struct scsi_ioctl *si)
 	mutex_enter(&si_lock);
 	LIST_REMOVE(si, si_list);
 	mutex_exit(&si_lock);
-	buf_destroy(&si->si_bp);
 #ifndef SEL4
+	buf_destroy(&si->si_bp);
 	free(si, M_TEMP);
 #else
 	kmem_free(si, 0);
@@ -350,6 +357,7 @@ scsipi_do_ioctl(struct scsipi_periph *periph, dev_t dev, u_long cmd,
 		si = si_get();
 		si->si_screq = *screq;
 		si->si_periph = periph;
+#ifndef SEL4
 		if (len) {
 			si->si_iov.iov_base = screq->databuf;
 			si->si_iov.iov_len = len;
@@ -357,7 +365,6 @@ scsipi_do_ioctl(struct scsipi_periph *periph, dev_t dev, u_long cmd,
 			si->si_uio.uio_iovcnt = 1;
 			si->si_uio.uio_resid = len;
 			si->si_uio.uio_offset = 0;
-#ifndef SEL4
 			si->si_uio.uio_rw =
 			    (screq->flags & SCCMD_READ) ? UIO_READ : UIO_WRITE;
 			if ((flag & FKIOCTL) == 0) {
@@ -365,7 +372,6 @@ scsipi_do_ioctl(struct scsipi_periph *periph, dev_t dev, u_long cmd,
 			} else {
 				UIO_SETUP_SYSSPACE(&si->si_uio);
 			}
-#endif
 			error = physio(scsistrategy, &si->si_bp, dev,
 			    (screq->flags & SCCMD_READ) ? B_READ : B_WRITE,
 			    periph->periph_channel->chan_adapter->adapt_minphys,
@@ -380,6 +386,7 @@ scsipi_do_ioctl(struct scsipi_periph *periph, dev_t dev, u_long cmd,
 			scsistrategy(&si->si_bp);
 			error = si->si_bp.b_error;
 		}
+#endif
 		*screq = si->si_screq;
 		si_free(si);
 		return (error);
