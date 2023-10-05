@@ -137,6 +137,7 @@ int scsipi_xs_count = 0;
 void
 scsipi_init(void)
 {
+	printf("scsipi_init ~~~~~~~~~~~~~~~~~~~~~~\n");
 	static int scsipi_init_done;
 
 	if (scsipi_init_done)
@@ -161,11 +162,13 @@ scsipi_init(void)
 int
 scsipi_channel_init(struct scsipi_channel *chan)
 {
+	printf("channel_init ~~~~~~~~~~~~~~~~~~~~~~\n");
 	struct scsipi_adapter *adapt = chan->chan_adapter;
 	int i;
 
 	/* Initialize shared data. */
 	scsipi_init();
+
 
 	/* Initialize the queues. */
 	TAILQ_INIT(&chan->chan_queue);
@@ -2125,7 +2128,7 @@ scsipi_run_queue(struct scsipi_channel *chan)
 {
 	struct scsipi_xfer *xs;
 	struct scsipi_periph *periph;
-
+	
 	SDT_PROBE1(scsi, base, queue, batch__start,  chan);
 	for (;;) {
 		mutex_enter(chan_mtx(chan));
@@ -2591,6 +2594,7 @@ scsipi_async_event_max_openings(struct scsipi_channel *chan,
 void
 scsipi_set_xfer_mode(struct scsipi_channel *chan, int target, int immed)
 {
+	printf("set_xfer_mode ~~~~~~~~~~~~~\n");
 	struct scsipi_xfer_mode xm;
 	struct scsipi_periph *itperiph;
 	int lun;
@@ -2767,9 +2771,11 @@ scsipi_adapter_addref(struct scsipi_adapter *adapt)
 			atomic_dec_uint(&adapt->adapt_refcnt);
 	}
 #else
-	scsipi_adapter_lock(adapt);
-	error = scsipi_adapter_enable(adapt, 1);
-	scsipi_adapter_unlock(adapt);
+	if (adapt->adapt_enable != NULL) {
+		scsipi_adapter_lock(adapt);
+		error = scsipi_adapter_enable(adapt, 1);
+		scsipi_adapter_unlock(adapt);
+	}
 #endif
 
 	return error;
@@ -2909,6 +2915,7 @@ scsipi_adapter_ioctl(struct scsipi_channel *chan, u_long cmd,
 int
 scsipi_adapter_enable(struct scsipi_adapter *adapt, int enable)
 {
+	printf("scsipi_adapter_enable ~~~~~~~~~~~~~\n");
 	int error;
 
 	scsipi_adapter_lock(adapt);

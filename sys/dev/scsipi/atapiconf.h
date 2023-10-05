@@ -44,9 +44,7 @@ extern const struct scsipi_periphsw atapi_probe_periphsw;
  * atapi_adapter when we need the extra data (only in ATAPI code)
  */
 struct atapi_adapter {
-	#ifndef SEL4
 	struct scsipi_adapter _generic;
-	#endif
 	void (*atapi_probe_device)(struct atapibus_softc *, int);
 };
 

@@ -153,10 +153,10 @@ __KERNEL_RCSID(0, "$NetBSD: umass.c,v 1.189 2022/09/22 14:27:52 riastradh Exp $"
 #include <dev/usb/umass_quirks.h>
 #include <dev/usb/umass_scsipi.h>
 
-//#include <dev/usb/scsibus.h>
+#include <dev/usb/scsibus.h>
 
-//#include <dev/scsipi/scsipi_all.h>
-//#include <dev/scsipi/scsipiconf.h>
+#include <dev/scsipi/scsipi_all.h>
+#include <dev/scsipi/scsipiconf.h>
 
 SDT_PROBE_DEFINE1(usb, umass, device, attach__start,
     "struct umass_softc *"/*sc*/);
@@ -378,7 +378,6 @@ umass_match(device_t parent, cfdata_t match, void *aux)
 static void
 umass_attach(device_t parent, device_t self, void *aux)
 {
-	printf("\numass attach");
 	UMASSHIST_FUNC(); UMASSHIST_CALLED();
 	struct umass_softc *sc = device_private(self);
 	struct usbif_attach_arg *uiaa = aux;

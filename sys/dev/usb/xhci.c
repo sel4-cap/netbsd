@@ -2896,7 +2896,7 @@ static usbd_status
 xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
     int speed, int port, struct usbd_port *up)
 {
-	printf("xhci new device ~~~~~~~~~~~~~~~~~~~~~~~~~~~ ");
+
 	struct xhci_softc * const sc = XHCI_BUS2SC(bus);
 	struct usbd_device *dev;
 	usbd_status err;
@@ -4277,10 +4277,10 @@ xhci_roothub_ctrl_locked(struct usbd_bus *bus, usb_device_request_t *req,
 			return -1;
 		}
 		v = xhci_op_read_4(sc, XHCI_PORTSC(cp));
-		printf("roothub request - v: %x\n", v);
+
 		DPRINTFN(4, "getrhportsc %jd 0x%08jx", cp, v, 0, 0);
+		
 		i = xhci_xspeed2psspeed(XHCI_PS_SPEED_GET(v));
-		printf("roothub request - i1: %x\n", i);
 		if (v & XHCI_PS_CCS)	i |= UPS_CURRENT_CONNECT_STATUS;
 		if (v & XHCI_PS_PED)	i |= UPS_PORT_ENABLED;
 		if (v & XHCI_PS_OCA)	i |= UPS_OVERCURRENT_INDICATOR;
@@ -4307,7 +4307,7 @@ xhci_roothub_ctrl_locked(struct usbd_bus *bus, usb_device_request_t *req,
 		if (v & XHCI_PS_WRC)	i |= UPS_C_BH_PORT_RESET;
 		if (v & XHCI_PS_PLC)	i |= UPS_C_PORT_LINK_STATE;
 		if (v & XHCI_PS_CEC)	i |= UPS_C_PORT_CONFIG_ERROR;
-		printf("roothub request - i2: %x\n", i);
+
 		USETW(ps.wPortChange, i);
 		totlen = uimin(len, sizeof(ps));
 		memcpy(buf, &ps, totlen);

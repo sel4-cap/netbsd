@@ -1320,7 +1320,7 @@ usbd_status
 usbd_do_request_len(struct usbd_device *dev, usb_device_request_t *req,
     size_t len, void *data, uint16_t flags, int *actlen, uint32_t timeout)
 {
-
+	
 	struct usbd_xfer *xfer;
 	usbd_status err;
 

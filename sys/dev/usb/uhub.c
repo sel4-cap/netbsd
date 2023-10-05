@@ -545,8 +545,6 @@ usbd_status
 uhub_explore(struct usbd_device *dev)
 {
 	printf("explore ~~~~~~~~~~~~~~~~~~~~~~~~\n");
-	//printf("vendor id: %u\n", dev->ud_ddesc.idVendor);
-	//printf("product id: %u\n", dev->ud_ddesc.idProduct);
 	usb_hub_descriptor_t *hd = &dev->ud_hub->uh_hubdesc;
 	struct uhub_softc *sc = dev->ud_hub->uh_hubsoftc;
 	struct usbd_port *up;
@@ -616,14 +614,14 @@ uhub_explore(struct usbd_device *dev)
 
 	for (port = 1; port <= hd->bNbrPorts; port++) {
 		up = &dev->ud_hub->uh_ports[port - 1];
-		printf("port: %u   port status: %u\n", up->up_portno, up->up_status.wPortStatus);
+		printf("explore -- port: %x   port status: %x    ~~~~~~~~~\n", up->up_portno, up->up_status.wPortStatus);
 
 		/* reattach is needed after firmware upload */
 		reconnect = up->up_reattach;
 		up->up_reattach = 0;
 
 		status = change = 0;
-		printf("1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+		
 		/* don't check if no change summary notification */
 		if (PORTSTAT_ISSET(sc, port) || reconnect) {
 			err = usbd_get_port_status(dev, port, &up->up_status);
@@ -638,10 +636,8 @@ uhub_explore(struct usbd_device *dev)
 			DPRINTF("uhub%jd port %jd: s/c=%jx/%jx",
 			    device_unit(sc->sc_dev), port, status, change);
 		}
-		printf("2 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		SDT_PROBE5(usb, hub, explore, portstat,
 		    dev, port, status, change, reconnect);
-		printf("2.1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		printf("change: %i   reconnect: %i\n", change, reconnect);
 		if (!change && !reconnect) {
 			/* No status change, just do recursive explore. */
@@ -649,7 +645,6 @@ uhub_explore(struct usbd_device *dev)
 				up->up_dev->ud_hub->uh_explore(up->up_dev);
 			continue;
 		}
-		printf("2.2 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
 		if (change & UPS_C_PORT_ENABLED) {
 			DPRINTF("uhub%jd port %jd C_PORT_ENABLED",
@@ -676,7 +671,6 @@ uhub_explore(struct usbd_device *dev)
 					    port);
 			}
 		}
-		printf("2.3 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		if (change & UPS_C_PORT_RESET) {
 			/*
 			 * some xHCs set PortResetChange instead of CSC
@@ -687,7 +681,6 @@ uhub_explore(struct usbd_device *dev)
 			}
 			usbd_clear_port_feature(dev, port, UHF_C_PORT_RESET);
 		}
-		printf("2.4 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		if (change & UPS_C_BH_PORT_RESET) {
 			/*
 			 * some xHCs set WarmResetChange instead of CSC
@@ -699,17 +692,14 @@ uhub_explore(struct usbd_device *dev)
 			usbd_clear_port_feature(dev, port,
 			    UHF_C_BH_PORT_RESET);
 		}
-		printf("2.5 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		if (change & UPS_C_PORT_LINK_STATE)
 			usbd_clear_port_feature(dev, port,
 			    UHF_C_PORT_LINK_STATE);
-		printf("2.6 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		if (change & UPS_C_PORT_CONFIG_ERROR)
 			usbd_clear_port_feature(dev, port,
 			    UHF_C_PORT_CONFIG_ERROR);
 
 		/* XXX handle overcurrent and resume events! */
-		printf("3 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		if (!reconnect && !(change & UPS_C_CONNECT_STATUS)) {
 			/* No status change, just do recursive explore. */
 			if (up->up_dev != NULL && up->up_dev->ud_hub != NULL)
@@ -718,7 +708,6 @@ uhub_explore(struct usbd_device *dev)
 		}
 
 		/* We have a connect status change, handle it. */
-		printf("4 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		DPRINTF("uhub%jd status change port %jd",
 		    device_unit(sc->sc_dev), port, 0, 0);
 		usbd_clear_port_feature(dev, port, UHF_C_PORT_CONNECTION);
