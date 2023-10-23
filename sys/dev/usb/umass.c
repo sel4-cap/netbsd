@@ -336,8 +336,6 @@ static int
 umass_match(device_t parent, cfdata_t match, void *aux)
 {
 
-	printf("umass match attempt\n");
-
 	struct usbif_attach_arg *uiaa = aux;
 	const struct umass_quirk *quirk;
 

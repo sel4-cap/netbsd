@@ -176,7 +176,6 @@ uhidev_match(device_t parent, cfdata_t match, void *aux)
 void
 uhidev_attach(device_t parent, device_t self, void *aux)
 {
-	printf("uhidev attach\n");
 	struct uhidev_softc *sc = kmem_alloc(sizeof(struct uhidev_softc), 0);
 	struct usbif_attach_arg *uiaa = aux;
 	struct usbd_interface *iface = uiaa->uiaa_iface;
@@ -582,7 +581,6 @@ uhidev_intr(struct usbd_xfer *xfer, void *addr, usbd_status status)
 	}
 
 	p = sc->sc_ibuf;
-	printf("\nnrepID: %d\n", sc->sc_nrepid);
 	if (sc->sc_nrepid != 1) {
 		rep = *p++, cc--;
 		if (rep == 0) {
@@ -883,7 +881,6 @@ int
 uhidev_open(struct uhidev *scd, void (*intr)(void *, void *, u_int),
     void *cookie)
 {
-	printf("\nuhidev open\n");
 	struct uhidev_softc *sc = scd->sc_parent;
 	int error;
 
@@ -901,7 +898,6 @@ uhidev_open(struct uhidev *scd, void (*intr)(void *, void *, u_int),
 		error = EBUSY;
 		goto out;
 	}
-	printf("setting intr for scd %p !!!! %p\n", scd, intr);
 	scd->sc_intr = intr;
 	scd->sc_cookie = cookie;
 	atomic_store_release(&scd->sc_state, scd->sc_state | UHIDEV_OPEN);

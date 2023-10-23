@@ -4206,7 +4206,6 @@ xhci_roothub_ctrl_locked(struct usbd_bus *bus, usb_device_request_t *req,
 		case UHF_PORT_INDICATOR:
 			return -1;
 		case UHF_C_PORT_CONNECTION:
-			printf("writing CSC port :%d --- %x\n", port, v | XHCI_PS_CSC);
 			xhci_op_write_4(sc, port, v | XHCI_PS_CSC);
 			break;
 		case UHF_C_PORT_ENABLE:

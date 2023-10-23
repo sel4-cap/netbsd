@@ -407,6 +407,8 @@ uts_intr(void *cookie, void *ibuf, u_int len)
 	if (dx != 0 || dy != 0 || dz != 0 || buttons != sc->sc_buttons) {
 		DPRINTFN(10,("uts_intr: x:%d y:%d z:%d buttons:%#x\n",
 		    dx, dy, dz, buttons));
+		printf("uts_intr: x:%d y:%d z:%d buttons:%#x\n",
+		    dx, dy, dz, buttons);
 		sc->sc_buttons = buttons;
 		#ifndef SEL4
 		if (sc->sc_wsmousedev != NULL) {

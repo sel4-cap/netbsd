@@ -289,6 +289,8 @@ hidms_intr(struct hidms *ms, void *ibuf, u_int len)
 	    buttons != ms->hidms_buttons) {
 		DPRINTFN(10, ("hidms_intr: x:%d y:%d z:%d w:%d buttons:0x%x\n",
 			dx, dy, dz, dw, buttons));
+		printf("hidms_intr: x:%d y:%d z:%d w:%d buttons:0x%x\n",
+			dx, dy, dz, dw, buttons);
 		ms->hidms_buttons = buttons;
 #ifndef SEL4
 		if (ms->hidms_wsmousedev != NULL) {

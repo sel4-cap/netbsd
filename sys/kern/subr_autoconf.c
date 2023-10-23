@@ -753,7 +753,7 @@ config_cfattach_lookup_cd(struct cfdriver *cd, const char *atname)
 
 	LIST_FOREACH(ca, &cd->cd_attach, ca_list) {
 		if (STREQ(ca->ca_name, atname)) {
-			printf("SEL4: found %s\n", ca->ca_name);
+			aprint_debug("SEL4: found %s\n", ca->ca_name);
 			return ca;
 		}
 	}
@@ -1268,7 +1268,6 @@ config_found_acquire(device_t parent, void *aux, cfprint_t print,
 		dev = config_attach_internal(parent, cf, aux, print, args);
 		goto out;
 	}
-	printf("didn't find a match\n");
 	if (print) {
 		if (config_do_twiddle && cold)
 			printf("(not) twiddling\n");
