@@ -83,6 +83,7 @@ __KERNEL_RCSID(0, "$NetBSD: usb.c,v 1.200 2022/03/13 11:28:52 riastradh Exp $");
 
 #include "ioconf.h"
 #include <wrapper.h>
+#include <printf.h>
 
 #if defined(USB_DEBUG)
 

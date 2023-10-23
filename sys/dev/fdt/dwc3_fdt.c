@@ -47,6 +47,8 @@ __KERNEL_RCSID(0, "$NetBSD: dwc3_fdt.c,v 1.20 2022/06/12 08:04:07 skrll Exp $");
 #include <dev/fdt/fdtvar.h>
 #include <sys/device_impl.h>
 #include <wrapper.h>
+#include <timer.h>
+#include <sys/kmem.h>
 
 #define	DWC3_GCTL			0xc110
 #define	 GCTL_PRTCAP			__BITS(13,12)
@@ -83,14 +85,20 @@ __KERNEL_RCSID(0, "$NetBSD: dwc3_fdt.c,v 1.20 2022/06/12 08:04:07 skrll Exp $");
 #define	  DCFG_SPEED_SS			4
 #define	  DCFG_SPEED_SS_PLUS		5
 
-#ifndef SEL4
 static int	dwc3_fdt_match(device_t, cfdata_t, void *);
+#ifndef SEL4
 static void	dwc3_fdt_attach(device_t, device_t, void *);
+#endif
+struct imx8mq_usbphy_softc {
+	device_t		sc_dev;
+	bus_space_tag_t		sc_bst;
+	bus_space_handle_t	sc_bsh;
+	int			sc_phandle;
+};
 
 CFATTACH_DECL2_NEW(dwc3_fdt, sizeof(struct xhci_softc),
 	dwc3_fdt_match, dwc3_fdt_attach, NULL,
 	xhci_activate, NULL, xhci_childdet);
-#endif
 
 #define	RD4(sc, reg)				\
 	bus_space_read_4((sc)->sc_iot, (sc)->sc_ioh, (reg))
@@ -100,6 +108,7 @@ CFATTACH_DECL2_NEW(dwc3_fdt, sizeof(struct xhci_softc),
 	WR4((sc), (reg), RD4((sc), (reg)) | (mask))
 #define	CLR4(sc, reg, mask)			\
 	WR4((sc), (reg), RD4((sc), (reg)) & ~(mask))
+#define delay(us) ms_delay(us/1000)
 
 static void
 dwc3_fdt_soft_reset(struct xhci_softc *sc)
@@ -113,7 +122,7 @@ dwc3_fdt_soft_reset(struct xhci_softc *sc)
 	/* Assert USB2 PHY reset */
 	SET4(sc, DWC3_GUSB2PHYCFG(0), GUSB2PHYCFG_PHYSOFTRST);
 
-	// delay(100000);
+	delay(20000);
 
 	/* Clear USB3 PHY reset */
 	CLR4(sc, DWC3_GUSB3PIPECTL(0), GUSB3PIPECTL_PHYSOFTRST);
@@ -121,7 +130,7 @@ dwc3_fdt_soft_reset(struct xhci_softc *sc)
 	/* Clear USB2 PHY reset */
 	CLR4(sc, DWC3_GUSB2PHYCFG(0), GUSB2PHYCFG_PHYSOFTRST);
 
-	// delay(100000);
+	delay(20000);
 
 	/* Take core out of reset */
 	CLR4(sc, DWC3_GCTL, GCTL_CORESOFTRESET);
@@ -164,7 +173,7 @@ dwc3_fdt_enable_phy(struct xhci_softc *sc, const int phandle, u_int rev)
 	if (of_hasprop(phandle, "snps,dis_u2_susphy_quirk"))
 		val &= ~GUSB2PHYCFG_SUSPHY;
 #endif
-	WR4(sc, DWC3_GUSB2PHYCFG(0), val);
+	// WR4(sc, DWC3_GUSB2PHYCFG(0), val);
 
 	val = RD4(sc, DWC3_GUSB3PIPECTL(0));
 	val &= ~GUSB3PIPECTL_UX_EXIT_PX;
@@ -188,6 +197,11 @@ dwc3_fdt_enable_phy(struct xhci_softc *sc, const int phandle, u_int rev)
 
 	max_speed = fdtbus_get_string(phandle, "maximum-speed");
 #else
+	printf("revision = 0x%x\n", rev);
+	if (rev >= 0x250a) {
+		val = RD4(sc, DWC3_GUCTL1);
+		WR4(sc, DWC3_GUCTL1, val);
+	}
 	// inspection of fdt shows no max_speed
 	max_speed = NULL;
 #endif
@@ -364,6 +378,17 @@ dwc3_fdt_attach(device_t parent, device_t self, void *aux)
 		if (fdtbus_phy_enable(phy, true) != 0)
 			aprint_error_dev(self, "couldn't enable phy #%d\n", n);
 	}
+#else
+    struct imx8mq_usbphy_softc *sc_usbphy;
+	sc_usbphy = kmem_alloc(sizeof(*sc_usbphy), 0);
+    device_t parent_usbphy = NULL;
+    device_t self_usbphy = kmem_alloc(sizeof(device_t), 0);
+    void *aux_usbphy = kmem_alloc(sizeof(struct fdt_attach_args), 0);
+	sc_usbphy->sc_bsh = 0x382f0040;
+	sc_usbphy->sc_bst = kmem_alloc(sizeof(bus_space_tag_t), 0);
+	self_usbphy->dv_private = sc_usbphy;
+	imx8mq_usbphy_enable(self_usbphy, NULL, true);
+	imx8mq_usbphy_enable(self_usbphy, NULL, true);
 #endif
 
 	dwc3_fdt_soft_reset(sc);

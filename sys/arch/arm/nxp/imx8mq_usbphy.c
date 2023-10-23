@@ -174,7 +174,7 @@ imx8mq_usbphy_attach(device_t parent, device_t self, void *aux)
 {
 	struct imx8mq_usbphy_softc * const sc = device_private(self);
 	struct fdt_attach_args * const faa = aux;
-	const int phandle = 0x382f0000; //SEL4 hardcoded for MAAXBOARD
+	const int phandle = 0x382f0040; //SEL4 hardcoded for MAAXBOARD
 	bus_addr_t addr;
 	bus_size_t size;
 

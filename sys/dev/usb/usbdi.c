@@ -1210,6 +1210,8 @@ usb_transfer_complete(struct usbd_xfer *xfer)
 		aprint_verbose("switch context device intr\n");
 		pipe->up_methods = device_intr_pointer;
 	}
+	USBHIST_LOG(usbdebug, "xfer %#jx doing done %#jx", (uintptr_t)xfer,
+		(uintptr_t)pipe->up_methods->upm_done, 0, 0);
     pipe->up_methods->upm_done(xfer);
 
 	if (xfer->ux_length != 0 && xfer->ux_buffer != xfer->ux_buf) {
