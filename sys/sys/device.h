@@ -508,6 +508,9 @@ struct cfargs {
 #endif /* _KERNEL || _KMEMUSER || _STANDALONE */
 
 //pulled from _KERNEL
+cfdata_t config_search(device_t, void *, const struct cfargs *);
+device_t config_attach(device_t, cfdata_t, void *, cfprint_t,
+	    const struct cfargs *);
 void * device_private(device_t);
 const char* device_xname(device_t dev);
 int device_unit(device_t dev);

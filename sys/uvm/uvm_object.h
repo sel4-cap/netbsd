@@ -87,7 +87,7 @@ struct uvm_object {
 #define	UVM_OBJ_IS_KERN_OBJECT(uobj)					\
 	((uobj)->uo_refs == UVM_OBJ_KERN)
 
-#ifdef _KERNEL
+#if defined(_KERNEL) || defined(SEL4)
 
 extern const struct uvm_pagerops uvm_vnodeops;
 extern const struct uvm_pagerops uvm_deviceops;

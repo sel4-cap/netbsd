@@ -544,7 +544,6 @@ uhub_attach(device_t parent, device_t self, void *aux)
 usbd_status
 uhub_explore(struct usbd_device *dev)
 {
-	printf("explore ~~~~~~~~~~~~~~~~~~~~~~~~\n");
 	usb_hub_descriptor_t *hd = &dev->ud_hub->uh_hubdesc;
 	struct uhub_softc *sc = dev->ud_hub->uh_hubsoftc;
 	struct usbd_port *up;
@@ -614,7 +613,6 @@ uhub_explore(struct usbd_device *dev)
 
 	for (port = 1; port <= hd->bNbrPorts; port++) {
 		up = &dev->ud_hub->uh_ports[port - 1];
-		printf("explore -- port: %x   port status: %x    ~~~~~~~~~\n", up->up_portno, up->up_status.wPortStatus);
 
 		/* reattach is needed after firmware upload */
 		reconnect = up->up_reattach;

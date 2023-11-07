@@ -1060,6 +1060,9 @@ struct intr_ptrs_holder {
 	void *uhidev;
 	void *uhub;
 	void *uhid;
+	void *umass_wire_state;
+	void *umass_scsipi_cb;
+	void *umass_null_cb;
 };
 
 extern struct intr_ptrs_holder *intr_ptrs;

@@ -137,7 +137,6 @@ int scsipi_xs_count = 0;
 void
 scsipi_init(void)
 {
-	printf("scsipi_init ~~~~~~~~~~~~~~~~~~~~~~\n");
 	static int scsipi_init_done;
 
 	if (scsipi_init_done)
@@ -162,7 +161,6 @@ scsipi_init(void)
 int
 scsipi_channel_init(struct scsipi_channel *chan)
 {
-	printf("channel_init ~~~~~~~~~~~~~~~~~~~~~~\n");
 	struct scsipi_adapter *adapt = chan->chan_adapter;
 	int i;
 
@@ -273,15 +271,19 @@ scsipi_lookup_periph_internal(struct scsipi_channel *chan, int target, int lun, 
 
 	hash = scsipi_chan_periph_hash(target, lun);
 
+#ifndef SEL4
 	if (lock)
 		mutex_enter(chan_mtx(chan));
+#endif
 	LIST_FOREACH(periph, &chan->chan_periphtab[hash], periph_hash) {
 		if (periph->periph_target == target &&
 		    periph->periph_lun == lun)
 			break;
 	}
+#ifndef SEL4
 	if (lock)
 		mutex_exit(chan_mtx(chan));
+#endif
 
 	return periph;
 }
@@ -2594,7 +2596,6 @@ scsipi_async_event_max_openings(struct scsipi_channel *chan,
 void
 scsipi_set_xfer_mode(struct scsipi_channel *chan, int target, int immed)
 {
-	printf("set_xfer_mode ~~~~~~~~~~~~~\n");
 	struct scsipi_xfer_mode xm;
 	struct scsipi_periph *itperiph;
 	int lun;
@@ -2915,7 +2916,6 @@ scsipi_adapter_ioctl(struct scsipi_channel *chan, u_long cmd,
 int
 scsipi_adapter_enable(struct scsipi_adapter *adapt, int enable)
 {
-	printf("scsipi_adapter_enable ~~~~~~~~~~~~~\n");
 	int error;
 
 	scsipi_adapter_lock(adapt);
@@ -2924,7 +2924,7 @@ scsipi_adapter_enable(struct scsipi_adapter *adapt, int enable)
 	return error;
 }
 
-#ifdef SCSIPI_DEBUG
+#if defined(SCSIPI_DEBUG) || defined(SEL4)
 /*
  * Given a scsipi_xfer, dump the request, in all its glory
  */

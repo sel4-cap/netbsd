@@ -29,14 +29,15 @@
 #include <sys/cdefs.h>
 __KERNEL_RCSID(0, "$NetBSD: hexdump.c,v 1.4 2017/12/09 00:51:52 christos Exp $");
 
+//#define DEBUG_HEXDUMP
 #ifdef DEBUG_HEXDUMP
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 #define RET int
-static const char hexdigits[] = "0123456789abcdef";
 #else
+static const char hexdigits[] = "0123456789abcdef";
 #define RET void
 #include <lib/libkern/libkern.h>
 #include <sys/systm.h>

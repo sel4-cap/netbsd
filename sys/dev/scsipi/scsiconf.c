@@ -156,7 +156,6 @@ scsibusmatch(device_t parent, cfdata_t cf, void *aux)
 static void
 scsibusattach(device_t parent, device_t self, void *aux)
 {
-	printf("busattach ~~~~~~~~~~~~~~~~~~~\n");
 	struct scsibus_softc *sc = device_private(self);
 	struct scsipi_channel *chan = aux;
 	struct scsi_initq *scsi_initq;
@@ -248,7 +247,6 @@ scsibus_discover_thread(void *arg)
 static void
 scsibus_config(struct scsibus_softc *sc)
 {
-	printf("scsibus_cofig ~~~~~~~~~~~~~~~~~~~~~~~~\n");
 	struct scsipi_channel *chan = sc->sc_channel;
 	struct scsi_initq *scsi_initq;
 
@@ -350,7 +348,6 @@ static int
 scsi_report_luns(struct scsibus_softc *sc, int target,
     uint16_t ** const luns, size_t *nluns)
 {
-	printf("report_luns ~~~~~~~~~~~~~~~~~~~~~~\n");
 	struct scsi_report_luns replun;
 	struct scsi_report_luns_header *rlr;
 	struct scsi_report_luns_lun *lunp;
@@ -474,7 +471,6 @@ scsi_discover_luns(struct scsibus_softc *sc, int target, int minlun, int maxlun)
 int
 scsi_probe_bus(struct scsibus_softc *sc, int target, int lun)
 {
-	printf("probe_bus ~~~~~~~~~~~~~~~~~~~~~\n");
 	struct scsipi_channel *chan = sc->sc_channel;
 	int maxtarget, mintarget, maxlun, minlun;
 	int error;
@@ -505,17 +501,13 @@ scsi_probe_bus(struct scsibus_softc *sc, int target, int lun)
 	scsipi_adapter_ioctl(chan, SCBUSIOLLSCAN, NULL, 0, curproc);
 #endif
 
-	printf("probe_bus 2 ~~~~~~~~~~~~~~~~~~~~\n");
 	if ((error = scsipi_adapter_addref(chan->chan_adapter)) != 0)
 		goto ret;
-	printf("probe_bus 3 ~~~~~~~~~~~~~~~~~~~~\n");
 	for (target = mintarget; target <= maxtarget; target++) {
 		if (target == chan->chan_id)
 			continue;
 
-		
 		scsi_discover_luns(sc, target, minlun, maxlun);
-		printf("probe_bus 4 ~~~~~~~~~~~~~~~~~~~~\n");
 
 		/*
 		 * Now that we've discovered all of the LUNs on this
@@ -597,16 +589,12 @@ scsibusprint(void *aux, const char *pnp)
 
 	dtype = scsipi_dtype(type);
 
-#ifndef SEL4
 	strnvisx(vendor, sizeof(vendor), inqbuf->vendor, 8,
 	    VIS_TRIM|VIS_SAFE|VIS_OCTAL);
 	strnvisx(product, sizeof(product), inqbuf->product, 16,
 	    VIS_TRIM|VIS_SAFE|VIS_OCTAL);
 	strnvisx(revision, sizeof(revision), inqbuf->revision, 4,
 	    VIS_TRIM|VIS_SAFE|VIS_OCTAL);
-#else
-	printf("strnvisx not impl\n");
-#endif
 
 	aprint_normal(" target %d lun %d: <%s, %s, %s> %s %s%s",
 		      target, lun, vendor, product, revision, dtype,
@@ -905,7 +893,6 @@ static const struct scsi_quirk_inquiry_pattern scsi_quirk_patterns[] = {
 static int
 scsi_probe_device(struct scsibus_softc *sc, int target, int lun)
 {
-	printf("scsi_probe_device ~~~~\n");
 	struct scsipi_channel *chan = sc->sc_channel;
 	struct scsipi_periph *periph;
 	struct scsipi_inquiry_data inqbuf;
@@ -1040,13 +1027,11 @@ scsi_probe_device(struct scsibus_softc *sc, int target, int lun)
 	sa.sa_inqptr = &inqbuf;
 
 	finger = 0;
-#ifndef SEL4
 	// add this to ^^
 	scsipi_inqmatch(
 	    &sa.sa_inqbuf, scsi_quirk_patterns,
 	    sizeof(scsi_quirk_patterns)/sizeof(scsi_quirk_patterns[0]),
 	    sizeof(scsi_quirk_patterns[0]), &priority);
-#endif
 
 	if (finger != NULL)
 		quirks = finger->quirks;
@@ -1125,7 +1110,6 @@ scsi_probe_device(struct scsibus_softc *sc, int target, int lun)
 	locs[SCSIBUSCF_LUN] = lun;
 
 	KERNEL_LOCK(1, NULL);
-#ifndef SEL4
 	if ((cf = config_search(sc->sc_dev, &sa,
 				CFARGS(.submatch = config_stdsubmatch,
 				       .locators = locs))) != NULL) {
@@ -1156,9 +1140,6 @@ scsi_probe_device(struct scsibus_softc *sc, int target, int lun)
 		KERNEL_UNLOCK_ONE(NULL);
 		goto bad;
 	}
-#else
-	printf("config_search is actually necessary, scsiconf.c:1125\n");
-#endif
 	
 	return (docontinue);
 

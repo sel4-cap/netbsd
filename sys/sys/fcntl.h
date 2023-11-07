@@ -124,7 +124,7 @@
 #define	O_EXEC		0x04000000	/* open for executing only */
 #endif
 
-#ifdef _KERNEL
+#ifdef _KERNEL 
 /* convert from open() flags to/from fflags; convert O_RD/WR to FREAD/FWRITE */
 #define	FFLAGS(oflags)	((oflags) + 1)
 #define	OFLAGS(fflags)	((fflags) - 1)

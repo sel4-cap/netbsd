@@ -100,10 +100,8 @@ scsipi_command(struct scsipi_periph *periph, struct scsipi_generic *cmd,
 	/*
 	 * execute unlocked to allow waiting for memory
 	 */
-#ifndef SEL4
 	xs = scsipi_make_xs_unlocked(periph, cmd, cmdlen, data_addr, datalen, retries,
 	    timeout, bp, flags);
-#endif
 	if (!xs)
 		return (ENOMEM);
 

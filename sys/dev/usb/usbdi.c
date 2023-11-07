@@ -62,6 +62,8 @@ __KERNEL_RCSID(0, "$NetBSD: usbdi.c,v 1.247 2022/09/13 10:32:58 riastradh Exp $"
 #include <pipe_methods.h>
 #include <sys/errno.h>
 
+#include <dev/usb/umassvar.h>
+
 #define try bool __HadError=false;
 #define catch(x) ExitJmp:if(__HadError)
 #define throw(x) {__HadError=true;goto ExitJmp;}
@@ -72,6 +74,8 @@ extern struct usbd_pipe_methods *device_ctrl_pointer;
 extern struct usbd_pipe_methods *device_ctrl_pointer_other;
 extern struct usbd_pipe_methods *device_intr_pointer;
 extern struct usbd_pipe_methods *device_intr_pointer_other;
+extern struct usbd_pipe_methods *device_bulk_pointer;
+extern struct usbd_pipe_methods *device_bulk_pointer_other;
 extern struct usbd_bus_methods *xhci_bus_methods_ptr;
 extern bool pipe_thread;
 
@@ -463,7 +467,10 @@ usbd_transfer(struct usbd_xfer *xfer)
         } else if (pipe->up_methods == device_ctrl_pointer_other) {
             aprint_verbose("should probs switch context device (upm_transfer)\n");
             pipe->up_methods = device_ctrl_pointer;
-        }
+        } else if (pipe->up_methods == device_bulk_pointer_other) {
+		aprint_verbose("switch context device bulk\n");
+		pipe->up_methods = device_bulk_pointer;
+		}
 		err = pipe->up_methods->upm_transfer(xfer);
 	} while (0);
 	SDT_PROBE3(usb, device, pipe, transfer__done,  pipe, xfer, err);
@@ -1209,7 +1216,11 @@ usb_transfer_complete(struct usbd_xfer *xfer)
 	} else if (pipe->up_methods == device_intr_pointer_other) {
 		aprint_verbose("switch context device intr\n");
 		pipe->up_methods = device_intr_pointer;
+	} else if (pipe->up_methods == device_bulk_pointer_other) {
+		aprint_verbose("switch context device bulk\n");
+		pipe->up_methods = device_bulk_pointer;
 	}
+	printf("doing done!!\n");
     pipe->up_methods->upm_done(xfer);
 
 	if (xfer->ux_length != 0 && xfer->ux_buffer != xfer->ux_buf) {
