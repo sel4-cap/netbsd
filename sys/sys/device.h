@@ -172,7 +172,7 @@ struct devhandle {
 };
 typedef struct devhandle devhandle_t;
 
-#if defined(_KERNEL) || defined(_KMEMUSER) 
+#if defined(_KERNEL) || defined(_KMEMUSER) || defined(SEL4)
 struct device_compatible_entry {
 	union {
 		const char *compat;
@@ -252,9 +252,7 @@ struct device;
 #define	DVF_PRIV_ALLOC		0x0002	/* device private storage != device */
 #define	DVF_DETACH_SHUTDOWN	0x0080	/* device detaches safely at shutdown */
 
-#ifdef _KERNEL
 TAILQ_HEAD(devicelist, device);
-#endif
 
 enum deviter_flags {
 	  DEVITER_F_RW =		0x1
@@ -517,7 +515,7 @@ bool		device_is_a(device_t, const char *);
 
 extern struct cfdriverlist allcfdrivers;/* list of all cfdrivers */
 extern struct cftablelist allcftables;	/* list of all cfdata tables */
-#ifdef _KERNEL
+#if defined(_KERNEL) || defined(SEL4)
 
 extern struct cfdriverlist allcfdrivers;/* list of all cfdrivers */
 extern struct cftablelist allcftables;	/* list of all cfdata tables */
@@ -588,8 +586,8 @@ void	config_defer(device_t, void (*)(device_t));
 void	config_deferred(device_t);
 void	config_interrupts(device_t, void (*)(device_t));
 void	config_mountroot(device_t, void (*)(device_t));
-void	config_pending_incr(device_t);
-void	config_pending_decr(device_t);
+// void	config_pending_incr(device_t);
+// void	config_pending_decr(device_t);
 void	config_create_interruptthreads(void);
 void	config_create_mountrootthreads(void);
 
@@ -735,10 +733,9 @@ int	device_call_generic(device_t, const struct device_call_generic *);
 	device_call_generic((dev), &(call)->generic)
 
 #else
-// #define config_found(...) 0
-// #define config_detach_children(...) 0
-// #define config_match(...) 0
-// #define config_detach(...) 0
+
+#endif /* _KERNEL */
+
 device_t config_found(device_t, void *, cfprint_t, const struct cfargs *);
 int	config_detach_children(device_t, int flags);
 int	config_match(device_t, cfdata_t, void *);
@@ -752,6 +749,7 @@ void	config_init(void);
 prop_dictionary_t device_properties(device_t);
 int	config_cfdriver_attach(struct cfdriver *);
 int	config_cfattach_attach(const char *, struct cfattach *);
-#endif /* _KERNEL */
+devhandle_type_t devhandle_type(devhandle_t);
+devhandle_t	device_handle(device_t);
 
 #endif /* !_SYS_DEVICE_H_ */

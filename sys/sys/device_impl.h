@@ -170,8 +170,8 @@ struct device {
 	// bool		(*dv_class_resume)(device_t, const pmf_qual_t *);
 	void		(*dv_class_deregister)(device_t);
 
-	// devgen_t		dv_add_gen,
-				// dv_del_gen;
+	devgen_t		dv_add_gen,
+					dv_del_gen;
 
 	struct device_lock	dv_lock;
 	// const device_suspensor_t

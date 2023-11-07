@@ -515,9 +515,10 @@ usbd_transfer(struct usbd_xfer *xfer)
 		if ((flags & USBD_SYNCHRONOUS_SIG) != 0) {
 			err = cv_wait_sig(&xfer->ux_cv, pipe->up_dev->ud_bus->ub_lock);
 		} else {
+			// SEL4: comes here (useful for future)
 			cv_wait(&xfer->ux_cv, pipe->up_dev->ud_bus->ub_lock);
 		}
-		usb_delay_ms(0, 500); //sel4 assumes complete. dangerous.
+		usb_delay_ms(0, 5); //sel4 assumes complete. dangerous.
 		if (err) {
 			if (!xfer->ux_done) {
 				SDT_PROBE1(usb, device, xfer, abort,  xfer);

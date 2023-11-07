@@ -374,7 +374,6 @@ umass_match(device_t parent, cfdata_t match, void *aux)
 static void
 umass_attach(device_t parent, device_t self, void *aux)
 {
-	printf("\numass attach");
 	UMASSHIST_FUNC(); UMASSHIST_CALLED();
 	struct umass_softc *sc = device_private(self);
 	struct usbif_attach_arg *uiaa = aux;

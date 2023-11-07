@@ -58,6 +58,8 @@ void	kmem_strfree(char *);
 
 void *	kmem_tmpbuf_alloc(size_t, void *, size_t, km_flag_t);
 void	kmem_tmpbuf_free(void *, size_t, void *);
+#define kmem_tmpbuf_alloc(size, ptr, size2, flag) kmem_alloc(size, flag)
+#define kmem_tmpbuf_free(ptr, size, buf) kmem_free(ptr, size)
 
 /*
  * km_flag_t values:
