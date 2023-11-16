@@ -62,6 +62,8 @@ __KERNEL_RCSID(0, "$NetBSD: usbdi.c,v 1.247 2022/09/13 10:32:58 riastradh Exp $"
 #include <pipe_methods.h>
 #include <sys/errno.h>
 
+#include <dev/usb/umassvar.h>
+
 #define try bool __HadError=false;
 #define catch(x) ExitJmp:if(__HadError)
 #define throw(x) {__HadError=true;goto ExitJmp;}
@@ -72,6 +74,8 @@ extern struct usbd_pipe_methods *device_ctrl_pointer;
 extern struct usbd_pipe_methods *device_ctrl_pointer_other;
 extern struct usbd_pipe_methods *device_intr_pointer;
 extern struct usbd_pipe_methods *device_intr_pointer_other;
+extern struct usbd_pipe_methods *device_bulk_pointer;
+extern struct usbd_pipe_methods *device_bulk_pointer_other;
 extern struct usbd_bus_methods *xhci_bus_methods_ptr;
 extern bool pipe_thread;
 
@@ -463,7 +467,10 @@ usbd_transfer(struct usbd_xfer *xfer)
         } else if (pipe->up_methods == device_ctrl_pointer_other) {
             aprint_verbose("switch context device (upm_transfer)\n");
             pipe->up_methods = device_ctrl_pointer;
-        }
+        } else if (pipe->up_methods == device_bulk_pointer_other) {
+		aprint_verbose("switch context device bulk\n");
+		pipe->up_methods = device_bulk_pointer;
+		}
 		err = pipe->up_methods->upm_transfer(xfer);
 	} while (0);
 	SDT_PROBE3(usb, device, pipe, transfer__done,  pipe, xfer, err);
@@ -1210,6 +1217,9 @@ usb_transfer_complete(struct usbd_xfer *xfer)
 	} else if (pipe->up_methods == device_intr_pointer_other) {
 		aprint_verbose("switch context device intr\n");
 		pipe->up_methods = device_intr_pointer;
+	} else if (pipe->up_methods == device_bulk_pointer_other) {
+		aprint_verbose("switch context device bulk\n");
+		pipe->up_methods = device_bulk_pointer;
 	}
 	USBHIST_LOG(usbdebug, "xfer %#jx doing done %#jx", (uintptr_t)xfer,
 		(uintptr_t)pipe->up_methods->upm_done, 0, 0);
@@ -1260,7 +1270,7 @@ usb_transfer_complete(struct usbd_xfer *xfer)
 		/* XXX should we stop the queue on all errors? */
 		if (erred && pipe->up_iface != NULL)	/* not control pipe */
 			pipe->up_running = 0;
-	}
+		}
 	if (pipe->up_running && pipe->up_serialise)
 		usbd_start_next(pipe);
 }
@@ -1323,7 +1333,7 @@ usbd_status
 usbd_do_request_len(struct usbd_device *dev, usb_device_request_t *req,
     size_t len, void *data, uint16_t flags, int *actlen, uint32_t timeout)
 {
-
+	
 	struct usbd_xfer *xfer;
 	usbd_status err;
 
@@ -1932,7 +1942,6 @@ usbd_xfer_schedule_timeout(struct usbd_xfer *xfer)
 static void
 usbd_xfer_cancel_timeout_async(struct usbd_xfer *xfer)
 {
-#ifndef SEL4
 	struct usbd_bus *bus __diagused = xfer->ux_bus;
 
 	KASSERT(bus->ub_usepolling || mutex_owned(bus->ub_lock));
@@ -2008,5 +2017,4 @@ usbd_xfer_cancel_timeout_async(struct usbd_xfer *xfer)
 	KASSERT(!usb_task_pending(xfer->ux_pipe->up_dev, &xfer->ux_aborttask));
 
 	KASSERT(bus->ub_usepolling || mutex_owned(bus->ub_lock));
-#endif
 }

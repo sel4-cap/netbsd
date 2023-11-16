@@ -281,3 +281,6 @@ struct umass_softc {
 };
 
 #define UMASS_MAX_TRANSFER_SIZE	MAXPHYS
+
+struct umass_wire_methods *get_umass_bbb_methods();
+struct usbd_pipe_methods *get_device_bulk_pointer();

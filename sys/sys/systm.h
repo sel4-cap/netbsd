@@ -298,6 +298,10 @@ void	twiddle(void);
 void	banner(void);
 #endif /* _KERNEL */
 
+#ifdef SEL4
+int	seltrue(dev_t, int, struct lwp *);
+#endif
+
 void	panic(const char *, ...) __dead __printflike(1, 2);
 void	vpanic(const char *, va_list) __dead __printflike(1, 0);
 void	uprintf(const char *, ...) __printflike(1, 2);

@@ -49,7 +49,9 @@ __KERNEL_RCSID(0, "$NetBSD: dksubr.c,v 1.113 2021/04/15 00:32:50 rin Exp $");
 #include <sys/syslog.h>
 
 #include <dev/dkvar.h>
+#ifndef SEL4
 #include <miscfs/specfs/specdev.h> /* for v_rdev */
+#endif
 
 int	dkdebug = 0;
 
@@ -104,14 +106,17 @@ dk_attach(struct dk_softc *dksc)
 
 	if ((dksc->sc_flags & DKF_NO_RND) == 0) {
 		/* Attach the device into the rnd source list. */
+#ifndef SEL4
 		rnd_attach_source(&dksc->sc_rnd_source, dksc->sc_xname,
 		    RND_TYPE_DISK, RND_FLAG_DEFAULT);
+#endif
 	}
 }
 
 void
 dk_detach(struct dk_softc *dksc)
 {
+#ifndef SEL4
 	if ((dksc->sc_flags & DKF_NO_RND) == 0) {
 		/* Unhook the entropy source. */
 		rnd_detach_source(&dksc->sc_rnd_source);
@@ -119,6 +124,7 @@ dk_detach(struct dk_softc *dksc)
 
 	dksc->sc_flags &= ~DKF_READYFORDUMP;
 	mutex_destroy(&dksc->sc_iolock);
+#endif
 }
 
 /* ARGSUSED */
@@ -308,13 +314,17 @@ dk_strategy1(struct dk_softc *dksc, struct buf *bp)
 		DPRINTF_FOLLOW(("%s: not inited\n", __func__));
 		bp->b_error = ENXIO;
 		bp->b_resid = bp->b_bcount;
+#ifndef SEL4
 		biodone(bp);
+#endif
 		return 1;
 	}
 
 	error = dk_translate(dksc, bp);
 	if (error >= 0) {
+#ifndef SEL4
 		biodone(bp);
+#endif
 		return 1;
 	}
 
@@ -348,10 +358,12 @@ dk_strategy_defer(struct dk_softc *dksc, struct buf *bp)
 	/*
 	 * Queue buffer only
 	 */
+#ifndef SEL4
 	mutex_enter(&dksc->sc_iolock);
 	disk_wait(&dksc->sc_dkdev);
 	bufq_put(dksc->sc_bufq, bp);
 	mutex_exit(&dksc->sc_iolock);
+#endif
 
 	return 0;
 }
@@ -367,7 +379,9 @@ dk_strategy_pending(struct dk_softc *dksc)
 	}
 
 	mutex_enter(&dksc->sc_iolock);
+#ifndef SEL4
 	bp = bufq_peek(dksc->sc_bufq);
+#endif
 	mutex_exit(&dksc->sc_iolock);
 
 	return bp != NULL;
@@ -387,9 +401,11 @@ dk_start(struct dk_softc *dksc, struct buf *bp)
 	mutex_enter(&dksc->sc_iolock);
 
 	if (bp != NULL) {
+#ifndef SEL4
 		bp->b_ci = curcpu();
 		disk_wait(&dksc->sc_dkdev);
 		bufq_put(dksc->sc_bufq, bp);
+#endif
 	}
 
 	/*
@@ -420,7 +436,9 @@ dk_start(struct dk_softc *dksc, struct buf *bp)
 		dksc->sc_deferred = NULL;
 
 		if (bp == NULL)
+#ifndef SEL4
 			bp = bufq_get(dksc->sc_bufq);
+#endif
 
 		while (bp != NULL) {
 
@@ -444,8 +462,9 @@ dk_start(struct dk_softc *dksc, struct buf *bp)
 				bp->b_resid = bp->b_bcount;
 				dk_done1(dksc, bp, false);
 			}
-
+#ifndef SEL4
 			bp = bufq_get(dksc->sc_bufq);
+#endif
 		}
 
 		dksc->sc_busy--;
@@ -457,6 +476,7 @@ done:
 static void
 dk_done1(struct dk_softc *dksc, struct buf *bp, bool lock)
 {
+#ifndef SEL4
 	struct disk *dk = &dksc->sc_dkdev;
 
 	if (bp->b_error != 0) {
@@ -477,6 +497,7 @@ dk_done1(struct dk_softc *dksc, struct buf *bp, bool lock)
 		mutex_exit(&dksc->sc_iolock);
 
 	biodone(bp);
+#endif
 }
 
 void
@@ -496,9 +517,13 @@ dk_drain(struct dk_softc *dksc)
 	if (bp != NULL) {
 		bp->b_error = EIO;
 		bp->b_resid = bp->b_bcount;
-		biodone(bp); 
+#ifndef SEL4
+		biodone(bp);
+#endif 
 	}
+#ifndef SEL4
 	bufq_drain(dksc->sc_bufq);
+#endif
 	mutex_exit(&dksc->sc_iolock);
 }
 
@@ -554,6 +579,7 @@ dk_discard(struct dk_softc *dksc, dev_t dev, off_t pos, off_t len)
 int
 dk_size(struct dk_softc *dksc, dev_t dev)
 {
+#ifndef SEL4
 	const struct dkdriver *dkd = dksc->sc_dkdev.dk_driver;
 	struct	disklabel *lp;
 	int	is_open;
@@ -580,12 +606,14 @@ dk_size(struct dk_softc *dksc, dev_t dev)
 		return -1;
 
 	return size;
+#endif
 }
 
 int
 dk_ioctl(struct dk_softc *dksc, dev_t dev,
 	    u_long cmd, void *data, int flag, struct lwp *l)
 {
+#ifndef SEL4
 	const struct dkdriver *dkd = dksc->sc_dkdev.dk_driver;
 	struct	disklabel *lp;
 	struct	disk *dk = &dksc->sc_dkdev;
@@ -755,6 +783,7 @@ dk_ioctl(struct dk_softc *dksc, dev_t dev,
 	}
 
 	return error;
+#endif
 }
 
 /*
@@ -916,7 +945,9 @@ dk_getdefaultlabel(struct dk_softc *dksc, struct disklabel *lp)
 	if (dkd->d_label)
 		dkd->d_label(dksc->sc_dev, lp);
 
+#ifndef SEL4
 	lp->d_checksum = dkcksum(lp);
+#endif
 }
 
 /* ARGSUSED */
@@ -933,8 +964,10 @@ dk_getdisklabel(struct dk_softc *dksc, dev_t dev)
 
 	memset(clp, 0x0, sizeof(*clp));
 	dk_getdefaultlabel(dksc, lp);
+#ifndef SEL4
 	errstring = readdisklabel(DKLABELDEV(dev), dkd->d_strategy,
 	    dksc->sc_dkdev.dk_label, dksc->sc_dkdev.dk_cpulabel);
+#endif
 	if (errstring) {
 		dk_makedisklabel(dksc);
 		if (dksc->sc_flags & DKF_WARNLABEL)
@@ -1001,10 +1034,14 @@ dk_makedisklabel(struct dk_softc *dksc)
 	else
 		lp->d_partitions[RAW_PART].p_fstype = FS_BSDFFS;
 
+#ifndef SEL4
 	lp->d_checksum = dkcksum(lp);
+#endif
 }
 
+#ifndef SEL4
 MODULE(MODULE_CLASS_MISC, dk_subr, NULL);
+#endif
 
 static int
 dk_subr_modcmd(modcmd_t cmd, void *arg)

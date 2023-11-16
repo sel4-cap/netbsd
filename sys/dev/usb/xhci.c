@@ -312,6 +312,10 @@ struct usbd_pipe_methods *get_device_intr_methods() {
 	return &xhci_device_intr_methods;
 }
 
+struct usbd_pipe_methods *get_device_bulk_methods() {
+	return &xhci_device_bulk_methods;
+}
+
 struct usbd_bus_methods *get_bus_methods() {
 	return &xhci_bus_methods;
 }

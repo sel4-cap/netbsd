@@ -1183,27 +1183,37 @@ config_search_internal(device_t parent, void *aux,
 			if (args->iattr != NULL &&
 			    !STREQ(args->iattr, cfdata_ifattr(cf)))
 				continue;
-
-			mapply(&m, cf);
+			
 			// if (cfparent_match(parent, cf->cf_pspec))
 			// 	mapply(&m, cf);
+			if (parent->dv_parent == NULL) {
+
+				printf("1~~~~~~~~~~\n");
+				mapply(&m, cf);
+			}
+			else if (cfparent_match(parent, cf->cf_pspec)) {
+				printf("2~~~~~~~~~~\n");
+			  	mapply(&m, cf);
+
+			}
 		}
 	}
+	printf("out \n");
 	// rnd_add_uint32(&rnd_autoconf_source, 0);
 	return m.match;
 }
 
-// cfdata_t
-// config_search(device_t parent, void *aux, const struct cfargs *cfargs)
-// {
-// 	cfdata_t cf;
-// 	struct cfargs_internal store;
+cfdata_t
+config_search(device_t parent, void *aux, const struct cfargs *cfargs)
+{
+	cfdata_t cf;
+	struct cfargs_internal store;
 
-// 	cf = config_search_internal(parent, aux,
-// 	    cfargs_canonicalize(cfargs, &store));
+	cf = config_search_internal(parent, aux,
+	    cfargs_canonicalize(cfargs, &store));
 
-// 	return cf;
-// }
+	return cf;
+}
 
 // /*
 //  * Find the given root device.
@@ -1243,14 +1253,14 @@ config_search_internal(device_t parent, void *aux,
 // [UNSUPP]	=	" unsupported\n",
 // };
 
-// /*
-//  * The given `aux' argument describes a device that has been found
-//  * on the given parent, but not necessarily configured.  Locate the
-//  * configuration data for that device (using the submatch function
-//  * provided, or using candidates' cd_match configuration driver
-//  * functions) and attach it, and return its device_t.  If the device was
-//  * not configured, call the given `print' function and return NULL.
-//  */
+/*
+ * The given `aux' argument describes a device that has been found
+ * on the given parent, but not necessarily configured.  Locate the
+ * configuration data for that device (using the submatch function
+ * provided, or using candidates' cd_match configuration driver
+ * functions) and attach it, and return its device_t.  If the device was
+ * not configured, call the given `print' function and return NULL.
+ */
 device_t
 config_found_acquire(device_t parent, void *aux, cfprint_t print,
     const struct cfargs * const cfargs)
@@ -1847,17 +1857,17 @@ config_attach_internal(device_t parent, cfdata_t cf, void *aux, cfprint_t print,
 	return dev;
 }
 
-// device_t
-// config_attach(device_t parent, cfdata_t cf, void *aux, cfprint_t print,
-//     const struct cfargs *cfargs)
-// {
-// 	struct cfargs_internal store;
+device_t
+config_attach(device_t parent, cfdata_t cf, void *aux, cfprint_t print,
+    const struct cfargs *cfargs)
+{
+	struct cfargs_internal store;
 
-// 	KASSERT(KERNEL_LOCKED_P());
+	KASSERT(KERNEL_LOCKED_P());
 
-// 	return config_attach_internal(parent, cf, aux, print,
-// 	    cfargs_canonicalize(cfargs, &store));
-// }
+	return config_attach_internal(parent, cf, aux, print,
+	    cfargs_canonicalize(cfargs, &store));
+}
 
 // /*
 //  * As above, but for pseudo-devices.  Pseudo-devices attached in this

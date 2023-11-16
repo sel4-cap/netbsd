@@ -78,12 +78,15 @@ __KERNEL_RCSID(0, "$NetBSD: umass_scsipi.c,v 1.70 2021/12/31 14:24:16 riastradh 
 #include <dev/usb/umassvar.h>
 #include <dev/usb/umass_scsipi.h>
 
+extern struct umass_wire_methods *umass_bbb_methods_pointer;
+extern struct umass_wire_methods *umass_bbb_methods_pointer_other;
+
 struct umass_scsipi_softc {
 	struct umassbus_softc	base;
 
 	struct atapi_adapter	sc_atapi_adapter;
-//#define sc_adapter sc_atapi_adapter._generic
-	//struct scsipi_channel sc_channel;
+#define sc_adapter sc_atapi_adapter._generic
+	struct scsipi_channel sc_channel;
 	usbd_status		sc_sync_status;
 	struct scsi_request_sense	sc_sense_cmd;
 };
@@ -93,11 +96,13 @@ struct umass_scsipi_softc {
 
 #define UMASS_ATAPI_DRIVE	0
 
-// Static void umass_scsipi_request(struct scsipi_channel *,
-// 				 scsipi_adapter_req_t, void *);
+Static void umass_scsipi_request(struct scsipi_channel *,
+				 scsipi_adapter_req_t, void *);
 Static void umass_scsipi_minphys(struct buf *);
+#ifndef SEL4
 Static int umass_scsipi_ioctl(struct scsipi_channel *, u_long,
 			      void *, int, proc_t *);
+#endif
 Static int umass_scsipi_getgeom(struct scsipi_periph *,
 				struct disk_parms *, u_long);
 
@@ -109,6 +114,14 @@ Static void umass_scsipi_sense_cb(struct umass_softc *, void *,
 				  int, int);
 
 Static struct umass_scsipi_softc *umass_scsipi_setup(struct umass_softc *);
+
+uintptr_t *get_umass_scsipi_cb() {
+	return &umass_scsipi_cb;
+}
+
+uintptr_t *get_umass_null_cb() {
+	return &umass_null_cb;
+}
 
 #if NATAPIBUS > 0
 Static void umass_atapi_probe_device(struct atapibus_softc *, int);
@@ -137,19 +150,15 @@ umass_scsi_attach(struct umass_softc *sc)
 
 	scbus = umass_scsipi_setup(sc);
 
-#ifndef SEL4
 	scbus->sc_channel.chan_bustype = &scsi_bustype;
 	scbus->sc_channel.chan_ntargets = 2;
 	scbus->sc_channel.chan_nluns = sc->maxlun + 1;
 	scbus->sc_channel.chan_id = scbus->sc_channel.chan_ntargets - 1;
-#endif
 	DPRINTFM(UDMASS_USB, "sc %#jx: SCSI", (uintptr_t)sc, 0, 0, 0);
 
-#ifndef SEL4
 	scbus->base.sc_child =
 	    config_found(sc->sc_dev, &scbus->sc_channel, scsiprint,
 			 CFARGS(.iattr = "scsi"));
-#endif
 
 	return 0;
 }
@@ -238,7 +247,6 @@ umass_scsipi_setup(struct umass_softc *sc)
 	return scbus;
 }
 
-#ifndef SEL4
 Static void
 umass_scsipi_request(struct scsipi_channel *chan,
 		scsipi_adapter_req_t req, void *arg)
@@ -321,7 +329,7 @@ umass_scsipi_request(struct scsipi_channel *chan,
 						  cmdlen, xs->data,
 						  xs->datalen, dir,
 						  xs->timeout, USBD_SYNCHRONOUS,
-						  umass_null_cb, xs);
+						  intr_ptrs->umass_null_cb, xs);
 			DPRINTFM(UDMASS_SCSI, "done err=%jd",
 			    scbus->sc_sync_status, 0, 0, 0);
 			switch (scbus->sc_sync_status) {
@@ -339,11 +347,14 @@ umass_scsipi_request(struct scsipi_channel *chan,
 		} else {
 			DPRINTFM(UDMASS_SCSI, "async dir=%jd, cmdlen=%jd"
 			    " datalen=%jd", dir, cmdlen, xs->datalen, 0);
+			if(sc->sc_methods == umass_bbb_methods_pointer_other) {
+				sc->sc_methods = umass_bbb_methods_pointer;
+			}
 			sc->sc_methods->wire_xfer(sc, periph->periph_lun, cmd,
 						  cmdlen, xs->data,
 						  xs->datalen, dir,
 						  xs->timeout, 0,
-						  umass_scsipi_cb, xs);
+						  intr_ptrs->umass_scsipi_cb, xs);
 			return;
 		}
 
@@ -356,7 +367,6 @@ umass_scsipi_request(struct scsipi_channel *chan,
 		;
 	}
 }
-#endif
 
 Static void
 umass_scsipi_minphys(struct buf *bp)
@@ -372,7 +382,7 @@ umass_scsipi_minphys(struct buf *bp)
 		bp->b_bcount = UMASS_MAX_TRANSFER_SIZE;
 	minphys(bp);
 }
-
+#ifndef SEL4
 int
 umass_scsipi_ioctl(struct scsipi_channel *chan, u_long cmd,
     void *arg, int flag, proc_t *p)
@@ -391,6 +401,7 @@ umass_scsipi_ioctl(struct scsipi_channel *chan, u_long cmd,
 		return ENOTTY;
 	}
 }
+#endif
 
 Static int
 umass_scsipi_getgeom(struct scsipi_periph *periph, struct disk_parms *dp,
@@ -433,7 +444,7 @@ umass_scsipi_cb(struct umass_softc *sc, void *priv, int residue, int status)
 	UMASSHIST_FUNC(); UMASSHIST_CALLED();
 	struct umass_scsipi_softc *scbus = (struct umass_scsipi_softc *)sc->bus;
 	struct scsipi_xfer *xs = priv;
-	//struct scsipi_periph *periph = xs->xs_periph;
+	struct scsipi_periph *periph = xs->xs_periph;
 	int cmdlen, senselen;
 #ifdef UMASS_DEBUG
 	struct timeval tv;
@@ -445,11 +456,11 @@ umass_scsipi_cb(struct umass_softc *sc, void *priv, int residue, int status)
 #endif
 
 
-	//xs->resid = residue;
+	xs->resid = residue;
 
 	switch (status) {
 	case STATUS_CMD_OK:
-		//xs->error = XS_NOERROR;
+		xs->error = XS_NOERROR;
 		break;
 
 	case STATUS_CMD_UNKNOWN:
@@ -459,7 +470,7 @@ umass_scsipi_cb(struct umass_softc *sc, void *priv, int residue, int status)
 		sc->sc_sense = 1;
 		memset(&scbus->sc_sense_cmd, 0, sizeof(scbus->sc_sense_cmd));
 		scbus->sc_sense_cmd.opcode = SCSI_REQUEST_SENSE;
-		//scbus->sc_sense_cmd.byte2 = periph->periph_lun <<
+		scbus->sc_sense_cmd.byte2 = periph->periph_lun <<
 		    SCSI_CMD_LUN_SHIFT;
 
 		if (sc->sc_cmd == UMASS_CPROTO_UFI ||
@@ -467,24 +478,24 @@ umass_scsipi_cb(struct umass_softc *sc, void *priv, int residue, int status)
 			cmdlen = UFI_COMMAND_LENGTH;	/* XXX */
 		else
 			cmdlen = sizeof(scbus->sc_sense_cmd);
-		// if (periph->periph_version < 0x04) /* SPC-2 */
-		// 	senselen = 18;
-		// else
-		// 	senselen = sizeof(xs->sense);
+		if (periph->periph_version < 0x04) /* SPC-2 */
+			senselen = 18;
+		else
+			senselen = sizeof(xs->sense);
 		scbus->sc_sense_cmd.length = senselen;
-		// sc->sc_methods->wire_xfer(sc, periph->periph_lun,
-		// 			  &scbus->sc_sense_cmd, cmdlen,
-		// 			  &xs->sense, senselen,
-		// 			  DIR_IN, xs->timeout, 0,
-		// 			  umass_scsipi_sense_cb, xs);
+		sc->sc_methods->wire_xfer(sc, periph->periph_lun,
+					  &scbus->sc_sense_cmd, cmdlen,
+					  &xs->sense, senselen,
+					  DIR_IN, xs->timeout, 0,
+					  umass_scsipi_sense_cb, xs);
 		return;
 
 	case STATUS_WIRE_FAILED:
-		//xs->error = XS_RESET;
+		xs->error = XS_RESET;
 		break;
 
 	case STATUS_TIMEOUT:
-		//xs->error = XS_TIMEOUT;
+		xs->error = XS_TIMEOUT;
 		break;
 
 	default:
