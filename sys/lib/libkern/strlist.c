@@ -49,7 +49,7 @@
 /*
  * Memory allocation wrappers to handle different environments.
  */
-#if defined(_KERNEL)
+#if defined(_KERNEL) || defined(SEL4)
 #include <sys/kmem.h>
 #include <sys/systm.h>
 

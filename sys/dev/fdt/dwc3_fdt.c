@@ -47,6 +47,8 @@ __KERNEL_RCSID(0, "$NetBSD: dwc3_fdt.c,v 1.20 2022/06/12 08:04:07 skrll Exp $");
 #include <dev/fdt/fdtvar.h>
 #include <sys/device_impl.h>
 #include <wrapper.h>
+#include <timer.h>
+#include <sys/kmem.h>
 
 #define	DWC3_GCTL			0xc110
 #define	 GCTL_PRTCAP			__BITS(13,12)
@@ -83,14 +85,20 @@ __KERNEL_RCSID(0, "$NetBSD: dwc3_fdt.c,v 1.20 2022/06/12 08:04:07 skrll Exp $");
 #define	  DCFG_SPEED_SS			4
 #define	  DCFG_SPEED_SS_PLUS		5
 
-#ifndef SEL4
 static int	dwc3_fdt_match(device_t, cfdata_t, void *);
+#ifndef SEL4
 static void	dwc3_fdt_attach(device_t, device_t, void *);
+#endif
+struct imx8mq_usbphy_softc {
+	device_t		sc_dev;
+	bus_space_tag_t		sc_bst;
+	bus_space_handle_t	sc_bsh;
+	int			sc_phandle;
+};
 
 CFATTACH_DECL2_NEW(dwc3_fdt, sizeof(struct xhci_softc),
 	dwc3_fdt_match, dwc3_fdt_attach, NULL,
 	xhci_activate, NULL, xhci_childdet);
-#endif
 
 #define	RD4(sc, reg)				\
 	bus_space_read_4((sc)->sc_iot, (sc)->sc_ioh, (reg))
@@ -100,6 +108,7 @@ CFATTACH_DECL2_NEW(dwc3_fdt, sizeof(struct xhci_softc),
 	WR4((sc), (reg), RD4((sc), (reg)) | (mask))
 #define	CLR4(sc, reg, mask)			\
 	WR4((sc), (reg), RD4((sc), (reg)) & ~(mask))
+#define delay(us) ms_delay(us/1000)
 
 static void
 dwc3_fdt_soft_reset(struct xhci_softc *sc)
@@ -113,7 +122,7 @@ dwc3_fdt_soft_reset(struct xhci_softc *sc)
 	/* Assert USB2 PHY reset */
 	SET4(sc, DWC3_GUSB2PHYCFG(0), GUSB2PHYCFG_PHYSOFTRST);
 
-	// delay(100000);
+	delay(20000);
 
 	/* Clear USB3 PHY reset */
 	CLR4(sc, DWC3_GUSB3PIPECTL(0), GUSB3PIPECTL_PHYSOFTRST);
@@ -121,7 +130,7 @@ dwc3_fdt_soft_reset(struct xhci_softc *sc)
 	/* Clear USB2 PHY reset */
 	CLR4(sc, DWC3_GUSB2PHYCFG(0), GUSB2PHYCFG_PHYSOFTRST);
 
-	// delay(100000);
+	delay(20000);
 
 	/* Take core out of reset */
 	CLR4(sc, DWC3_GCTL, GCTL_CORESOFTRESET);
@@ -135,7 +144,6 @@ dwc3_fdt_enable_phy(struct xhci_softc *sc, const int phandle, u_int rev)
 	uint32_t val;
 
 	val = RD4(sc, DWC3_GUSB2PHYCFG(0));
-#ifndef SEL4
 	if (of_getprop_uint32(phandle, "snps,phyif-utmi-bits", &phyif_utmi_bits) != 0) {
 		phy_type = fdtbus_get_string(phandle, "phy_type");
 		if (phy_type && strcmp(phy_type, "utmi_wide") == 0)
@@ -145,7 +153,6 @@ dwc3_fdt_enable_phy(struct xhci_softc *sc, const int phandle, u_int rev)
 		else
 			phyif_utmi_bits = 0;
 	}
-#endif
 	if (phyif_utmi_bits == 16) {
 		val |= GUSB2PHYCFG_PHYIF;
 		val &= ~GUSB2PHYCFG_USBTRDTIM;
@@ -155,7 +162,6 @@ dwc3_fdt_enable_phy(struct xhci_softc *sc, const int phandle, u_int rev)
 		val &= ~GUSB2PHYCFG_USBTRDTIM;
 		val |= __SHIFTIN(9, GUSB2PHYCFG_USBTRDTIM);
 	}
-#ifndef SEL4
 	if (of_hasprop(phandle, "snps,dis-enblslpm-quirk") ||
 	    of_hasprop(phandle, "snps,dis_enblslpm_quirk"))
 		val &= ~GUSB2PHYCFG_ENBLSLPM;
@@ -163,22 +169,16 @@ dwc3_fdt_enable_phy(struct xhci_softc *sc, const int phandle, u_int rev)
 		val &= ~GUSB2PHYCFG_U2_FREECLK_EXISTS;
 	if (of_hasprop(phandle, "snps,dis_u2_susphy_quirk"))
 		val &= ~GUSB2PHYCFG_SUSPHY;
-#endif
 	WR4(sc, DWC3_GUSB2PHYCFG(0), val);
 
 	val = RD4(sc, DWC3_GUSB3PIPECTL(0));
 	val &= ~GUSB3PIPECTL_UX_EXIT_PX;
-#ifndef SEL4
 	if (of_hasprop(phandle, "snps,dis_u3_susphy_quirk"))
 		val &= ~GUSB3PIPECTL_SUSPHY;
 	if (of_hasprop(phandle, "snps,dis-del-phy-power-chg-quirk"))
 		val &= ~GUSB3PIPECTL_DEPOCHANGE;
-#else
-	val &= ~GUSB3PIPECTL_SUSPHY; // SEL4: maaxboard does have this quirk
-#endif
 	WR4(sc, DWC3_GUSB3PIPECTL(0), val);
 
-#ifndef SEL4
 	if (rev >= 0x250a) {
 		val = RD4(sc, DWC3_GUCTL1);
 		if (of_hasprop(phandle, "snps,dis-tx-ipgap-linecheck-quirk"))
@@ -187,16 +187,11 @@ dwc3_fdt_enable_phy(struct xhci_softc *sc, const int phandle, u_int rev)
 	}
 
 	max_speed = fdtbus_get_string(phandle, "maximum-speed");
-#else
-	// inspection of fdt shows no max_speed
-	max_speed = NULL;
-#endif
 	if (max_speed == NULL)
 		max_speed = "super-speed";
 
 	val = RD4(sc, DWC3_DCFG);
 	val &= ~DCFG_SPEED;
-#ifndef SEL4
 	if (strcmp(max_speed, "low-speed") == 0)
 		val |= __SHIFTIN(DCFG_SPEED_LS, DCFG_SPEED);
 	else if (strcmp(max_speed, "full-speed") == 0)
@@ -207,9 +202,6 @@ dwc3_fdt_enable_phy(struct xhci_softc *sc, const int phandle, u_int rev)
 		val |= __SHIFTIN(DCFG_SPEED_SS, DCFG_SPEED);
 	else
 		val |= __SHIFTIN(DCFG_SPEED_SS, DCFG_SPEED);	/* default to super speed */
-#else
-	val |= __SHIFTIN(DCFG_SPEED_SS, DCFG_SPEED);	/* default to super speed */
-#endif
 	WR4(sc, DWC3_DCFG, val);
 }
 
@@ -224,7 +216,6 @@ dwc3_fdt_set_mode(struct xhci_softc *sc, u_int mode)
 	WR4(sc, DWC3_GCTL, val);
 }
 
-#ifndef SEL4
 static const struct device_compatible_entry compat_data[] = {
 	{ .compat = "allwinner,sun50i-h6-dwc3" },
 	{ .compat = "amlogic,meson-gxl-dwc3" },
@@ -240,7 +231,6 @@ static const struct device_compatible_entry compat_data_dwc3[] = {
 	{ .compat = "snps,dwc3" },
 	DEVICE_COMPAT_EOL
 };
-#endif
 
 static int
 dwc3_fdt_match(device_t parent, cfdata_t cf, void *aux)
@@ -259,22 +249,18 @@ dwc3_fdt_attach(device_t parent, device_t self, void *aux)
 {
 	struct xhci_softc * const sc = device_private(self);
 	struct fdt_attach_args * const faa = aux;
-	// const int phandle = faa->faa_phandle;
-	const int phandle = sc->sc_ioh;
-	// struct fdtbus_reset *rst;
-	// struct fdtbus_phy *phy;
+	const int phandle = faa->faa_phandle;
+	struct fdtbus_reset *rst;
+	struct fdtbus_phy *phy;
 	// struct clk *clk;
 	// char intrstr[128];
-	// bus_addr_t addr;
-	// bus_size_t size;
+	bus_addr_t addr;
+	bus_size_t size;
 	int error;
 	int dwc3_phandle;
 	// void *ih;
-	// u_int n;
+	u_int n;
 
-	dwc3_phandle = phandle;
-
-#ifndef SEL4
 	/* Find dwc3 sub-node */
 	if (of_compatible_lookup(phandle, compat_data_dwc3) == NULL) {
 		dwc3_phandle = of_find_bycompat(phandle, "snps,dwc3");
@@ -317,6 +303,7 @@ dwc3_fdt_attach(device_t parent, device_t self, void *aux)
 		return;
 	}
 
+#ifndef SEL4 // clocks not necessary
 	/* Enable clocks */
 	fdtbus_clock_assign(phandle);
 	for (n = 0; (clk = fdtbus_clock_get_index(phandle, n)) != NULL; n++)
@@ -324,6 +311,7 @@ dwc3_fdt_attach(device_t parent, device_t self, void *aux)
 			aprint_error(": couldn't enable clock #%d\n", n);
 			return;
 		}
+#endif
 	/* De-assert resets */
 	for (n = 0; (rst = fdtbus_reset_get_index(phandle, n)) != NULL; n++)
 		if (fdtbus_reset_deassert(rst) != 0) {
@@ -336,7 +324,6 @@ dwc3_fdt_attach(device_t parent, device_t self, void *aux)
 		aprint_error(": couldn't get registers\n");
 		return;
 	}
-#endif
 
 	sc->sc_dev = self;
 	sc->sc_bus.ub_hcpriv = sc;
@@ -349,7 +336,7 @@ dwc3_fdt_attach(device_t parent, device_t self, void *aux)
 		return;
 	}
 #else
-	sc->sc_ioh = dwc3_phandle;
+	sc->sc_ioh = addr;
 #endif
 
 	aprint_naive("\n");
@@ -358,13 +345,11 @@ dwc3_fdt_attach(device_t parent, device_t self, void *aux)
 	const u_int rev = __SHIFTOUT(snpsid, DWC3_SNPSID_REV);
 	aprint_normal(" (rev. %d.%03x)\n", rev >> 12, rev & 0xfff);
 
-#ifndef SEL4 //SEL4: phys enabled manually
 	/* Enable PHY devices */
 	for (n = 0; (phy = fdtbus_phy_get_index(dwc3_phandle, n)) != NULL; n++) {
 		if (fdtbus_phy_enable(phy, true) != 0)
 			aprint_error_dev(self, "couldn't enable phy #%d\n", n);
 	}
-#endif
 
 	dwc3_fdt_soft_reset(sc);
 	dwc3_fdt_enable_phy(sc, dwc3_phandle, rev);

@@ -51,9 +51,9 @@ typedef void *audio_dai_tag_t;
 
 #ifndef SEL4
 #include <dev/clock_subr.h>
+#endif
 
 #include <dev/ofw/openfirm.h>
-#endif
 
 struct fdt_attach_args {
 	const char *faa_name;

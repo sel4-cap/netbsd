@@ -200,7 +200,7 @@ static device_t	config_attach_internal(device_t, cfdata_t, void *,
 static void pmflock_debug(device_t, const char *, int);
 
 // static device_t deviter_next1(deviter_t *);
-// static void deviter_reinit(deviter_t *);
+static void deviter_reinit(deviter_t *);
 
 struct deferred_config {
 	TAILQ_ENTRY(deferred_config) dc_queue;
@@ -235,9 +235,9 @@ static TAILQ_HEAD(, finalize_hook) config_finalize_list =
 static int config_finalize_done;
 
 /* list of all devices */
-// static struct devicelist alldevs = TAILQ_HEAD_INITIALIZER(alldevs);
+static struct devicelist alldevs = TAILQ_HEAD_INITIALIZER(alldevs);
 // static kmutex_t alldevs_lock __cacheline_aligned;
-// static devgen_t alldevs_gen = 1;
+static devgen_t alldevs_gen = 1;
 static int alldevs_nread = 0;
 static int alldevs_nwrite = 0;
 static bool alldevs_garbage = false;
@@ -753,7 +753,7 @@ config_cfattach_lookup_cd(struct cfdriver *cd, const char *atname)
 
 	LIST_FOREACH(ca, &cd->cd_attach, ca_list) {
 		if (STREQ(ca->ca_name, atname)) {
-			printf("SEL4: found %s\n", ca->ca_name);
+			aprint_debug("SEL4: found %s\n", ca->ca_name);
 			return ca;
 		}
 	}
@@ -1183,13 +1183,22 @@ config_search_internal(device_t parent, void *aux,
 			if (args->iattr != NULL &&
 			    !STREQ(args->iattr, cfdata_ifattr(cf)))
 				continue;
-			// printf("About to look for parent %p\n", parent);
-			if (parent->dv_parent == NULL)
+			
+			// if (cfparent_match(parent, cf->cf_pspec))
+			// 	mapply(&m, cf);
+			if (parent->dv_parent == NULL) {
+
+				printf("1~~~~~~~~~~\n");
 				mapply(&m, cf);
-			else if (cfparent_match(parent, cf->cf_pspec))
+			}
+			else if (cfparent_match(parent, cf->cf_pspec)) {
+				printf("2~~~~~~~~~~\n");
 			  	mapply(&m, cf);
+
+			}
 		}
 	}
+	printf("out \n");
 	// rnd_add_uint32(&rnd_autoconf_source, 0);
 	return m.match;
 }
@@ -1269,7 +1278,6 @@ config_found_acquire(device_t parent, void *aux, cfprint_t print,
 		dev = config_attach_internal(parent, cf, aux, print, args);
 		goto out;
 	}
-	printf("didn't find a match\n");
 	if (print) {
 		if (config_do_twiddle && cold)
 			printf("(not) twiddling\n");
@@ -1777,9 +1785,8 @@ config_attach_internal(device_t parent, cfdata_t cf, void *aux, cfprint_t print,
 	} else {
 		aprint_naive("%s at %s", device_xname(dev),
 		    device_xname(parent));
-
-		// aprint_normal("%s at %s", device_xname(dev),
-		//     device_xname(parent));
+		aprint_normal("%s at %s", device_xname(dev),
+		    device_xname(parent));
 		if (print)
 			(void) (*print)(aux, NULL);
 	}
@@ -2836,11 +2843,11 @@ out:	mutex_exit(&config_misc_lock);
 // 	return device_lookup(cd, unit);
 // }
 
-// static bool
-// match_strcmp(const char * const s1, const char * const s2)
-// {
-// 	return strcmp(s1, s2) == 0;
-// }
+static bool
+match_strcmp(const char * const s1, const char * const s2)
+{
+	return strcmp(s1, s2) == 0;
+}
 
 // static bool
 // match_pmatch(const char * const s1, const char * const s2)
@@ -2848,40 +2855,40 @@ out:	mutex_exit(&config_misc_lock);
 // 	return pmatch(s1, s2, NULL) == 2;
 // }
 
-// static bool
-// strarray_match_internal(const char ** const strings,
-//     unsigned int const nstrings, const char * const str,
-//     unsigned int * const indexp,
-//     bool (*match_fn)(const char *, const char *))
-// {
-// 	unsigned int i;
+static bool
+strarray_match_internal(const char ** const strings,
+    unsigned int const nstrings, const char * const str,
+    unsigned int * const indexp,
+    bool (*match_fn)(const char *, const char *))
+{
+	unsigned int i;
 
-// 	if (strings == NULL || nstrings == 0) {
-// 		return false;
-// 	}
+	if (strings == NULL || nstrings == 0) {
+		return false;
+	}
 
-// 	for (i = 0; i < nstrings; i++) {
-// 		if ((*match_fn)(strings[i], str)) {
-// 			*indexp = i;
-// 			return true;
-// 		}
-// 	}
+	for (i = 0; i < nstrings; i++) {
+		if ((*match_fn)(strings[i], str)) {
+			*indexp = i;
+			return true;
+		}
+	}
 
-// 	return false;
-// }
+	return false;
+}
 
-// static int
-// strarray_match(const char ** const strings, unsigned int const nstrings,
-//     const char * const str)
-// {
-// 	unsigned int idx;
+static int
+strarray_match(const char ** const strings, unsigned int const nstrings,
+    const char * const str)
+{
+	unsigned int idx;
 
-// 	if (strarray_match_internal(strings, nstrings, str, &idx,
-// 				    match_strcmp)) {
-// 		return (int)(nstrings - idx);
-// 	}
-// 	return 0;
-// }
+	if (strarray_match_internal(strings, nstrings, str, &idx,
+				    match_strcmp)) {
+		return (int)(nstrings - idx);
+	}
+	return 0;
+}
 
 // static int
 // strarray_pmatch(const char ** const strings, unsigned int const nstrings,
@@ -2896,31 +2903,31 @@ out:	mutex_exit(&config_misc_lock);
 // 	return 0;
 // }
 
-// static int
-// device_compatible_match_strarray_internal(
-//     const char **device_compats, int ndevice_compats,
-//     const struct device_compatible_entry *driver_compats,
-//     const struct device_compatible_entry **matching_entryp,
-//     int (*match_fn)(const char **, unsigned int, const char *))
-// {
-// 	const struct device_compatible_entry *dce = NULL;
-// 	int rv;
+static int
+device_compatible_match_strarray_internal(
+    const char **device_compats, int ndevice_compats,
+    const struct device_compatible_entry *driver_compats,
+    const struct device_compatible_entry **matching_entryp,
+    int (*match_fn)(const char **, unsigned int, const char *))
+{
+	const struct device_compatible_entry *dce = NULL;
+	int rv;
 
-// 	if (ndevice_compats == 0 || device_compats == NULL ||
-// 	    driver_compats == NULL)
-// 		return 0;
+	if (ndevice_compats == 0 || device_compats == NULL ||
+	    driver_compats == NULL)
+		return 0;
 
-// 	for (dce = driver_compats; dce->compat != NULL; dce++) {
-// 		rv = (*match_fn)(device_compats, ndevice_compats, dce->compat);
-// 		if (rv != 0) {
-// 			if (matching_entryp != NULL) {
-// 				*matching_entryp = dce;
-// 			}
-// 			return rv;
-// 		}
-// 	}
-// 	return 0;
-// }
+	for (dce = driver_compats; dce->compat != NULL; dce++) {
+		rv = (*match_fn)(device_compats, ndevice_compats, dce->compat);
+		if (rv != 0) {
+			if (matching_entryp != NULL) {
+				*matching_entryp = dce;
+			}
+			return rv;
+		}
+	}
+	return 0;
+}
 
 // /*
 //  * device_compatible_match:
@@ -2952,48 +2959,48 @@ out:	mutex_exit(&config_misc_lock);
 // 	    ndevice_compats, driver_compats, NULL, strarray_pmatch);
 // }
 
-// static int
-// device_compatible_match_strlist_internal(
-//     const char * const device_compats, size_t const device_compatsize,
-//     const struct device_compatible_entry *driver_compats,
-//     const struct device_compatible_entry **matching_entryp,
-//     int (*match_fn)(const char *, size_t, const char *))
-// {
-// 	const struct device_compatible_entry *dce = NULL;
-// 	int rv;
+static int
+device_compatible_match_strlist_internal(
+    const char * const device_compats, size_t const device_compatsize,
+    const struct device_compatible_entry *driver_compats,
+    const struct device_compatible_entry **matching_entryp,
+    int (*match_fn)(const char *, size_t, const char *))
+{
+	const struct device_compatible_entry *dce = NULL;
+	int rv;
 
-// 	if (device_compats == NULL || device_compatsize == 0 ||
-// 	    driver_compats == NULL)
-// 		return 0;
+	if (device_compats == NULL || device_compatsize == 0 ||
+	    driver_compats == NULL)
+		return 0;
 
-// 	for (dce = driver_compats; dce->compat != NULL; dce++) {
-// 		rv = (*match_fn)(device_compats, device_compatsize,
-// 		    dce->compat);
-// 		if (rv != 0) {
-// 			if (matching_entryp != NULL) {
-// 				*matching_entryp = dce;
-// 			}
-// 			return rv;
-// 		}
-// 	}
-// 	return 0;
-// }
+	for (dce = driver_compats; dce->compat != NULL; dce++) {
+		rv = (*match_fn)(device_compats, device_compatsize,
+		    dce->compat);
+		if (rv != 0) {
+			if (matching_entryp != NULL) {
+				*matching_entryp = dce;
+			}
+			return rv;
+		}
+	}
+	return 0;
+}
 
-// /*
-//  * device_compatible_match_strlist:
-//  *
-//  *	Like device_compatible_match(), but take the device
-//  *	"compatible" strings as an OpenFirmware-style string
-//  *	list.
-//  */
-// int
-// device_compatible_match_strlist(
-//     const char * const device_compats, size_t const device_compatsize,
-//     const struct device_compatible_entry *driver_compats)
-// {
-// 	return device_compatible_match_strlist_internal(device_compats,
-// 	    device_compatsize, driver_compats, NULL, strlist_match);
-// }
+/*
+ * device_compatible_match_strlist:
+ *
+ *	Like device_compatible_match(), but take the device
+ *	"compatible" strings as an OpenFirmware-style string
+ *	list.
+ */
+int
+device_compatible_match_strlist(
+    const char * const device_compats, size_t const device_compatsize,
+    const struct device_compatible_entry *driver_compats)
+{
+	return device_compatible_match_strlist_internal(device_compats,
+	    device_compatsize, driver_compats, NULL, strlist_match);
+}
 
 // /*
 //  * device_compatible_pmatch_strlist:
@@ -3048,24 +3055,24 @@ out:	mutex_exit(&config_misc_lock);
 // 	    sentinel_id, driver_compats, NULL);
 // }
 
-// /*
-//  * device_compatible_lookup:
-//  *
-//  *	Look up and return the device_compatible_entry, using the
-//  *	same matching criteria used by device_compatible_match().
-//  */
-// const struct device_compatible_entry *
-// device_compatible_lookup(const char **device_compats, int ndevice_compats,
-// 			 const struct device_compatible_entry *driver_compats)
-// {
-// 	const struct device_compatible_entry *dce;
+/*
+ * device_compatible_lookup:
+ *
+ *	Look up and return the device_compatible_entry, using the
+ *	same matching criteria used by device_compatible_match().
+ */
+const struct device_compatible_entry *
+device_compatible_lookup(const char **device_compats, int ndevice_compats,
+			 const struct device_compatible_entry *driver_compats)
+{
+	const struct device_compatible_entry *dce;
 
-// 	if (device_compatible_match_strarray_internal(device_compats,
-// 	    ndevice_compats, driver_compats, &dce, strarray_match)) {
-// 		return dce;
-// 	}
-// 	return NULL;
-// }
+	if (device_compatible_match_strarray_internal(device_compats,
+	    ndevice_compats, driver_compats, &dce, strarray_match)) {
+		return dce;
+	}
+	return NULL;
+}
 
 // /*
 //  * device_compatible_plookup:
@@ -3086,26 +3093,26 @@ out:	mutex_exit(&config_misc_lock);
 // 	return NULL;
 // }
 
-// /*
-//  * device_compatible_lookup_strlist:
-//  *
-//  *	Like device_compatible_lookup(), but take the device
-//  *	"compatible" strings as an OpenFirmware-style string
-//  *	list.
-//  */
-// const struct device_compatible_entry *
-// device_compatible_lookup_strlist(
-//     const char * const device_compats, size_t const device_compatsize,
-//     const struct device_compatible_entry *driver_compats)
-// {
-// 	const struct device_compatible_entry *dce;
+/*
+ * device_compatible_lookup_strlist:
+ *
+ *	Like device_compatible_lookup(), but take the device
+ *	"compatible" strings as an OpenFirmware-style string
+ *	list.
+ */
+const struct device_compatible_entry *
+device_compatible_lookup_strlist(
+    const char * const device_compats, size_t const device_compatsize,
+    const struct device_compatible_entry *driver_compats)
+{
+	const struct device_compatible_entry *dce;
 
-// 	if (device_compatible_match_strlist_internal(device_compats,
-// 	    device_compatsize, driver_compats, &dce, strlist_match)) {
-// 		return dce;
-// 	}
-// 	return NULL;
-// }
+	if (device_compatible_match_strlist_internal(device_compats,
+	    device_compatsize, driver_compats, &dce, strlist_match)) {
+		return dce;
+	}
+	return NULL;
+}
 
 // /*
 //  * device_compatible_plookup_strlist:
@@ -3559,219 +3566,219 @@ out:	mutex_exit(&config_misc_lock);
 // 	old_handlers[i] = NULL;
 // }
 
-// /* Return true iff the device_t `dev' exists at generation `gen'. */
-// static bool
-// device_exists_at(device_t dv, devgen_t gen)
-// {
-// 	return (dv->dv_del_gen == 0 || dv->dv_del_gen > gen) &&
-// 	    dv->dv_add_gen <= gen;
-// }
+/* Return true iff the device_t `dev' exists at generation `gen'. */
+static bool
+device_exists_at(device_t dv, devgen_t gen)
+{
+	return (dv->dv_del_gen == 0 || dv->dv_del_gen > gen) &&
+	    dv->dv_add_gen <= gen;
+}
 
-// static bool
-// deviter_visits(const deviter_t *di, device_t dv)
-// {
-// 	return device_exists_at(dv, di->di_gen);
-// }
+static bool
+deviter_visits(const deviter_t *di, device_t dv)
+{
+	return device_exists_at(dv, di->di_gen);
+}
 
-// /*
-//  * Device Iteration
-//  *
-//  * deviter_t: a device iterator.  Holds state for a "walk" visiting
-//  *     each device_t's in the device tree.
-//  *
-//  * deviter_init(di, flags): initialize the device iterator `di'
-//  *     to "walk" the device tree.  deviter_next(di) will return
-//  *     the first device_t in the device tree, or NULL if there are
-//  *     no devices.
-//  *
-//  *     `flags' is one or more of DEVITER_F_RW, indicating that the
-//  *     caller intends to modify the device tree by calling
-//  *     config_detach(9) on devices in the order that the iterator
-//  *     returns them; DEVITER_F_ROOT_FIRST, asking for the devices
-//  *     nearest the "root" of the device tree to be returned, first;
-//  *     DEVITER_F_LEAVES_FIRST, asking for the devices furthest from
-//  *     the root of the device tree, first; and DEVITER_F_SHUTDOWN,
-//  *     indicating both that deviter_init() should not respect any
-//  *     locks on the device tree, and that deviter_next(di) may run
-//  *     in more than one LWP before the walk has finished.
-//  *
-//  *     Only one DEVITER_F_RW iterator may be in the device tree at
-//  *     once.
-//  *
-//  *     DEVITER_F_SHUTDOWN implies DEVITER_F_RW.
-//  *
-//  *     Results are undefined if the flags DEVITER_F_ROOT_FIRST and
-//  *     DEVITER_F_LEAVES_FIRST are used in combination.
-//  *
-//  * deviter_first(di, flags): initialize the device iterator `di'
-//  *     and return the first device_t in the device tree, or NULL
-//  *     if there are no devices.  The statement
-//  *
-//  *         dv = deviter_first(di);
-//  *
-//  *     is shorthand for
-//  *
-//  *         deviter_init(di);
-//  *         dv = deviter_next(di);
-//  *
-//  * deviter_next(di): return the next device_t in the device tree,
-//  *     or NULL if there are no more devices.  deviter_next(di)
-//  *     is undefined if `di' was not initialized with deviter_init() or
-//  *     deviter_first().
-//  *
-//  * deviter_release(di): stops iteration (subsequent calls to
-//  *     deviter_next() will return NULL), releases any locks and
-//  *     resources held by the device iterator.
-//  *
-//  * Device iteration does not return device_t's in any particular
-//  * order.  An iterator will never return the same device_t twice.
-//  * Device iteration is guaranteed to complete---i.e., if deviter_next(di)
-//  * is called repeatedly on the same `di', it will eventually return
-//  * NULL.  It is ok to attach/detach devices during device iteration.
-//  */
-// void
-// deviter_init(deviter_t *di, deviter_flags_t flags)
-// {
-// 	device_t dv;
+/*
+ * Device Iteration
+ *
+ * deviter_t: a device iterator.  Holds state for a "walk" visiting
+ *     each device_t's in the device tree.
+ *
+ * deviter_init(di, flags): initialize the device iterator `di'
+ *     to "walk" the device tree.  deviter_next(di) will return
+ *     the first device_t in the device tree, or NULL if there are
+ *     no devices.
+ *
+ *     `flags' is one or more of DEVITER_F_RW, indicating that the
+ *     caller intends to modify the device tree by calling
+ *     config_detach(9) on devices in the order that the iterator
+ *     returns them; DEVITER_F_ROOT_FIRST, asking for the devices
+ *     nearest the "root" of the device tree to be returned, first;
+ *     DEVITER_F_LEAVES_FIRST, asking for the devices furthest from
+ *     the root of the device tree, first; and DEVITER_F_SHUTDOWN,
+ *     indicating both that deviter_init() should not respect any
+ *     locks on the device tree, and that deviter_next(di) may run
+ *     in more than one LWP before the walk has finished.
+ *
+ *     Only one DEVITER_F_RW iterator may be in the device tree at
+ *     once.
+ *
+ *     DEVITER_F_SHUTDOWN implies DEVITER_F_RW.
+ *
+ *     Results are undefined if the flags DEVITER_F_ROOT_FIRST and
+ *     DEVITER_F_LEAVES_FIRST are used in combination.
+ *
+ * deviter_first(di, flags): initialize the device iterator `di'
+ *     and return the first device_t in the device tree, or NULL
+ *     if there are no devices.  The statement
+ *
+ *         dv = deviter_first(di);
+ *
+ *     is shorthand for
+ *
+ *         deviter_init(di);
+ *         dv = deviter_next(di);
+ *
+ * deviter_next(di): return the next device_t in the device tree,
+ *     or NULL if there are no more devices.  deviter_next(di)
+ *     is undefined if `di' was not initialized with deviter_init() or
+ *     deviter_first().
+ *
+ * deviter_release(di): stops iteration (subsequent calls to
+ *     deviter_next() will return NULL), releases any locks and
+ *     resources held by the device iterator.
+ *
+ * Device iteration does not return device_t's in any particular
+ * order.  An iterator will never return the same device_t twice.
+ * Device iteration is guaranteed to complete---i.e., if deviter_next(di)
+ * is called repeatedly on the same `di', it will eventually return
+ * NULL.  It is ok to attach/detach devices during device iteration.
+ */
+void
+deviter_init(deviter_t *di, deviter_flags_t flags)
+{
+	device_t dv;
 
-// 	memset(di, 0, sizeof(*di));
+	memset(di, 0, sizeof(*di));
 
-// 	if ((flags & DEVITER_F_SHUTDOWN) != 0)
-// 		flags |= DEVITER_F_RW;
+	if ((flags & DEVITER_F_SHUTDOWN) != 0)
+		flags |= DEVITER_F_RW;
 
-// 	mutex_enter(&alldevs_lock);
-// 	if ((flags & DEVITER_F_RW) != 0)
-// 		alldevs_nwrite++;
-// 	else
-// 		alldevs_nread++;
-// 	di->di_gen = alldevs_gen++;
-// 	di->di_flags = flags;
+	mutex_enter(&alldevs_lock);
+	if ((flags & DEVITER_F_RW) != 0)
+		alldevs_nwrite++;
+	else
+		alldevs_nread++;
+	di->di_gen = alldevs_gen++;
+	di->di_flags = flags;
 
-// 	switch (di->di_flags & (DEVITER_F_LEAVES_FIRST|DEVITER_F_ROOT_FIRST)) {
-// 	case DEVITER_F_LEAVES_FIRST:
-// 		TAILQ_FOREACH(dv, &alldevs, dv_list) {
-// 			if (!deviter_visits(di, dv))
-// 				continue;
-// 			di->di_curdepth = MAX(di->di_curdepth, dv->dv_depth);
-// 		}
-// 		break;
-// 	case DEVITER_F_ROOT_FIRST:
-// 		TAILQ_FOREACH(dv, &alldevs, dv_list) {
-// 			if (!deviter_visits(di, dv))
-// 				continue;
-// 			di->di_maxdepth = MAX(di->di_maxdepth, dv->dv_depth);
-// 		}
-// 		break;
-// 	default:
-// 		break;
-// 	}
+	switch (di->di_flags & (DEVITER_F_LEAVES_FIRST|DEVITER_F_ROOT_FIRST)) {
+	case DEVITER_F_LEAVES_FIRST:
+		TAILQ_FOREACH(dv, &alldevs, dv_list) {
+			if (!deviter_visits(di, dv))
+				continue;
+			di->di_curdepth = MAX(di->di_curdepth, dv->dv_depth);
+		}
+		break;
+	case DEVITER_F_ROOT_FIRST:
+		TAILQ_FOREACH(dv, &alldevs, dv_list) {
+			if (!deviter_visits(di, dv))
+				continue;
+			di->di_maxdepth = MAX(di->di_maxdepth, dv->dv_depth);
+		}
+		break;
+	default:
+		break;
+	}
 
-// 	deviter_reinit(di);
-// 	mutex_exit(&alldevs_lock);
-// }
+	deviter_reinit(di);
+	mutex_exit(&alldevs_lock);
+}
 
-// static void
-// deviter_reinit(deviter_t *di)
-// {
+static void
+deviter_reinit(deviter_t *di)
+{
 
-// 	KASSERT(mutex_owned(&alldevs_lock));
-// 	if ((di->di_flags & DEVITER_F_RW) != 0)
-// 		di->di_prev = TAILQ_LAST(&alldevs, devicelist);
-// 	else
-// 		di->di_prev = TAILQ_FIRST(&alldevs);
-// }
+	KASSERT(mutex_owned(&alldevs_lock));
+	if ((di->di_flags & DEVITER_F_RW) != 0)
+		di->di_prev = TAILQ_LAST(&alldevs, devicelist);
+	else
+		di->di_prev = TAILQ_FIRST(&alldevs);
+}
 
-// device_t
-// deviter_first(deviter_t *di, deviter_flags_t flags)
-// {
+device_t
+deviter_first(deviter_t *di, deviter_flags_t flags)
+{
 
-// 	deviter_init(di, flags);
-// 	return deviter_next(di);
-// }
+	deviter_init(di, flags);
+	return deviter_next(di);
+}
 
-// static device_t
-// deviter_next2(deviter_t *di)
-// {
-// 	device_t dv;
+static device_t
+deviter_next2(deviter_t *di)
+{
+	device_t dv;
 
-// 	KASSERT(mutex_owned(&alldevs_lock));
+	KASSERT(mutex_owned(&alldevs_lock));
 
-// 	dv = di->di_prev;
+	dv = di->di_prev;
 
-// 	if (dv == NULL)
-// 		return NULL;
+	if (dv == NULL)
+		return NULL;
 
-// 	if ((di->di_flags & DEVITER_F_RW) != 0)
-// 		di->di_prev = TAILQ_PREV(dv, devicelist, dv_list);
-// 	else
-// 		di->di_prev = TAILQ_NEXT(dv, dv_list);
+	if ((di->di_flags & DEVITER_F_RW) != 0)
+		di->di_prev = TAILQ_PREV(dv, devicelist, dv_list);
+	else
+		di->di_prev = TAILQ_NEXT(dv, dv_list);
 
-// 	return dv;
-// }
+	return dv;
+}
 
-// static device_t
-// deviter_next1(deviter_t *di)
-// {
-// 	device_t dv;
+static device_t
+deviter_next1(deviter_t *di)
+{
+	device_t dv;
 
-// 	KASSERT(mutex_owned(&alldevs_lock));
+	KASSERT(mutex_owned(&alldevs_lock));
 
-// 	do {
-// 		dv = deviter_next2(di);
-// 	} while (dv != NULL && !deviter_visits(di, dv));
+	do {
+		dv = deviter_next2(di);
+	} while (dv != NULL && !deviter_visits(di, dv));
 
-// 	return dv;
-// }
+	return dv;
+}
 
-// device_t
-// deviter_next(deviter_t *di)
-// {
-// 	device_t dv = NULL;
+device_t
+deviter_next(deviter_t *di)
+{
+	device_t dv = NULL;
 
-// 	mutex_enter(&alldevs_lock);
-// 	switch (di->di_flags & (DEVITER_F_LEAVES_FIRST|DEVITER_F_ROOT_FIRST)) {
-// 	case 0:
-// 		dv = deviter_next1(di);
-// 		break;
-// 	case DEVITER_F_LEAVES_FIRST:
-// 		while (di->di_curdepth >= 0) {
-// 			if ((dv = deviter_next1(di)) == NULL) {
-// 				di->di_curdepth--;
-// 				deviter_reinit(di);
-// 			} else if (dv->dv_depth == di->di_curdepth)
-// 				break;
-// 		}
-// 		break;
-// 	case DEVITER_F_ROOT_FIRST:
-// 		while (di->di_curdepth <= di->di_maxdepth) {
-// 			if ((dv = deviter_next1(di)) == NULL) {
-// 				di->di_curdepth++;
-// 				deviter_reinit(di);
-// 			} else if (dv->dv_depth == di->di_curdepth)
-// 				break;
-// 		}
-// 		break;
-// 	default:
-// 		break;
-// 	}
-// 	mutex_exit(&alldevs_lock);
+	mutex_enter(&alldevs_lock);
+	switch (di->di_flags & (DEVITER_F_LEAVES_FIRST|DEVITER_F_ROOT_FIRST)) {
+	case 0:
+		dv = deviter_next1(di);
+		break;
+	case DEVITER_F_LEAVES_FIRST:
+		while (di->di_curdepth >= 0) {
+			if ((dv = deviter_next1(di)) == NULL) {
+				di->di_curdepth--;
+				deviter_reinit(di);
+			} else if (dv->dv_depth == di->di_curdepth)
+				break;
+		}
+		break;
+	case DEVITER_F_ROOT_FIRST:
+		while (di->di_curdepth <= di->di_maxdepth) {
+			if ((dv = deviter_next1(di)) == NULL) {
+				di->di_curdepth++;
+				deviter_reinit(di);
+			} else if (dv->dv_depth == di->di_curdepth)
+				break;
+		}
+		break;
+	default:
+		break;
+	}
+	mutex_exit(&alldevs_lock);
 
-// 	return dv;
-// }
+	return dv;
+}
 
-// void
-// deviter_release(deviter_t *di)
-// {
-// 	bool rw = (di->di_flags & DEVITER_F_RW) != 0;
+void
+deviter_release(deviter_t *di)
+{
+	bool rw = (di->di_flags & DEVITER_F_RW) != 0;
 
-// 	mutex_enter(&alldevs_lock);
-// 	if (rw)
-// 		--alldevs_nwrite;
-// 	else
-// 		--alldevs_nread;
-// 	/* XXX wake a garbage-collection thread */
-// 	mutex_exit(&alldevs_lock);
-// }
+	mutex_enter(&alldevs_lock);
+	if (rw)
+		--alldevs_nwrite;
+	else
+		--alldevs_nread;
+	/* XXX wake a garbage-collection thread */
+	mutex_exit(&alldevs_lock);
+}
 
 const char *
 cfdata_ifattr(const struct cfdata *cf)
