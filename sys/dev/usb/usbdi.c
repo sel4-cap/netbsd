@@ -513,6 +513,7 @@ usbd_transfer(struct usbd_xfer *xfer)
 	/* Sync transfer, wait for completion. */
 	usbd_lock_pipe(pipe);
 	while (!xfer->ux_done) {
+		printf("ux_done : %i ~~~~\n", xfer->ux_done);
 		if (pipe->up_dev->ud_bus->ub_usepolling)
 			panic("usbd_transfer: not done");
 		USBHIST_LOG(usbdebug, "<- sleeping on xfer %#jx",
@@ -520,8 +521,10 @@ usbd_transfer(struct usbd_xfer *xfer)
 
 		err = 0;
 		if ((flags & USBD_SYNCHRONOUS_SIG) != 0) {
+			printf("should use wait_sig ~~~\n");
 			err = cv_wait_sig(&xfer->ux_cv, pipe->up_dev->ud_bus->ub_lock);
 		} else {
+			printf("should not use wait_sig ~~~\n");
 			cv_wait(&xfer->ux_cv, pipe->up_dev->ud_bus->ub_lock);
 		}
 		usb_delay_ms(0, 500); //sel4 assumes complete. dangerous.
@@ -1268,7 +1271,7 @@ usb_transfer_complete(struct usbd_xfer *xfer)
 		/* XXX should we stop the queue on all errors? */
 		if (erred && pipe->up_iface != NULL)	/* not control pipe */
 			pipe->up_running = 0;
-	}
+		}
 	if (pipe->up_running && pipe->up_serialise)
 		usbd_start_next(pipe);
 }
@@ -1940,7 +1943,6 @@ usbd_xfer_schedule_timeout(struct usbd_xfer *xfer)
 static void
 usbd_xfer_cancel_timeout_async(struct usbd_xfer *xfer)
 {
-#ifndef SEL4
 	struct usbd_bus *bus __diagused = xfer->ux_bus;
 
 	KASSERT(bus->ub_usepolling || mutex_owned(bus->ub_lock));
@@ -2016,5 +2018,4 @@ usbd_xfer_cancel_timeout_async(struct usbd_xfer *xfer)
 	KASSERT(!usb_task_pending(xfer->ux_pipe->up_dev, &xfer->ux_aborttask));
 
 	KASSERT(bus->ub_usepolling || mutex_owned(bus->ub_lock));
-#endif
 }

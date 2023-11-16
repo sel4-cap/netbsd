@@ -1045,7 +1045,7 @@ umass_setup_ctrl_transfer(struct umass_softc *sc, usb_device_request_t *req,
 	/* Initialise a USB control transfer and then schedule it */
 
 	usbd_setup_default_xfer(xfer, sc->sc_udev, sc, USBD_DEFAULT_TIMEOUT,
-	    req, buffer, buflen, flags, sc->sc_methods->wire_state);
+		req, buffer, buflen, flags, intr_ptrs->umass_wire_state);
 
 	err = usbd_transfer(xfer);
 	if (err && err != USBD_IN_PROGRESS) {
@@ -1514,6 +1514,9 @@ umass_bbb_state(struct usbd_xfer *xfer, void *priv,
 #endif
 		residue = sc->transfer_datalen - sc->transfer_actlen;
 
+		printf("dCSWTag: %d    dCBWTag: %d ~~~~\n", UGETDW(sc->csw.dCSWTag), UGETDW(sc->cbw.dCBWTag));
+		//sc->csw.dCSWTag[0] = sc->cbw.dCBWTag[0];
+
 		/* Translate weird command-status signatures. */
 		if ((sc->sc_quirks & UMASS_QUIRK_WRONG_CSWSIG) &&
 		    UGETDW(sc->csw.dCSWSignature) == CSWSIGNATURE_OLYMPUS_C1)
@@ -1628,7 +1631,7 @@ umass_bbb_state(struct usbd_xfer *xfer, void *priv,
 	default:
 		// panic("%s: Unknown state %d",
 		//       device_xname(sc->sc_dev), sc->transfer_state);
-		printf("Unknown state");
+		printf("Unknown state\n");
 	}
 }
 

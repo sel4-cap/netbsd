@@ -88,6 +88,8 @@ __KERNEL_RCSID(0, "$NetBSD: sd.c,v 1.335 2022/08/28 10:26:37 mlelstv Exp $");
 #include <sys/kmem.h>
 #include <sys/conf.h>
 
+#include <timer.h>
+
 
 #define HEXDUMP(a, b, c) \
     do { \
@@ -301,7 +303,6 @@ sdmatch(device_t parent, cfdata_t match,
 	    sd_patterns, sizeof(sd_patterns) / sizeof(sd_patterns[0]),
 	    sizeof(sd_patterns[0]), &priority);
 
-	printf("sdmatch priority: %i\n", priority);
 	return (priority);
 }
 
@@ -442,10 +443,13 @@ sdattach(device_t parent, device_t self, void *aux)
 	// sd_dumpblocks(self, inqbuf1, 1, 1);
 	// printf("after dumpblock ~~~~~\n");
 
+	//ms_delay(5000);
+
+	printf("periph active : %i ~~~~\n", sd->sc_periph->periph_active);
 	printf("attempt to read block ~~~~\n");
 	struct scsipi_inquiry_data* inqbuf;
 	inqbuf = kmem_alloc(sizeof(inqbuf), 0);
-	sd_readblocks(self, inqbuf, 1, 2);
+	sd_readblocks(self, inqbuf, 3833945, 5); // 479240[]
 	printf("after readblock ~~~~~\n");
 }
 
@@ -1362,16 +1366,17 @@ sd_dumpblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 	xs->error = XS_NOERROR;
 	xs->bp = 0;
 	char* data = kmem_zalloc(sectorsize * nblk, 0);
-	strcpy(data, "abcdefgh");
+	strcpy(data, "abcdefgh123");
 	xs->data = data;
-	HEXDUMP("data", xs->data, sectorsize * nblk);
+	//HEXDUMP("data", xs->data, sectorsize * nblk);
 	xs->datalen = nblk * sectorsize;
 	callout_init(&xs->xs_callout, 0);
 	/*
 	 * Pass all this info to the scsi driver.
 	 */
 
-	printf("channel: %s\n", chan->chan_name);
+	printf("channel: %s~~~~\n", chan->chan_name);
+
 	scsipi_adapter_request(chan, ADAPTER_REQ_RUN_XFER, xs);
 	if ((xs->xs_status & XS_STS_DONE) == 0 ||
 	    xs->error != XS_NOERROR)
@@ -2129,8 +2134,9 @@ sd_readblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 	 */
 
 	scsipi_adapter_request(chan, ADAPTER_REQ_RUN_XFER, xs);
+	//scsipi_execute_xs(xs);
 
-	//printf("result: %x ~~~~~\n", *xs->data);
+	printf("readblocks xs_status: %i    scsi_status %i ~~~~~\n", xs->xs_status, xs->status);
 
 	HEXDUMP("result", xs->data, sectorsize * nblk);
 
