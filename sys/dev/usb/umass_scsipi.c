@@ -150,15 +150,19 @@ umass_scsi_attach(struct umass_softc *sc)
 
 	scbus = umass_scsipi_setup(sc);
 
+#ifndef SEL4
 	scbus->sc_channel.chan_bustype = &scsi_bustype;
 	scbus->sc_channel.chan_ntargets = 2;
 	scbus->sc_channel.chan_nluns = sc->maxlun + 1;
 	scbus->sc_channel.chan_id = scbus->sc_channel.chan_ntargets - 1;
+#endif
 	DPRINTFM(UDMASS_USB, "sc %#jx: SCSI", (uintptr_t)sc, 0, 0, 0);
 
+#ifndef SEL4
 	scbus->base.sc_child =
 	    config_found(sc->sc_dev, &scbus->sc_channel, scsiprint,
 			 CFARGS(.iattr = "scsi"));
+#endif
 
 	return 0;
 }
@@ -247,6 +251,7 @@ umass_scsipi_setup(struct umass_softc *sc)
 	return scbus;
 }
 
+#ifndef SEL4
 Static void
 umass_scsipi_request(struct scsipi_channel *chan,
 		scsipi_adapter_req_t req, void *arg)
@@ -329,7 +334,7 @@ umass_scsipi_request(struct scsipi_channel *chan,
 						  cmdlen, xs->data,
 						  xs->datalen, dir,
 						  xs->timeout, USBD_SYNCHRONOUS,
-						  intr_ptrs->umass_null_cb, xs);
+						  umass_null_cb, xs);
 			DPRINTFM(UDMASS_SCSI, "done err=%jd",
 			    scbus->sc_sync_status, 0, 0, 0);
 			switch (scbus->sc_sync_status) {
@@ -354,7 +359,7 @@ umass_scsipi_request(struct scsipi_channel *chan,
 						  cmdlen, xs->data,
 						  xs->datalen, dir,
 						  xs->timeout, 0,
-						  intr_ptrs->umass_scsipi_cb, xs);
+						  umass_scsipi_cb, xs);
 			return;
 		}
 
@@ -367,6 +372,7 @@ umass_scsipi_request(struct scsipi_channel *chan,
 		;
 	}
 }
+#endif
 
 Static void
 umass_scsipi_minphys(struct buf *bp)
