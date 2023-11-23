@@ -305,7 +305,6 @@ uhub_match(device_t parent, cfdata_t match, void *aux)
 	if (uaa->uaa_class == UDCLASS_HUB)
 		return matchvalue;
 		
-	printf("a~~~\n");
 	return UMATCH_NONE;
 }
 

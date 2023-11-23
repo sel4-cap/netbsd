@@ -1184,21 +1184,15 @@ config_search_internal(device_t parent, void *aux,
 			    !STREQ(args->iattr, cfdata_ifattr(cf)))
 				continue;
 			
-			// if (cfparent_match(parent, cf->cf_pspec))
-			// 	mapply(&m, cf);
 			if (parent->dv_parent == NULL) {
-
-				printf("1~~~~~~~~~~\n");
 				mapply(&m, cf);
 			}
 			else if (cfparent_match(parent, cf->cf_pspec)) {
-				printf("2~~~~~~~~~~\n");
 			  	mapply(&m, cf);
 
 			}
 		}
 	}
-	printf("out \n");
 	// rnd_add_uint32(&rnd_autoconf_source, 0);
 	return m.match;
 }

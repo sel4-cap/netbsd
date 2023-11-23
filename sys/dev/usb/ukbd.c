@@ -59,11 +59,6 @@ __KERNEL_RCSID(0, "$NetBSD: ukbd.c,v 1.162 2023/01/10 18:20:10 mrg Exp $");
 #include <sys/proc.h>
 #include <sys/vnode.h>
 #include <sys/poll.h>
-#include <sys/intr.h>
-#include <sys/kmem.h>
-#include <timer.h>
-#include <shared_ringbuffer.h>
-#include <printf.h>
 
 #include <dev/usb/usb.h>
 #include <dev/usb/usbhid.h>
@@ -85,6 +80,7 @@ __KERNEL_RCSID(0, "$NetBSD: ukbd.c,v 1.162 2023/01/10 18:20:10 mrg Exp $");
 #include <sys/kmem.h>
 #include <timer.h>
 #include <printf.h>
+#include <shared_ringbuffer.h>
 
 extern uintptr_t rx_free;
 extern uintptr_t rx_used;
@@ -551,9 +547,9 @@ ukbd_attach(device_t parent, device_t self, void *aux)
 	sc->sc_attached = true;
 
     /* Set up shared memory regions */
-    // kbd_buffer_ring = kmem_alloc(sizeof(*kbd_buffer_ring), 0);
-    // ring_init(kbd_buffer_ring, (ring_buffer_t *)rx_free, (ring_buffer_t *)rx_used, NULL, 1);
-	// microkit_notify(42);
+    kbd_buffer_ring = kmem_alloc(sizeof(*kbd_buffer_ring), 0);
+    ring_init(kbd_buffer_ring, (ring_buffer_t *)rx_free, (ring_buffer_t *)rx_used, NULL, 1);
+	printf("DEBUG|new keyboard attached\n");
 	return;
 }
 
@@ -715,13 +711,12 @@ ukbd_intr(void *cookie, void *ibuf, u_int len)
 		printf("\n");
 	}
 #endif
-
 	// If ring not full:
 	// check if empty, then enqueue
-	// bool empty = ring_empty(kbd_buffer_ring);
-	// int error = enqueue_used(kbd_buffer_ring, (uintptr_t) ibuf, sizeof(ibuf), (void *)0);
-	// if (empty)
-	// 	microkit_notify(45);
+	bool empty = ring_empty(kbd_buffer_ring);
+	int error = enqueue_used(kbd_buffer_ring, (uintptr_t) ibuf, sizeof(ibuf), (void *)0);
+	if (empty)
+		microkit_notify(45);
 
 	memset(ud->keys, 0, sizeof(ud->keys));
 
@@ -962,16 +957,16 @@ ukbd_decode(struct ukbd_softc *sc, struct ukbd_data *ud)
                 }
             }
 			keysym_t keypress = hidkbd_keydesc_us[index+1];
-			switch(keypress) {
-				case KS_BackSpace:
-					printf("%c %c", keypress, keypress);
-					break;
-				case KS_Return:
-					printf("\n");
-					break;
-				default:
-					printf("%c", keypress);
-			}
+			/* switch(keypress) { */
+			/* 	case KS_BackSpace: */
+			/* 		printf("%c %c", keypress, keypress); */
+			/* 		break; */
+			/* 	case KS_Return: */
+			/* 		printf("\n"); */
+			/* 		break; */
+			/* 	default: */
+			/* 		printf("%c", keypress); */
+			/* } */
         }
 	}
 }
