@@ -44,6 +44,12 @@ __KERNEL_RCSID(0, "$NetBSD: hidms.c,v 1.6 2021/08/07 16:19:11 thorpej Exp $");
 
 #include <dev/hid/hid.h>
 #include <dev/hid/hidms.h>
+#include <sys/kmem.h>
+#include <shared_ringbuffer.h>
+
+extern uintptr_t mse_free;
+extern uintptr_t mse_used;
+extern ring_handle_t *mse_buffer_ring;
 
 #ifdef HIDMS_DEBUG
 #define DPRINTF(x)	if (hidmsdebug) printf x
@@ -254,6 +260,9 @@ hidms_attach(device_t self, struct hidms *ms,
 	    CFARGS_NONE);
 #endif
 
+    mse_buffer_ring = kmem_alloc(sizeof(*mse_buffer_ring), 0);
+    ring_init(mse_buffer_ring, (ring_buffer_t *)mse_free, (ring_buffer_t *)mse_used, NULL, 1);
+	printf("DEBUG|new HID mouse attached\n");
 	return;
 }
 
@@ -266,6 +275,12 @@ hidms_intr(struct hidms *ms, void *ibuf, u_int len)
 	int i, flags, s;
 
 	DPRINTFN(5,("hidms_intr: len=%d\n", len));
+
+	//enqueue onto api ring (should probably encode data)
+	/* bool empty = ring_empty(mse_buffer_ring); */
+	/* int error = enqueue_used(mse_buffer_ring, (uintptr_t) ibuf, sizeof(ibuf), (void *)0); */
+	/* if (empty) */
+	/* 	microkit_notify(46); */
 
 	flags = WSMOUSE_INPUT_DELTA;	/* equals 0 */
 
@@ -289,9 +304,20 @@ hidms_intr(struct hidms *ms, void *ibuf, u_int len)
 	    buttons != ms->hidms_buttons) {
 		DPRINTFN(10, ("hidms_intr: x:%d y:%d z:%d w:%d buttons:0x%x\n",
 			dx, dy, dz, dw, buttons));
-		printf("hidms_intr: x:%d y:%d z:%d w:%d buttons:0x%x\n",
-			dx, dy, dz, dw, buttons);
 		ms->hidms_buttons = buttons;
+
+		uintptr_t **processed_buf = kmem_alloc(sizeof(ibuf), 0);
+
+		processed_buf[0] = dx;
+		processed_buf[1] = dy;
+		processed_buf[2] = dz;
+		processed_buf[3] = dw;
+		processed_buf[4] = buttons;
+
+		bool empty = ring_empty(mse_buffer_ring);
+		int error = enqueue_used(mse_buffer_ring, (uintptr_t) processed_buf, sizeof(ibuf), (void *)0);
+		if (empty)
+			microkit_notify(46);
 #ifndef SEL4
 		if (ms->hidms_wsmousedev != NULL) {
 			s = spltty();
