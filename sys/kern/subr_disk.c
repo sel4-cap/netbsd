@@ -80,6 +80,8 @@ __KERNEL_RCSID(0, "$NetBSD: subr_disk.c,v 1.137 2023/05/09 12:04:04 riastradh Ex
 #include <sys/sysctl.h>
 #include <lib/libkern/libkern.h>
 
+#include <printf.h>
+
 /*
  * Disk error is the preface to plaintive error messages
  * about failing disk transfers.  It prints messages of the form
@@ -163,6 +165,7 @@ disk_find(const char *name)
 void
 disk_init(struct disk *diskp, const char *name, const struct dkdriver *driver)
 {
+	printf("disk_init ~~~~~\n");
 	u_int blocksize = DEV_BSIZE;
 
 	/*

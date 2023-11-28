@@ -90,6 +90,13 @@ __KERNEL_RCSID(0, "$NetBSD: sd.c,v 1.335 2022/08/28 10:26:37 mlelstv Exp $");
 
 #include <timer.h>
 
+
+#define HEXDUMP(a, b, c) \
+    do { \
+		hexdump(printf, a, b, c); \
+    } while (/*CONSTCOND*/0)
+
+
 #define	SDUNIT(dev)			DISKUNIT(dev)
 #define	SDPART(dev)			DISKPART(dev)
 #define	SDMINOR(unit, part)		DISKMINOR(unit, part)
@@ -166,6 +173,7 @@ static dev_type_ioctl(sdioctl);
 static dev_type_strategy(sdstrategy);
 static dev_type_dump(sddump);
 static dev_type_size(sdsize);
+
 
 const struct bdevsw sd_bdevsw = {
 	.d_open = sdopen,
@@ -244,12 +252,27 @@ static const struct scsipi_inquiry_pattern sd_patterns[] = {
 };
 
 static const struct dkdriver sddkdriver = {
-
+	// .d_open = sdopen,
+	// .d_close = sdclose,
+	// .d_strategy = sdstrategy,
+	// .d_minphys = sdminphys,
+	// .d_diskstart = sd_diskstart,
+	// .d_dumpblocks = sd_dumpblocks,
+	// .d_iosize = sd_iosize,
+	// .d_firstopen = sd_firstopen,
+	// .d_lastclose = sd_lastclose,
+	// .d_label = sd_label,
 };
 
 static const struct scsipi_periphsw sd_switch = {
-
+	// sd_interpret_sense,	/* check our error handler first */
+	// sdstart,		/* have a queue, served by this */
+	// NULL,			/* have no async handler */
+	// sddone,			/* deal with stats at interrupt time */
 };
+
+device_t my_device;
+void read_block(int, int);
 
 #endif
 
@@ -275,6 +298,7 @@ static int
 sdmatch(device_t parent, cfdata_t match,
     void *aux)
 {
+	printf("sdmatch ~~~~~\n");
 	struct scsipibus_attach_args *sa = aux;
 	int priority;
 
@@ -291,6 +315,8 @@ sdmatch(device_t parent, cfdata_t match,
 static void
 sdattach(device_t parent, device_t self, void *aux)
 {
+	printf("sdattach ~~~~~\n");
+	device_t my_device = self;
 	struct sd_softc *sd = device_private(self);
 	struct dk_softc *dksc = &sd->sc_dksc;
 	struct scsipibus_attach_args *sa = aux;
@@ -331,6 +357,7 @@ sdattach(device_t parent, device_t self, void *aux)
 	dk_attach(dksc);
 	disk_attach(&dksc->sc_dkdev);
 
+#ifndef SEL4
 	bufq_alloc(&dksc->sc_bufq, BUFQ_DISK_DEFAULT_STRAT, BUFQ_SORT_RAWBLOCK);
 #endif
 
@@ -365,12 +392,12 @@ sdattach(device_t parent, device_t self, void *aux)
 	error = scsipi_test_unit_ready(periph,
 	    XS_CTL_DISCOVERY | XS_CTL_IGNORE_ILLEGAL_REQUEST |
 	    XS_CTL_IGNORE_MEDIA_CHANGE | XS_CTL_SILENT_NODEV);
-	if (error)
+	if (error) {
 		result = SDGP_RESULT_OFFLINE;
+	}
 	else
 		result = sd_get_parms(sd, &sd->params, XS_CTL_DISCOVERY);
-
-	aprint_normal_dev(dksc->sc_dev, "");
+	//aprint_normal_dev(dksc->sc_dev, "");
 	switch (result) {
 	case SDGP_RESULT_OK:
 #ifndef SEL4
@@ -1282,6 +1309,7 @@ sddump(dev_t dev, daddr_t blkno, void *va, size_t size)
 static int
 sd_dumpblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 {
+	printf("inside dumpblocks\n");
 	struct sd_softc *sd = device_private(dev);
 	struct dk_softc *dksc = &sd->sc_dksc;
 	struct disk_geom *dg = &dksc->sc_dkdev.dk_geom;
@@ -1290,6 +1318,7 @@ sd_dumpblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 	struct scsipi_periph *periph;
 	struct scsipi_channel *chan;
 	size_t sectorsize;
+	printf("sd_ptr: %p\n", sd);
 
 	periph = sd->sc_periph;
 	chan = periph->periph_channel;
@@ -1324,13 +1353,18 @@ sd_dumpblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 	xs->resid = nblk * sectorsize;
 	xs->error = XS_NOERROR;
 	xs->bp = 0;
-	xs->data = va;
+	char* data = kmem_zalloc(sectorsize * nblk, 0);
+	strcpy(data, "abcdefgh123");
+	xs->data = data;
+	//HEXDUMP("data", xs->data, sectorsize * nblk);
 	xs->datalen = nblk * sectorsize;
 	callout_init(&xs->xs_callout, 0);
-
 	/*
 	 * Pass all this info to the scsi driver.
 	 */
+
+	printf("channel: %s~~~~\n", chan->chan_name);
+
 	scsipi_adapter_request(chan, ADAPTER_REQ_RUN_XFER, xs);
 	if ((xs->xs_status & XS_STS_DONE) == 0 ||
 	    xs->error != XS_NOERROR)
@@ -1340,7 +1374,6 @@ sd_dumpblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 	printf("sd%d: dump addr 0x%x, blk %d\n", unit, va, blkno);
 	delay(500 * 1000);	/* half a second */
 #endif	/* SD_DUMP_NOT_TRUSTED */
-
 	return (0);
 }
 
@@ -1827,6 +1860,7 @@ sd_get_parms(struct sd_softc *sd, struct disk_parms *dp, int flags)
 	}
 
 	error = sd_get_capacity(sd, dp, flags);
+
 	if (error)
 		return (error);
 
@@ -2031,3 +2065,83 @@ sd_set_geometry(struct sd_softc *sd)
 
 	disk_set_info(dksc->sc_dev, &dksc->sc_dkdev, sd->typename);
 }
+
+
+
+static int
+sd_readblocks(device_t dev, void *va, daddr_t blkno, int nblk)
+{
+	printf("inside readblocks ~~~~~\n");
+	struct sd_softc *sd = device_private(dev);
+	struct dk_softc *dksc = &sd->sc_dksc;
+	struct disk_geom *dg = &dksc->sc_dkdev.dk_geom;
+	struct scsipi_rw_10 cmd;	/* read command */
+	struct scsipi_xfer *xs;		/* ... convenience */
+	struct scsipi_periph *periph;
+	struct scsipi_channel *chan;
+	size_t sectorsize;
+
+	periph = sd->sc_periph;
+	chan = periph->periph_channel;
+
+	sectorsize = dg->dg_secsize;
+
+	xs = &sx;
+
+	/*
+	 *  Fill out the scsi command
+	 */
+	memset(&cmd, 0, sizeof(cmd));
+	cmd.opcode = READ_10;
+	_lto4b(blkno, cmd.addr);
+	_lto2b(nblk, cmd.length);
+	/*
+	 * Fill out the scsipi_xfer structure
+	 *    Note: we cannot sleep as we may be an interrupt
+	 * don't use scsipi_command() as it may want to wait
+	 * for an xs.
+	 */
+	memset(xs, 0, sizeof(sx));
+	xs->xs_control |= XS_CTL_NOSLEEP | XS_CTL_POLL |
+	    XS_CTL_DATA_IN;
+	xs->xs_status = 0;
+	xs->xs_periph = periph;
+	xs->xs_retries = SDRETRIES;
+	xs->timeout = 10000;	/* 10000 millisecs for a disk ! */
+	xs->cmd = (struct scsipi_generic *)&cmd;
+	xs->cmdlen = sizeof(cmd);
+	xs->resid = nblk * sectorsize;
+	xs->error = XS_NOERROR;
+	xs->bp = 0;
+
+	xs->data = kmem_alloc(sectorsize * nblk, 0);
+	xs->datalen = nblk * sectorsize;
+	callout_init(&xs->xs_callout, 0);
+	/*
+	 * Pass all this info to the scsi driver.
+	 */
+
+	scsipi_adapter_request(chan, ADAPTER_REQ_RUN_XFER, xs);
+	//scsipi_execute_xs(xs);
+
+	printf("readblocks xs_status: %i    scsi_status %i ~~~~~\n", xs->xs_status, xs->status);
+
+	HEXDUMP("result", xs->data, sectorsize * nblk);
+
+	if ((xs->xs_status & XS_STS_DONE) == 0 ||
+	    xs->error != XS_NOERROR)
+		return (EIO);
+
+
+	return (0);
+}
+
+void read_block(int blkno, int nblk)
+{
+	printf("attempt to read block ~~~~\n");
+	struct scsipi_inquiry_data* inqbuf;
+	inqbuf = kmem_alloc(sizeof(inqbuf), 0);
+	sd_readblocks(my_device, inqbuf, 3833945, 5); // 479240[]
+	printf("after readblock ~~~~~\n");
+}
+

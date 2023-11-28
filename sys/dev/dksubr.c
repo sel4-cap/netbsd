@@ -96,6 +96,7 @@ dk_init(struct dk_softc *dksc, device_t dev, int dtype)
 void
 dk_attach(struct dk_softc *dksc)
 {
+#ifndef SEL4
 	KASSERT(dksc->sc_dev != NULL);
 
 	mutex_init(&dksc->sc_iolock, MUTEX_DEFAULT, IPL_VM);
@@ -111,6 +112,7 @@ dk_attach(struct dk_softc *dksc)
 		    RND_TYPE_DISK, RND_FLAG_DEFAULT);
 #endif
 	}
+#endif
 }
 
 void

@@ -219,7 +219,6 @@ umass_scsipi_setup(struct umass_softc *sc)
 	scbus = kmem_zalloc(sizeof(*scbus), KM_SLEEP);
 	sc->bus = &scbus->base;
 
-#ifndef SEL4
 	/* Only use big commands for USB SCSI devices. */
 	/* Do not ask for timeouts.  */
 	sc->sc_busquirks |= PQUIRK_ONLYBIG|PQUIRK_NOREPSUPPOPC;
@@ -229,9 +228,9 @@ umass_scsipi_setup(struct umass_softc *sc)
 	scbus->sc_adapter.adapt_dev = sc->sc_dev;
 	scbus->sc_adapter.adapt_nchannels = 1;
 	scbus->sc_adapter.adapt_request = umass_scsipi_request;
-	scbus->sc_adapter.adapt_minphys = umass_scsipi_minphys;
-	scbus->sc_adapter.adapt_ioctl = umass_scsipi_ioctl;
-	scbus->sc_adapter.adapt_getgeom = umass_scsipi_getgeom;
+	//scbus->sc_adapter.adapt_minphys = umass_scsipi_minphys;
+	//scbus->sc_adapter.adapt_ioctl = umass_scsipi_ioctl;
+	//scbus->sc_adapter.adapt_getgeom = umass_scsipi_getgeom;
 	scbus->sc_adapter.adapt_flags = SCSIPI_ADAPT_MPSAFE;
 
 	/* Fill in the channel. */
@@ -242,7 +241,6 @@ umass_scsipi_setup(struct umass_softc *sc)
 	scbus->sc_channel.chan_openings = 1;
 	scbus->sc_channel.chan_max_periph = 1;
 	scbus->sc_channel.chan_defquirks |= sc->sc_busquirks;
-#endif
 
 	return scbus;
 }
@@ -347,8 +345,10 @@ umass_scsipi_request(struct scsipi_channel *chan,
 		} else {
 			DPRINTFM(UDMASS_SCSI, "async dir=%jd, cmdlen=%jd"
 			    " datalen=%jd", dir, cmdlen, xs->datalen, 0);
+			printf("umass context switch?\n");
 			if(sc->sc_methods == umass_bbb_methods_pointer_other) {
 				sc->sc_methods = umass_bbb_methods_pointer;
+				printf("switched context\n");
 			}
 			sc->sc_methods->wire_xfer(sc, periph->periph_lun, cmd,
 						  cmdlen, xs->data,

@@ -4307,6 +4307,7 @@ xhci_roothub_ctrl_locked(struct usbd_bus *bus, usb_device_request_t *req,
 		if (v & XHCI_PS_WRC)	i |= UPS_C_BH_PORT_RESET;
 		if (v & XHCI_PS_PLC)	i |= UPS_C_PORT_LINK_STATE;
 		if (v & XHCI_PS_CEC)	i |= UPS_C_PORT_CONFIG_ERROR;
+
 		USETW(ps.wPortChange, i);
 		totlen = uimin(len, sizeof(ps));
 		memcpy(buf, &ps, totlen);

@@ -82,4 +82,6 @@ void	scsi_scsipi_cmd(struct scsipi_xfer *);
 void	scsi_async_event_xfer_mode(struct scsipi_channel *, void *);
 void	scsi_fc_sas_async_event_xfer_mode(struct scsipi_channel *, void *);
 
+void read_block(int, int);
+
 #endif /* _DEV_SCSIPI_SCSICONF_H_ */

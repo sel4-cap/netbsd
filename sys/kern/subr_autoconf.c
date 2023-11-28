@@ -1193,6 +1193,7 @@ config_search_internal(device_t parent, void *aux,
 			}
 		}
 	}
+	printf("out \n");
 	// rnd_add_uint32(&rnd_autoconf_source, 0);
 	return m.match;
 }
