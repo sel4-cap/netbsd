@@ -89,6 +89,14 @@ __KERNEL_RCSID(0, "$NetBSD: sd.c,v 1.335 2022/08/28 10:26:37 mlelstv Exp $");
 #include <sys/conf.h>
 
 #include <timer.h>
+#include <shared_ringbuffer.h>
+
+
+extern uintptr_t umass_req_free;
+extern uintptr_t umass_req_used;
+
+/* Pointers to shared_ringbuffers */
+extern ring_handle_t *umass_buffer_ring;
 
 
 #define HEXDUMP(a, b, c) \
@@ -272,7 +280,7 @@ static const struct scsipi_periphsw sd_switch = {
 };
 
 device_t my_device;
-void read_block(int, int);
+//void read_block(int, int);
 
 #endif
 
@@ -298,7 +306,6 @@ static int
 sdmatch(device_t parent, cfdata_t match,
     void *aux)
 {
-	printf("sdmatch ~~~~~\n");
 	struct scsipibus_attach_args *sa = aux;
 	int priority;
 
@@ -315,8 +322,8 @@ sdmatch(device_t parent, cfdata_t match,
 static void
 sdattach(device_t parent, device_t self, void *aux)
 {
-	printf("sdattach ~~~~~\n");
-	device_t my_device = self;
+	my_device = self;
+	printf("device 1: %p\n", my_device);
 	struct sd_softc *sd = device_private(self);
 	struct dk_softc *dksc = &sd->sc_dksc;
 	struct scsipibus_attach_args *sa = aux;
@@ -348,7 +355,6 @@ sdattach(device_t parent, device_t self, void *aux)
 		break;
 	}
 
-#ifndef SEL4
 	/* Initialize dk and disk structure. */
 	dk_init(dksc, self, dtype);
 	disk_init(&dksc->sc_dkdev, dksc->sc_xname, &sddkdriver);
@@ -441,6 +447,11 @@ sdattach(device_t parent, device_t self, void *aux)
 	if (!pmf_device_register1(self, sd_suspend, NULL, sd_shutdown))
 		aprint_error_dev(self, "couldn't establish power handler\n");
 #endif
+
+	/* Set up shared memory regions */
+    umass_buffer_ring = kmem_alloc(sizeof(*umass_buffer_ring), 0);
+    ring_init(umass_buffer_ring, (ring_buffer_t *)umass_req_free, (ring_buffer_t *)umass_req_used, NULL, 1);
+	printf("DEBUG|new mass storage attached\n");
 }
 
 static int
@@ -1318,7 +1329,6 @@ sd_dumpblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 	struct scsipi_periph *periph;
 	struct scsipi_channel *chan;
 	size_t sectorsize;
-	printf("sd_ptr: %p\n", sd);
 
 	periph = sd->sc_periph;
 	chan = periph->periph_channel;
@@ -1353,17 +1363,12 @@ sd_dumpblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 	xs->resid = nblk * sectorsize;
 	xs->error = XS_NOERROR;
 	xs->bp = 0;
-	char* data = kmem_zalloc(sectorsize * nblk, 0);
-	strcpy(data, "abcdefgh123");
-	xs->data = data;
-	//HEXDUMP("data", xs->data, sectorsize * nblk);
+	xs->data = va;
 	xs->datalen = nblk * sectorsize;
 	callout_init(&xs->xs_callout, 0);
 	/*
 	 * Pass all this info to the scsi driver.
 	 */
-
-	printf("channel: %s~~~~\n", chan->chan_name);
 
 	scsipi_adapter_request(chan, ADAPTER_REQ_RUN_XFER, xs);
 	if ((xs->xs_status & XS_STS_DONE) == 0 ||
@@ -2071,7 +2076,6 @@ sd_set_geometry(struct sd_softc *sd)
 static int
 sd_readblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 {
-	printf("inside readblocks ~~~~~\n");
 	struct sd_softc *sd = device_private(dev);
 	struct dk_softc *dksc = &sd->sc_dksc;
 	struct disk_geom *dg = &dksc->sc_dkdev.dk_geom;
@@ -2114,7 +2118,8 @@ sd_readblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 	xs->error = XS_NOERROR;
 	xs->bp = 0;
 
-	xs->data = kmem_alloc(sectorsize * nblk, 0);
+	xs->data = va;
+	//xs->data = kmem_alloc(sectorsize * nblk, 0);
 	xs->datalen = nblk * sectorsize;
 	callout_init(&xs->xs_callout, 0);
 	/*
@@ -2126,7 +2131,7 @@ sd_readblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 
 	printf("readblocks xs_status: %i    scsi_status %i ~~~~~\n", xs->xs_status, xs->status);
 
-	HEXDUMP("result", xs->data, sectorsize * nblk);
+	//HEXDUMP("result", xs->data, sectorsize * nblk);
 
 	if ((xs->xs_status & XS_STS_DONE) == 0 ||
 	    xs->error != XS_NOERROR)
@@ -2136,12 +2141,16 @@ sd_readblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 	return (0);
 }
 
-void read_block(int blkno, int nblk)
+void read_block(int blkno, int nblk, void* data)
 {
-	printf("attempt to read block ~~~~\n");
-	struct scsipi_inquiry_data* inqbuf;
-	inqbuf = kmem_alloc(sizeof(inqbuf), 0);
-	sd_readblocks(my_device, inqbuf, 3833945, 5); // 479240[]
-	printf("after readblock ~~~~~\n");
+	//usbd_delay_ms(0, 5000);
+	// struct scsipi_inquiry_data* inqbuf;
+	// inqbuf = kmem_alloc(sizeof(inqbuf), 0);
+	sd_readblocks(my_device, data, blkno, nblk); // 479240[]
+	//sd_dumpblocks(my_device, inqbuf, blkno, nblk); // 479240[]
+}
+
+void write_block(int blkno, int nblk, void* data) {
+	sd_dumpblocks(my_device, data, blkno, nblk);
 }
 

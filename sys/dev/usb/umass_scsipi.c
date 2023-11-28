@@ -77,6 +77,7 @@ __KERNEL_RCSID(0, "$NetBSD: umass_scsipi.c,v 1.70 2021/12/31 14:24:16 riastradh 
 
 #include <dev/usb/umassvar.h>
 #include <dev/usb/umass_scsipi.h>
+#include <microkit.h>
 
 extern struct umass_wire_methods *umass_bbb_methods_pointer;
 extern struct umass_wire_methods *umass_bbb_methods_pointer_other;
@@ -323,6 +324,7 @@ umass_scsipi_request(struct scsipi_channel *chan,
 			/* Use sync transfer. XXX Broken! */
 			DPRINTFM(UDMASS_SCSI, "sync dir=%jd\n", dir, 0, 0, 0);
 			scbus->sc_sync_status = USBD_INVAL;
+			printf("using null callback dir:%i \n", dir);
 			sc->sc_methods->wire_xfer(sc, periph->periph_lun, cmd,
 						  cmdlen, xs->data,
 						  xs->datalen, dir,
@@ -436,6 +438,9 @@ Static void
 umass_null_cb(struct umass_softc *sc, void *priv, int residue, int status)
 {
 	UMASSHIST_FUNC(); UMASSHIST_CALLED();
+
+	// Read / Write complete
+	microkit_notify(48);
 }
 
 Static void

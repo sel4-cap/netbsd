@@ -88,6 +88,7 @@ extern uintptr_t rx_used;
 /* Pointers to shared_ringbuffers */
 extern ring_handle_t *kbd_buffer_ring;
 
+
 extern const keysym_t hidkbd_keydesc_us[];
 
 #ifdef UKBD_DEBUG
