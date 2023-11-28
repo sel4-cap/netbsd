@@ -271,6 +271,9 @@ static const struct scsipi_periphsw sd_switch = {
 	// sddone,			/* deal with stats at interrupt time */
 };
 
+device_t my_device;
+void read_block(int, int);
+
 #endif
 
 struct sd_mode_sense_data {
@@ -313,6 +316,7 @@ static void
 sdattach(device_t parent, device_t self, void *aux)
 {
 	printf("sdattach ~~~~~\n");
+	device_t my_device = self;
 	struct sd_softc *sd = device_private(self);
 	struct dk_softc *dksc = &sd->sc_dksc;
 	struct scsipibus_attach_args *sa = aux;
@@ -445,12 +449,12 @@ sdattach(device_t parent, device_t self, void *aux)
 
 	//ms_delay(5000);
 
-	printf("periph active : %i ~~~~\n", sd->sc_periph->periph_active);
-	printf("attempt to read block ~~~~\n");
-	struct scsipi_inquiry_data* inqbuf;
-	inqbuf = kmem_alloc(sizeof(inqbuf), 0);
-	sd_readblocks(self, inqbuf, 3833945, 5); // 479240[]
-	printf("after readblock ~~~~~\n");
+	// printf("periph active : %i ~~~~\n", sd->sc_periph->periph_active);
+	// printf("attempt to read block ~~~~\n");
+	// struct scsipi_inquiry_data* inqbuf;
+	// inqbuf = kmem_alloc(sizeof(inqbuf), 0);
+	// sd_readblocks(self, inqbuf, 3833945, 5); // 479240[]
+	// printf("after readblock ~~~~~\n");
 }
 
 static int
@@ -2146,5 +2150,14 @@ sd_readblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 
 
 	return (0);
+}
+
+void read_block(int blkno, int nblk)
+{
+	printf("attempt to read block ~~~~\n");
+	struct scsipi_inquiry_data* inqbuf;
+	inqbuf = kmem_alloc(sizeof(inqbuf), 0);
+	sd_readblocks(my_device, inqbuf, 3833945, 5); // 479240[]
+	printf("after readblock ~~~~~\n");
 }
 
