@@ -2127,11 +2127,6 @@ sd_readblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 	 */
 
 	scsipi_adapter_request(chan, ADAPTER_REQ_RUN_XFER, xs);
-	//scsipi_execute_xs(xs);
-
-	printf("readblocks xs_status: %i    scsi_status %i ~~~~~\n", xs->xs_status, xs->status);
-
-	//HEXDUMP("result", xs->data, sectorsize * nblk);
 
 	if ((xs->xs_status & XS_STS_DONE) == 0 ||
 	    xs->error != XS_NOERROR)
@@ -2143,11 +2138,7 @@ sd_readblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 
 void read_block(int blkno, int nblk, void* data)
 {
-	//usbd_delay_ms(0, 5000);
-	// struct scsipi_inquiry_data* inqbuf;
-	// inqbuf = kmem_alloc(sizeof(inqbuf), 0);
 	sd_readblocks(my_device, data, blkno, nblk); // 479240[]
-	//sd_dumpblocks(my_device, inqbuf, blkno, nblk); // 479240[]
 }
 
 void write_block(int blkno, int nblk, void* data) {

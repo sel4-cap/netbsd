@@ -326,7 +326,7 @@ const struct umass_wire_methods umass_cbi_methods = {
 };
 
 uintptr_t *get_umass_wire_state() {
-	return &umass_bbb_state;
+	return (uintptr_t*) &umass_bbb_state;
 }
 
 struct umass_wire_methods *get_umass_bbb_methods() {

@@ -324,7 +324,6 @@ umass_scsipi_request(struct scsipi_channel *chan,
 			/* Use sync transfer. XXX Broken! */
 			DPRINTFM(UDMASS_SCSI, "sync dir=%jd\n", dir, 0, 0, 0);
 			scbus->sc_sync_status = USBD_INVAL;
-			printf("using null callback dir:%i \n", dir);
 			sc->sc_methods->wire_xfer(sc, periph->periph_lun, cmd,
 						  cmdlen, xs->data,
 						  xs->datalen, dir,

@@ -45,6 +45,7 @@ __KERNEL_RCSID(0, "$NetBSD: dwc3_fdt.c,v 1.20 2022/06/12 08:04:07 skrll Exp $");
 #include <dev/usb/xhcivar.h>
 
 #include <dev/fdt/fdtvar.h>
+
 #include <sys/device_impl.h>
 #include <wrapper.h>
 #include <timer.h>

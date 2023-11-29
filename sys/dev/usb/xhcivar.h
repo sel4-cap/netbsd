@@ -178,6 +178,7 @@ bool	xhci_resume(device_t, const pmf_qual_t *);
 struct usbd_pipe_methods * 	get_root_intr_methods();
 struct usbd_pipe_methods * 	get_device_methods();
 struct usbd_pipe_methods * 	get_device_intr_methods();
+struct usbd_pipe_methods * get_device_bulk_methods();
 struct usbd_pipe_methods 	*get_up_methods(int);
 struct usbd_bus_methods 	*get_bus_methods();
 void xhci_softintr(void *);
