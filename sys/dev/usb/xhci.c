@@ -3054,7 +3054,7 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		/* 4.8.2.1 */
 		if (USB_IS_SS(speed)) {
 			if (dd->bMaxPacketSize != 9) {
-				printf("%s: invalid mps 2^%u for SS ep0,"
+				aprint_debug("%s: invalid mps 2^%u for SS ep0,"
 				    " using 512\n",
 				    device_xname(sc->sc_dev),
 				    dd->bMaxPacketSize);
