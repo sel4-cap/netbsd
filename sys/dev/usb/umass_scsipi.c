@@ -78,6 +78,7 @@ __KERNEL_RCSID(0, "$NetBSD: umass_scsipi.c,v 1.70 2021/12/31 14:24:16 riastradh 
 #include <dev/usb/umassvar.h>
 #include <dev/usb/umass_scsipi.h>
 #include <microkit.h>
+#include <xhci_api.h>
 
 extern struct umass_wire_methods *umass_bbb_methods_pointer;
 extern struct umass_wire_methods *umass_bbb_methods_pointer_other;
@@ -439,7 +440,7 @@ umass_null_cb(struct umass_softc *sc, void *priv, int residue, int status)
 	UMASSHIST_FUNC(); UMASSHIST_CALLED();
 
 	// Read / Write complete
-	microkit_notify(48);
+	microkit_notify(UMASS_COMPLETE);
 }
 
 Static void

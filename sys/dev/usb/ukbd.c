@@ -77,10 +77,12 @@ __KERNEL_RCSID(0, "$NetBSD: ukbd.c,v 1.162 2023/01/10 18:20:10 mrg Exp $");
 #include <dev/wscons/wsksymdef.h>
 #include <dev/wscons/wsksymvar.h>
 #include <sys/intr.h>
+
 #include <sys/kmem.h>
 #include <timer.h>
 #include <printf.h>
 #include <shared_ringbuffer.h>
+#include <xhci_api.h>
 
 extern uintptr_t rx_free;
 extern uintptr_t rx_used;
@@ -717,7 +719,7 @@ ukbd_intr(void *cookie, void *ibuf, u_int len)
 	bool empty = ring_empty(kbd_buffer_ring);
 	int error = enqueue_used(kbd_buffer_ring, (uintptr_t) ibuf, sizeof(ibuf), (void *)0);
 	if (empty)
-		microkit_notify(45);
+		microkit_notify(KEYBOARD_EVENT);
 
 	memset(ud->keys, 0, sizeof(ud->keys));
 

@@ -45,7 +45,9 @@ __KERNEL_RCSID(0, "$NetBSD: hidms.c,v 1.6 2021/08/07 16:19:11 thorpej Exp $");
 #include <dev/hid/hid.h>
 #include <dev/hid/hidms.h>
 #include <sys/kmem.h>
+
 #include <shared_ringbuffer.h>
+#include <xhci_api.h>
 
 extern uintptr_t mse_free;
 extern uintptr_t mse_used;
@@ -276,12 +278,6 @@ hidms_intr(struct hidms *ms, void *ibuf, u_int len)
 
 	DPRINTFN(5,("hidms_intr: len=%d\n", len));
 
-	//enqueue onto api ring (should probably encode data)
-	/* bool empty = ring_empty(mse_buffer_ring); */
-	/* int error = enqueue_used(mse_buffer_ring, (uintptr_t) ibuf, sizeof(ibuf), (void *)0); */
-	/* if (empty) */
-	/* 	microkit_notify(46); */
-
 	flags = WSMOUSE_INPUT_DELTA;	/* equals 0 */
 
 	dx =  hid_get_data(ibuf, &ms->hidms_loc_x);
@@ -317,7 +313,7 @@ hidms_intr(struct hidms *ms, void *ibuf, u_int len)
 		bool empty = ring_empty(mse_buffer_ring);
 		int error = enqueue_used(mse_buffer_ring, (uintptr_t) processed_buf, sizeof(ibuf), (void *)0);
 		if (empty)
-			microkit_notify(46);
+			microkit_notify(MOUSE_EVENT);
 #ifndef SEL4
 		if (ms->hidms_wsmousedev != NULL) {
 			s = spltty();
