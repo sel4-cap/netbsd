@@ -1320,7 +1320,6 @@ sddump(dev_t dev, daddr_t blkno, void *va, size_t size)
 static int
 sd_dumpblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 {
-	printf("inside dumpblocks\n");
 	struct sd_softc *sd = device_private(dev);
 	struct dk_softc *dksc = &sd->sc_dksc;
 	struct disk_geom *dg = &dksc->sc_dkdev.dk_geom;
@@ -2138,7 +2137,7 @@ sd_readblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 
 void read_block(int blkno, int nblk, void* data)
 {
-	sd_readblocks(my_device, data, blkno, nblk); // 479240[]
+	sd_readblocks(my_device, data, blkno, nblk); 
 }
 
 void write_block(int blkno, int nblk, void* data) {
