@@ -84,8 +84,8 @@ __KERNEL_RCSID(0, "$NetBSD: ukbd.c,v 1.162 2023/01/10 18:20:10 mrg Exp $");
 #include <shared_ringbuffer.h>
 #include <xhci_api.h>
 
-extern uintptr_t rx_free;
-extern uintptr_t rx_used;
+extern uintptr_t kbd_free;
+extern uintptr_t kbd_used;
 
 /* Pointers to shared_ringbuffers */
 extern ring_handle_t *kbd_buffer_ring;
@@ -551,7 +551,7 @@ ukbd_attach(device_t parent, device_t self, void *aux)
 
     /* Set up shared memory regions */
     kbd_buffer_ring = kmem_alloc(sizeof(*kbd_buffer_ring), 0);
-    ring_init(kbd_buffer_ring, (ring_buffer_t *)rx_free, (ring_buffer_t *)rx_used, NULL, 1);
+    ring_init(kbd_buffer_ring, (ring_buffer_t *)kbd_free, (ring_buffer_t *)kbd_used, NULL, 1);
 	printf("DEBUG|new keyboard attached\n");
 	return;
 }
