@@ -156,7 +156,6 @@ scsibusmatch(device_t parent, cfdata_t cf, void *aux)
 static void
 scsibusattach(device_t parent, device_t self, void *aux)
 {
-	printf("attach ~~~~\n");
 	struct scsibus_softc *sc = device_private(self);
 	struct scsipi_channel *chan = aux;
 	struct scsi_initq *scsi_initq;

@@ -1870,7 +1870,7 @@ sd_get_parms(struct sd_softc *sd, struct disk_parms *dp, int flags)
 
 	if (sd->type == T_OPTICAL)
 		goto page0;
-
+#ifndef SEL4
 	if (sd->sc_periph->periph_flags & PERIPH_REMOVABLE) {
 		if (!sd_get_parms_page5(sd, dp, flags) ||
 		    !sd_get_parms_page4(sd, dp, flags))
@@ -1880,6 +1880,7 @@ sd_get_parms(struct sd_softc *sd, struct disk_parms *dp, int flags)
 		    !sd_get_parms_page5(sd, dp, flags))
 			goto setprops;
 	}
+#endif
 
 page0:
 	printf("%s: fabricating a geometry\n", dksc->sc_xname);

@@ -165,7 +165,6 @@ disk_find(const char *name)
 void
 disk_init(struct disk *diskp, const char *name, const struct dkdriver *driver)
 {
-	printf("disk_init ~~~~~\n");
 	u_int blocksize = DEV_BSIZE;
 
 	/*

@@ -225,18 +225,17 @@ usbd_get_hub_desc(struct usbd_device *dev, usb_hub_descriptor_t *hd, int speed)
 
 	/* don't issue UDESC_HUB to SS hub, or it would stall */
 	if (dev->ud_depth != 0 && USB_IS_SS(dev->ud_speed)) {
-		usb_hub_ss_descriptor_t hssd;
+		usb_hub_ss_descriptor_t *hssd = kmem_zalloc(sizeof(usb_hub_ss_descriptor_t), 0);
 		int rmvlen;
 
-		memset(&hssd, 0, sizeof(hssd));
 		req.bmRequestType = UT_READ_CLASS_DEVICE;
 		req.bRequest = UR_GET_DESCRIPTOR;
 		USETW2(req.wValue, UDESC_SS_HUB, 0);
 		USETW(req.wIndex, 0);
 		USETW(req.wLength, USB_HUB_SS_DESCRIPTOR_SIZE);
 		DPRINTFN(1, "getting sshub descriptor", 0, 0, 0, 0);
-		err = usbd_do_request(dev, &req, &hssd);
-		nports = hssd.bNbrPorts;
+		err = usbd_do_request(dev, &req, hssd);
+		nports = hssd->bNbrPorts;
 		if (dev->ud_depth != 0 && nports > UHD_SS_NPORTS_MAX) {
 			DPRINTF("num of ports %jd exceeds maxports %jd",
 			    nports, UHD_SS_NPORTS_MAX, 0, 0);
@@ -245,13 +244,13 @@ usbd_get_hub_desc(struct usbd_device *dev, usb_hub_descriptor_t *hd, int speed)
 		rmvlen = (nports + 7) / 8;
 		hd->bDescLength = USB_HUB_DESCRIPTOR_SIZE +
 		    (rmvlen > 1 ? rmvlen : 1) - 1;
-		memcpy(hd->DeviceRemovable, hssd.DeviceRemovable, rmvlen);
-		hd->bDescriptorType		= hssd.bDescriptorType;
-		hd->bNbrPorts			= hssd.bNbrPorts;
-		hd->wHubCharacteristics[0]	= hssd.wHubCharacteristics[0];
-		hd->wHubCharacteristics[1]	= hssd.wHubCharacteristics[1];
-		hd->bPwrOn2PwrGood		= hssd.bPwrOn2PwrGood;
-		hd->bHubContrCurrent		= hssd.bHubContrCurrent;
+		memcpy(hd->DeviceRemovable, hssd->DeviceRemovable, rmvlen);
+		hd->bDescriptorType		= hssd->bDescriptorType;
+		hd->bNbrPorts			= hssd->bNbrPorts;
+		hd->wHubCharacteristics[0]	= hssd->wHubCharacteristics[0];
+		hd->wHubCharacteristics[1]	= hssd->wHubCharacteristics[1];
+		hd->bPwrOn2PwrGood		= hssd->bPwrOn2PwrGood;
+		hd->bHubContrCurrent		= hssd->bHubContrCurrent;
 	} else {
 		req.bmRequestType = UT_READ_CLASS_DEVICE;
 		req.bRequest = UR_GET_DESCRIPTOR;

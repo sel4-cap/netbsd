@@ -347,10 +347,8 @@ umass_scsipi_request(struct scsipi_channel *chan,
 		} else {
 			DPRINTFM(UDMASS_SCSI, "async dir=%jd, cmdlen=%jd"
 			    " datalen=%jd", dir, cmdlen, xs->datalen, 0);
-			printf("umass context switch?\n");
 			if(sc->sc_methods == umass_bbb_methods_pointer_other) {
 				sc->sc_methods = umass_bbb_methods_pointer;
-				printf("switched context\n");
 			}
 			sc->sc_methods->wire_xfer(sc, periph->periph_lun, cmd,
 						  cmdlen, xs->data,

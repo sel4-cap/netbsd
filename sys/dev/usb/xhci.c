@@ -70,6 +70,15 @@ __KERNEL_RCSID(0, "$NetBSD: xhci.c,v 1.180 2023/07/20 11:59:04 riastradh Exp $")
 #include <pipe_methods.h>
 #include <sys/errno.h>
 #include <printf.h>
+#include <xhci_api.h>
+#include <shared_ringbuffer.h>
+
+extern uintptr_t usb_new_device_free;
+extern uintptr_t usb_new_device_used;
+
+/* Pointers to shared_ringbuffers */
+extern ring_handle_t *usb_new_device_ring;
+
 
 extern uintptr_t xhci_root_intr_pointer;
 extern uintptr_t device_ctrl_pointer;
@@ -3110,6 +3119,33 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		if (depth == 0 && port == 0 && dev->ud_pipe0)
 			usbd_kill_pipe(dev->ud_pipe0);
 		usbd_remove_device(dev, up);
+	} else {
+		// Notify shell of new device
+		struct usb_new_device* usb_new_device_info = kmem_alloc(sizeof(struct usb_new_device), 0);
+
+		usb_new_device_info->vendor = kmem_zalloc((sizeof(dev->ud_vendor)), 0);
+		usb_new_device_info->product = kmem_zalloc(sizeof(dev->ud_product), 0);
+		// usb_device_descriptor_t *udd = &dev->ud_ddesc;
+		// usbd_get_device_string(dev, udd->iManufacturer, &usb_new_device_info->vendor);
+		// usbd_get_device_string(dev, udd->iProduct, &usb_new_device_info->product);
+		//usbd_get_device_strings(dev);
+		usb_new_device_info->class = (int)dev->ud_ddesc.bDeviceClass;
+		char* unknown = "unknown";
+		if (!dev->ud_vendor)
+			strncpy(usb_new_device_info->vendor, unknown, strlen(unknown));
+		else
+			strncpy(usb_new_device_info->vendor, dev->ud_vendor, strlen(dev->ud_vendor) + 1);
+		if (!dev->ud_product)
+			strncpy(usb_new_device_info->product, unknown, strlen(unknown));
+		else
+			strncpy(usb_new_device_info->product, dev->ud_product, strlen(dev->ud_product) + 1);
+		usb_new_device_info->vendorid = (int)UGETW(dev->ud_ddesc.idVendor);
+		usb_new_device_info->productid = (int)UGETW(dev->ud_ddesc.idProduct);
+		usb_new_device_info->speed = (int)dev->ud_speed;
+		bool empty = ring_empty(usb_new_device_ring);
+		int error = enqueue_used(usb_new_device_ring, (uintptr_t) usb_new_device_info, sizeof(usb_new_device_info), (void *)0);
+		if (empty)
+			microkit_notify(NEW_DEVICE_EVENT);
 	}
 
 	return err;
