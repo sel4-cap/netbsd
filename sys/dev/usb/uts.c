@@ -61,6 +61,15 @@ __KERNEL_RCSID(0, "$NetBSD: uts.c,v 1.15 2022/03/28 12:44:17 riastradh Exp $");
 #include <dev/wscons/wsmousevar.h>
 #include <dev/wscons/tpcalibvar.h>
 
+#include <sys/kmem.h>
+
+#include <shared_ringbuffer.h>
+#include <xhci_api.h>
+
+extern uintptr_t uts_free;
+extern uintptr_t uts_used;
+extern ring_handle_t *uts_buffer_ring;
+
 #ifdef UTS_DEBUG
 #define DPRINTF(x)	if (utsdebug) printf x
 #define DPRINTFN(n,x)	if (utsdebug>(n)) printf x
@@ -276,6 +285,10 @@ uts_attach(device_t parent, device_t self, void *aux)
 	    (void *)&sc->sc_calibcoords, 0, 0);
 	#endif
     uts_enable(sc); //seL4: moved to enable touchscreen
+
+    uts_buffer_ring = kmem_alloc(sizeof(*uts_buffer_ring), 0);
+    ring_init(uts_buffer_ring, (ring_buffer_t *)uts_free, (ring_buffer_t *)uts_used, NULL, 1);
+	printf("DEBUG|new touch screen attached\n");
 	return;
 }
 
@@ -407,9 +420,19 @@ uts_intr(void *cookie, void *ibuf, u_int len)
 	if (dx != 0 || dy != 0 || dz != 0 || buttons != sc->sc_buttons) {
 		DPRINTFN(10,("uts_intr: x:%d y:%d z:%d buttons:%#x\n",
 		    dx, dy, dz, buttons));
-		printf("uts_intr: x:%d y:%d z:%d buttons:%#x\n",
-		    dx, dy, dz, buttons);
 		sc->sc_buttons = buttons;
+
+		uintptr_t **processed_buf = kmem_alloc(sizeof(ibuf), 0);
+
+		processed_buf[0] = (uintptr_t*) dx;
+		processed_buf[1] = (uintptr_t*) dy;
+		processed_buf[2] = (uintptr_t*) dz;
+		processed_buf[3] = (uintptr_t*) buttons;
+
+		bool empty = ring_empty(uts_buffer_ring);
+		int error = enqueue_used(uts_buffer_ring, (uintptr_t) processed_buf, sizeof(ibuf), (void *)0);
+		if (empty)
+			microkit_notify(TOUCHSCREEN_EVENT);
 		#ifndef SEL4
 		if (sc->sc_wsmousedev != NULL) {
 			s = spltty();
