@@ -279,7 +279,9 @@ static const struct scsipi_periphsw sd_switch = {
 	// sddone,			/* deal with stats at interrupt time */
 };
 
-device_t my_device;
+// device_t my_device;
+device_t device_list[127]; //max devices
+static int no_devices = 0;
 //void read_block(int, int);
 
 #endif
@@ -322,8 +324,8 @@ sdmatch(device_t parent, cfdata_t match,
 static void
 sdattach(device_t parent, device_t self, void *aux)
 {
-	my_device = self;
-	printf("device 1: %p\n", my_device);
+	device_list[no_devices++] = self;
+	printf("device %d: %p\n", no_devices-1, device_list[no_devices-1]);
 	struct sd_softc *sd = device_private(self);
 	struct dk_softc *dksc = &sd->sc_dksc;
 	struct scsipibus_attach_args *sa = aux;
@@ -2136,12 +2138,12 @@ sd_readblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 	return (0);
 }
 
-void read_block(int blkno, int nblk, void* data)
+void read_block(int dev_id, int blkno, int nblk, void* data)
 {
-	sd_readblocks(my_device, data, blkno, nblk); 
+	sd_readblocks(device_list[dev_id], data, blkno, nblk); 
 }
 
-void write_block(int blkno, int nblk, void* data) {
-	sd_dumpblocks(my_device, data, blkno, nblk);
+void write_block(int dev_id, int blkno, int nblk, void* data) {
+	sd_dumpblocks(device_list[dev_id], data, blkno, nblk);
 }
 

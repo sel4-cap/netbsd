@@ -201,6 +201,9 @@ struct usbd_bus {
 struct usbd_device {
 	struct usbd_bus	       *ud_bus;		/* our controller */
 	struct usbd_pipe       *ud_pipe0;	/* pipe 0 */
+#ifdef SEL4
+	int sel4_dev_id; /* used for keeping track of devices in api */
+#endif
 	uint8_t			ud_addr;	/* device address */
 	uint8_t			ud_config;	/* current configuration # */
 	uint8_t			ud_depth;	/* distance from root hub */

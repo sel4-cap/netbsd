@@ -309,6 +309,7 @@ struct usbif_attach_arg {
 #define UMATCH_NONE					 0
 #define IPL_VM		5
 
+int usbd_get_sel4_id(struct usbd_device *);
 
 /*
  * IPL_USB is defined as IPL_VM for drivers that have not been made MP safe.

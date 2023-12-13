@@ -157,16 +157,16 @@ usbd_get_initial_ddesc(struct usbd_device *dev, usb_device_descriptor_t *desc)
 {
 	USBHIST_FUNC();
 	USBHIST_CALLARGS(usbdebug, "dev %#jx", (uintptr_t)dev, 0, 0, 0);
-	usb_device_request_t req;
+	usb_device_request_t *req = kmem_alloc(sizeof(usb_device_request_t), 0);
 	char buf[64];
 	int res, actlen;
 
-	req.bmRequestType = UT_READ_DEVICE;
-	req.bRequest = UR_GET_DESCRIPTOR;
-	USETW2(req.wValue, UDESC_DEVICE, 0);
-	USETW(req.wIndex, 0);
-	USETW(req.wLength, 8);
-	res = usbd_do_request_flags(dev, &req, buf, USBD_SHORT_XFER_OK,
+	req->bmRequestType = UT_READ_DEVICE;
+	req->bRequest = UR_GET_DESCRIPTOR;
+	USETW2(req->wValue, UDESC_DEVICE, 0);
+	USETW(req->wIndex, 0);
+	USETW(req->wLength, 8);
+	res = usbd_do_request_flags(dev, req, buf, USBD_SHORT_XFER_OK,
 		&actlen, USBD_DEFAULT_TIMEOUT);
 	if (res)
 		return res;

@@ -84,14 +84,6 @@ __KERNEL_RCSID(0, "$NetBSD: usb.c,v 1.200 2022/03/13 11:28:52 riastradh Exp $");
 #include "ioconf.h"
 #include <wrapper.h>
 #include <printf.h>
-#include <xhci_api.h>
-#include <shared_ringbuffer.h>
-
-extern uintptr_t usb_new_device_free;
-extern uintptr_t usb_new_device_used;
-
-/* Pointers to shared_ringbuffer for new device */
-extern ring_handle_t *usb_new_device_ring;
 
 #if defined(USB_DEBUG)
 
@@ -541,19 +533,6 @@ usb_doattach(device_t self)
 			     device_xname(self), usbd_errstr(err));
 		sc->sc_dying = 1;
 	}
-
-	// Notify shell of root hub
-	struct usb_new_device* usb_new_device_info = kmem_alloc(sizeof(struct usb_new_device), 0);
-	usb_new_device_info->vendor = kmem_zalloc((sizeof(dev->ud_vendor)), 0);
-	usb_new_device_info->product = kmem_zalloc(sizeof(dev->ud_product), 0);
-	usb_new_device_info->class = (int)dev->ud_ddesc.bDeviceClass;
-	strncpy(usb_new_device_info->vendor, dev->ud_vendor, strlen(dev->ud_vendor) + 1);
-	strncpy(usb_new_device_info->product, dev->ud_product, strlen(dev->ud_product) + 1);
-	usb_new_device_info->speed = (int)dev->ud_speed;
-	bool empty = ring_empty(usb_new_device_ring);
-	int error = enqueue_used(usb_new_device_ring, (uintptr_t) usb_new_device_info, sizeof(usb_new_device_info), (void *)0);
-	if (empty)
-		microkit_notify(NEW_DEVICE_EVENT);
 
 	/*
 	 * Drop this reference after the first set of attachments in the
@@ -1498,3 +1477,9 @@ usb_detach(device_t self, int flags)
 
 	return 0;
 }
+
+#ifdef SEL4
+int usbd_get_sel4_id(struct usbd_device *dev) {
+	return dev->sel4_dev_id;
+}
+#endif

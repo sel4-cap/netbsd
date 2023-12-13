@@ -3063,7 +3063,7 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		/* 4.8.2.1 */
 		if (USB_IS_SS(speed)) {
 			if (dd->bMaxPacketSize != 9) {
-				aprint_debug("%s: invalid mps 2^%u for SS ep0,"
+				printf("%s: invalid mps 2^%u for SS ep0,"
 				    " using 512\n",
 				    device_xname(sc->sc_dev),
 				    dd->bMaxPacketSize);
@@ -3080,10 +3080,12 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 #endif
 		}
 		DPRINTFN(4, "bMaxPacketSize %ju", dd->bMaxPacketSize, 0, 0, 0);
+        printf("bmaxpacketsize %u\n", dd->bMaxPacketSize);
 		err = xhci_update_ep0_mps(sc, xs,
 		    UGETW(dev->ud_ep0desc.wMaxPacketSize));
 		if (err) {
 			DPRINTFN(1, "update mps of ep0 %ju", err, 0, 0, 0);
+			printf("failed to updated mps of endpoint\n");
 			goto bad;
 		}
 	}
@@ -3109,6 +3111,31 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 
 	if (depth == 0 && port == 0) {
 		usbd_attach_roothub(parent, dev);
+
+		// Notify shell of root hub
+		struct sel4_usb_device* sel4_dev = kmem_alloc(sizeof(struct sel4_usb_device), 0);
+		dev->sel4_dev_id = num_devices++;
+		printf("new device root hub %d\n", dev->sel4_dev_id);
+		sel4_dev->id = dev->sel4_dev_id;
+		sel4_dev->vendor = kmem_zalloc((sizeof(dev->ud_vendor)), 0);
+		sel4_dev->product = kmem_zalloc(sizeof(dev->ud_product), 0);
+		sel4_dev->class = (int)dev->ud_ddesc.bDeviceClass;
+        printf("dev\n");
+		strncpy(sel4_dev->vendor, dev->ud_vendor, strlen(dev->ud_vendor) + 1);
+		strncpy(sel4_dev->product, dev->ud_product, strlen(dev->ud_product) + 1);
+        printf("vendor\n");
+		sel4_dev->speed = (int)dev->ud_speed;
+		sel4_dev->depth = (int)dev->ud_depth;
+		sel4_dev->protocol = dd->bDeviceProtocol;
+		sel4_dev->mps = dd->bMaxPacketSize;
+		sel4_dev->len = dd->bLength;
+		sel4_dev->num_configs = dd->bNumConfigurations;
+		sel4_dev->rev = UGETW(dd->bcdUSB);
+		bool empty = ring_empty(usb_new_device_ring);
+		int error = enqueue_used(usb_new_device_ring, (uintptr_t) sel4_dev, sizeof(sel4_dev), (void *)0);
+        printf("finished\n");
+		if (empty)
+			microkit_notify(NEW_DEVICE_EVENT);
 		DPRINTFN(1, "root hub %#jx", (uintptr_t)dev, 0, 0, 0);
 		return USBD_NORMAL_COMPLETION;
 	}
@@ -3121,29 +3148,37 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		usbd_remove_device(dev, up);
 	} else {
 		// Notify shell of new device
-		struct usb_new_device* usb_new_device_info = kmem_alloc(sizeof(struct usb_new_device), 0);
+		struct sel4_usb_device* sel4_dev = kmem_alloc(sizeof(struct sel4_usb_device), 0);
 
-		usb_new_device_info->vendor = kmem_zalloc((sizeof(dev->ud_vendor)), 0);
-		usb_new_device_info->product = kmem_zalloc(sizeof(dev->ud_product), 0);
-		// usb_device_descriptor_t *udd = &dev->ud_ddesc;
-		// usbd_get_device_string(dev, udd->iManufacturer, &usb_new_device_info->vendor);
-		// usbd_get_device_string(dev, udd->iProduct, &usb_new_device_info->product);
-		//usbd_get_device_strings(dev);
-		usb_new_device_info->class = (int)dev->ud_ddesc.bDeviceClass;
+		dev->sel4_dev_id = num_devices++;
+        printf("new device id = %d\n", dev->sel4_dev_id);
+		sel4_dev->id = (int)dev->sel4_dev_id;
+		sel4_dev->vendor = kmem_zalloc((sizeof(dev->ud_vendor)), 0);
+		sel4_dev->product = kmem_zalloc(sizeof(dev->ud_product), 0);
+		sel4_dev->class = (int)dev->ud_ddesc.bDeviceClass;
+		sel4_dev->subclass = (int)dev->ud_ddesc.bDeviceSubClass;
 		char* unknown = "unknown";
 		if (!dev->ud_vendor)
-			strncpy(usb_new_device_info->vendor, unknown, strlen(unknown));
+			strncpy(sel4_dev->vendor, unknown, strlen(unknown));
 		else
-			strncpy(usb_new_device_info->vendor, dev->ud_vendor, strlen(dev->ud_vendor) + 1);
+			strncpy(sel4_dev->vendor, dev->ud_vendor, strlen(dev->ud_vendor) + 1);
 		if (!dev->ud_product)
-			strncpy(usb_new_device_info->product, unknown, strlen(unknown));
+			strncpy(sel4_dev->product, unknown, strlen(unknown));
 		else
-			strncpy(usb_new_device_info->product, dev->ud_product, strlen(dev->ud_product) + 1);
-		usb_new_device_info->vendorid = (int)UGETW(dev->ud_ddesc.idVendor);
-		usb_new_device_info->productid = (int)UGETW(dev->ud_ddesc.idProduct);
-		usb_new_device_info->speed = (int)dev->ud_speed;
+			strncpy(sel4_dev->product, dev->ud_product, strlen(dev->ud_product) + 1);
+		sel4_dev->vendorid = (int)UGETW(dev->ud_ddesc.idVendor);
+		sel4_dev->productid = (int)UGETW(dev->ud_ddesc.idProduct);
+		sel4_dev->ifaceClass = dev->ud_ifaces[0].ui_idesc->bInterfaceClass;
+		sel4_dev->ifaceSub = dev->ud_ifaces[0].ui_idesc->bInterfaceSubClass;
+		sel4_dev->speed = (int)dev->ud_speed;
+		sel4_dev->depth = depth;
+		sel4_dev->protocol = dd->bDeviceProtocol;
+		sel4_dev->mps = dd->bMaxPacketSize;
+		sel4_dev->len = dd->bLength;
+		sel4_dev->num_configs = dd->bNumConfigurations;
+		sel4_dev->rev = UGETW(dd->bcdUSB);
 		bool empty = ring_empty(usb_new_device_ring);
-		int error = enqueue_used(usb_new_device_ring, (uintptr_t) usb_new_device_info, sizeof(usb_new_device_info), (void *)0);
+		int error = enqueue_used(usb_new_device_ring, (uintptr_t) sel4_dev, sizeof(sel4_dev), (void *)0);
 		if (empty)
 			microkit_notify(NEW_DEVICE_EVENT);
 	}

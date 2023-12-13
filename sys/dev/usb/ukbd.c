@@ -86,10 +86,7 @@ __KERNEL_RCSID(0, "$NetBSD: ukbd.c,v 1.162 2023/01/10 18:20:10 mrg Exp $");
 
 extern uintptr_t kbd_free;
 extern uintptr_t kbd_used;
-
-/* Pointers to shared_ringbuffers */
 extern ring_handle_t *kbd_buffer_ring;
-
 
 extern const keysym_t hidkbd_keydesc_us[];
 
