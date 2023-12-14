@@ -3115,15 +3115,12 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		// Notify shell of root hub
 		struct sel4_usb_device* sel4_dev = kmem_alloc(sizeof(struct sel4_usb_device), 0);
 		dev->sel4_dev_id = num_devices++;
-		printf("new device root hub %d\n", dev->sel4_dev_id);
 		sel4_dev->id = dev->sel4_dev_id;
 		sel4_dev->vendor = kmem_zalloc((sizeof(dev->ud_vendor)), 0);
 		sel4_dev->product = kmem_zalloc(sizeof(dev->ud_product), 0);
 		sel4_dev->class = (int)dev->ud_ddesc.bDeviceClass;
-        printf("dev\n");
 		strncpy(sel4_dev->vendor, dev->ud_vendor, strlen(dev->ud_vendor) + 1);
 		strncpy(sel4_dev->product, dev->ud_product, strlen(dev->ud_product) + 1);
-        printf("vendor\n");
 		sel4_dev->speed = (int)dev->ud_speed;
 		sel4_dev->depth = (int)dev->ud_depth;
 		sel4_dev->protocol = dd->bDeviceProtocol;
@@ -3133,7 +3130,6 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		sel4_dev->rev = UGETW(dd->bcdUSB);
 		bool empty = ring_empty(usb_new_device_ring);
 		int error = enqueue_used(usb_new_device_ring, (uintptr_t) sel4_dev, sizeof(sel4_dev), (void *)0);
-        printf("finished\n");
 		if (empty)
 			microkit_notify(NEW_DEVICE_EVENT);
 		DPRINTFN(1, "root hub %#jx", (uintptr_t)dev, 0, 0, 0);
