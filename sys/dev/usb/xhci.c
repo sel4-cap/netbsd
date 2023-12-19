@@ -2959,7 +2959,6 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		break;
 	case USB_SPEED_LOW:
 	default:
-		aprint_debug("SEL4: device should have packet size of %d\n", USB_MAX_IPACKET);
 		USETW(dev->ud_ep0desc.wMaxPacketSize, USB_MAX_IPACKET);
 		break;
 	}
@@ -3138,11 +3137,9 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 			usbd_kill_pipe(dev->ud_pipe0);
 		usbd_remove_device(dev, up);
 	} else {
-		// Notify shell of new device
 		struct sel4_usb_device* sel4_dev = kmem_alloc(sizeof(struct sel4_usb_device), 0);
 
 		dev->sel4_dev_id = num_devices++;
-        printf("new device id = %d\n", dev->sel4_dev_id);
 		sel4_dev->id = (int)dev->sel4_dev_id;
 		sel4_dev->vendor = kmem_zalloc((sizeof(dev->ud_vendor)), 0);
 		sel4_dev->product = kmem_zalloc(sizeof(dev->ud_product), 0);
@@ -3168,6 +3165,7 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		sel4_dev->len = dd->bLength;
 		sel4_dev->num_configs = dd->bNumConfigurations;
 		sel4_dev->rev = UGETW(dd->bcdUSB);
+		// Notify shell of new device
 		bool empty = ring_empty(usb_new_device_ring);
 		int error = enqueue_used(usb_new_device_ring, (uintptr_t) sel4_dev, sizeof(sel4_dev), (void *)0);
 		if (empty)
