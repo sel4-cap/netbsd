@@ -3072,15 +3072,10 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 			USETW(dev->ud_ep0desc.wMaxPacketSize,
 			    (1 << dd->bMaxPacketSize));
 		} else {
-#ifndef SEL4
 			USETW(dev->ud_ep0desc.wMaxPacketSize,
 			    dd->bMaxPacketSize);
-#else
-			printf("SEL4 WARNING: avoiding setting maxpacketsize for now\n");
-#endif
 		}
 		DPRINTFN(4, "bMaxPacketSize %ju", dd->bMaxPacketSize, 0, 0, 0);
-        printf("bmaxpacketsize %u\n", dd->bMaxPacketSize);
 		err = xhci_update_ep0_mps(sc, xs,
 		    UGETW(dev->ud_ep0desc.wMaxPacketSize));
 		if (err) {
@@ -3124,7 +3119,7 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		sel4_dev->speed = (int)dev->ud_speed;
 		sel4_dev->depth = (int)dev->ud_depth;
 		sel4_dev->protocol = dd->bDeviceProtocol;
-		sel4_dev->mps = dd->bMaxPacketSize;
+		sel4_dev->mps = UGETW(dev->ud_ep0desc.wMaxPacketSize);
 		sel4_dev->len = dd->bLength;
 		sel4_dev->num_configs = dd->bNumConfigurations;
 		sel4_dev->rev = UGETW(dd->bcdUSB);
@@ -3169,7 +3164,7 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		sel4_dev->speed = (int)dev->ud_speed;
 		sel4_dev->depth = depth;
 		sel4_dev->protocol = dd->bDeviceProtocol;
-		sel4_dev->mps = dd->bMaxPacketSize;
+		sel4_dev->mps = UGETW(dev->ud_ep0desc.wMaxPacketSize);
 		sel4_dev->len = dd->bLength;
 		sel4_dev->num_configs = dd->bNumConfigurations;
 		sel4_dev->rev = UGETW(dd->bcdUSB);
