@@ -158,7 +158,7 @@ usbd_get_initial_ddesc(struct usbd_device *dev, usb_device_descriptor_t *desc)
 	USBHIST_FUNC();
 	USBHIST_CALLARGS(usbdebug, "dev %#jx", (uintptr_t)dev, 0, 0, 0);
 	usb_device_request_t *req = kmem_alloc(sizeof(usb_device_request_t), 0);
-	char buf[64];
+	char *buf = kmem_alloc(64 * sizeof(char), 0);
 	int res, actlen;
 
 	req->bmRequestType = UT_READ_DEVICE;

@@ -3080,7 +3080,7 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		    UGETW(dev->ud_ep0desc.wMaxPacketSize));
 		if (err) {
 			DPRINTFN(1, "update mps of ep0 %ju", err, 0, 0, 0);
-			printf("failed to updated mps of endpoint\n");
+			printf("failed to update mps of endpoint\n");
 			goto bad;
 		}
 	}
@@ -3453,6 +3453,7 @@ xhci_do_command_locked(struct xhci_softc * const sc,
 	case 192 ... 223:
 		DPRINTFN(5, "error %#jx",
 		    XHCI_TRB_2_ERROR_GET(trb->trb_2), 0, 0, 0);
+		printf("XHCI ERROR %#x\n", XHCI_TRB_2_ERROR_GET(trb->trb_2));
 		err = USBD_IOERROR;
 		break;
 	case 224 ... 255:
