@@ -302,7 +302,7 @@ hidms_intr(struct hidms *ms, void *ibuf, u_int len)
 			dx, dy, dz, dw, buttons));
 		ms->hidms_buttons = buttons;
 
-		uintptr_t **processed_buf = kmem_alloc(sizeof(ibuf), 0);
+		uintptr_t **processed_buf = ta_calloc(sizeof(ibuf), 1);
 
 		processed_buf[0] = (uintptr_t*) dx;
 		processed_buf[1] = (uintptr_t*) dy;

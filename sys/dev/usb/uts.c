@@ -63,6 +63,8 @@ __KERNEL_RCSID(0, "$NetBSD: uts.c,v 1.15 2022/03/28 12:44:17 riastradh Exp $");
 
 #include <sys/kmem.h>
 
+#include <tinyalloc.h>
+
 #include <shared_ringbuffer.h>
 #include <xhci_api.h>
 
@@ -422,7 +424,7 @@ uts_intr(void *cookie, void *ibuf, u_int len)
 		    dx, dy, dz, buttons));
 		sc->sc_buttons = buttons;
 
-		uintptr_t **processed_buf = kmem_alloc(sizeof(ibuf), 0);
+		uintptr_t **processed_buf = ta_calloc(sizeof(ibuf), 0);
 
 		processed_buf[0] = (uintptr_t*) dx;
 		processed_buf[1] = (uintptr_t*) dy;

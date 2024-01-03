@@ -50,7 +50,7 @@ __KERNEL_RCSID(0, "$NetBSD: umass_scsipi.c,v 1.70 2021/12/31 14:24:16 riastradh 
 #include <sys/kernel.h>
 #include <sys/kmem.h>
 #include <sys/lwp.h>
-//#include <sys/malloc.h>
+#include <tinyalloc.h>
 #include <sys/systm.h>
 
 /* SCSI & ATAPI */
@@ -443,7 +443,7 @@ umass_null_cb(struct umass_softc *sc, void *priv, int residue, int status)
 
 	int dev_id = usbd_get_sel4_id(sc->sc_udev);
 	printf("returning from dev %d\n", dev_id);
-	int* buf = kmem_alloc(sizeof(dev_id), 0)
+	int* buf = ta_alloc(sizeof(dev_id));
 	*buf = dev_id;
 	enqueue_free(umass_buffer_ring, buf, sizeof(buf), (void*)0);
 	// Read / Write complete

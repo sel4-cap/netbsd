@@ -77,6 +77,8 @@ __KERNEL_RCSID(0, "$NetBSD: uhidev.c,v 1.94 2022/11/04 19:46:55 jmcneill Exp $")
 /* Report descriptor for Xbox One controllers */
 #include <dev/usb/x1input_rdesc.h>
 
+#include <tinyalloc.h>
+
 #include "locators.h"
 
 struct uhidev_softc {
@@ -725,8 +727,8 @@ uhidev_open_pipes(struct uhidev_softc *sc)
 	}
 	mutex_exit(&sc->sc_lock);
 
-	/* Allocate an input buffer.  */
-	sc->sc_ibuf = kmem_alloc(sc->sc_isize, KM_SLEEP);
+	/* Allocate an input buffer. This is allocated in memory shared with client */
+	sc->sc_ibuf = ta_alloc(sc->sc_isize);
 
 	/* Set up input interrupt pipe. */
 	DPRINTF(("%s: isize=%d, ep=0x%02x\n", __func__, sc->sc_isize,
