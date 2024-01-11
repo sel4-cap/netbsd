@@ -425,14 +425,14 @@ uts_intr(void *cookie, void *ibuf, u_int len)
 		    dx, dy, dz, buttons));
 		sc->sc_buttons = buttons;
 
-		uintptr_t **processed_buf = calloc(sizeof(ibuf), 1);
+		int **processed_buf = calloc(sizeof(ibuf), 1);
 
-		processed_buf[0] = (uintptr_t*) dx;
-		processed_buf[1] = (uintptr_t*) dy;
-		processed_buf[2] = (uintptr_t*) dz;
-		processed_buf[3] = (uintptr_t*) buttons;
+		processed_buf[0] = (int*) (long) dx;
+		processed_buf[1] = (int*) (long) dy;
+		processed_buf[2] = (int*) (long) dz;
+		processed_buf[3] = (int*) (long) buttons;
 
-		bool empty = ring_empty(uts_buffer_ring);
+		bool empty = ring_empty(uts_buffer_ring->used_ring);
 		int error = enqueue_used(uts_buffer_ring, (uintptr_t) processed_buf, sizeof(ibuf), (void *)0);
 		if (empty)
 			microkit_notify(TOUCHSCREEN_EVENT);

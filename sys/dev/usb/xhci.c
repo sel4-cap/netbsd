@@ -86,9 +86,8 @@ extern uintptr_t device_ctrl_pointer;
 
 // DEVELOPMENT {{{
 #define device_has_power(d) 1
-#define DELAY(ms) 0
-#define device_printf(dev, ...) printf(__VA_ARGS__)
-#define snprintb(...) snprintf(__VA_ARGS__)
+#define DELAY(ms) ms_delay(ms)
+#define snprintb(...) 0
 // }}}
 #ifdef USB_DEBUG
 #ifndef XHCI_DEBUG
@@ -3452,7 +3451,7 @@ xhci_do_command_locked(struct xhci_softc * const sc,
 	case 192 ... 223:
 		DPRINTFN(5, "error %#jx",
 		    XHCI_TRB_2_ERROR_GET(trb->trb_2), 0, 0, 0);
-		printf("XHCI ERROR %#x\n", XHCI_TRB_2_ERROR_GET(trb->trb_2));
+		printf("XHCI ERROR %#lx\n", XHCI_TRB_2_ERROR_GET(trb->trb_2));
 		err = USBD_IOERROR;
 		break;
 	case 224 ... 255:

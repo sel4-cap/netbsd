@@ -65,6 +65,7 @@ __KERNEL_RCSID(0, "$NetBSD: scsipi_base.c,v 1.189 2022/04/09 23:38:32 riastradh 
 #include <machine/param.h>
 
 #include <sys/kmem.h>
+#include <stdio.h>
 
 SDT_PROVIDER_DEFINE(scsi);
 

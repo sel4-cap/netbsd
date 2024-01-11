@@ -49,6 +49,7 @@ __KERNEL_RCSID(0, "$NetBSD: dksubr.c,v 1.113 2021/04/15 00:32:50 rin Exp $");
 #include <sys/syslog.h>
 
 #include <dev/dkvar.h>
+#include <stdio.h>
 #ifndef SEL4
 #include <miscfs/specfs/specdev.h> /* for v_rdev */
 #endif
@@ -373,7 +374,7 @@ dk_strategy_defer(struct dk_softc *dksc, struct buf *bp)
 int
 dk_strategy_pending(struct dk_softc *dksc)
 {
-	struct buf *bp;
+	struct buf *bp = NULL;
 
 	if (!(dksc->sc_flags & DKF_INITED)) {
 		DPRINTF_FOLLOW(("%s: not inited\n", __func__));
@@ -962,7 +963,7 @@ dk_getdisklabel(struct dk_softc *dksc, dev_t dev)
 	struct   disk_geom *dg = &dksc->sc_dkdev.dk_geom;
 	struct	 partition *pp;
 	int	 i, lpratio, dgratio;
-	const char	*errstring;
+	const char	*errstring = 0;
 
 	memset(clp, 0x0, sizeof(*clp));
 	dk_getdefaultlabel(dksc, lp);

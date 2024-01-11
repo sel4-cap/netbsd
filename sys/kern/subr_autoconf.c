@@ -1565,7 +1565,7 @@ config_devalloc(const device_t parent, const cfdata_t cf,
 	cfattach_t ca;
 	size_t lname, lunit;
 	const char *xunit;
-	int myunit;
+	int myunit = 0;
 	char num[10];
 	device_t dev;
 	void *dev_private;

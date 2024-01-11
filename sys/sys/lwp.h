@@ -34,7 +34,10 @@
 #define _SYS_LWP_H_
 
 #include <machine/proc.h>		/* Machine-dependent proc substruct. */
-// struct proc {};
+
+#ifdef SEL4
+struct lwp;
+#endif
 
 #if defined(_KERNEL) || defined(_KMEMUSER)
 

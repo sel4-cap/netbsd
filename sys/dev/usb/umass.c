@@ -157,6 +157,7 @@ __KERNEL_RCSID(0, "$NetBSD: umass.c,v 1.189 2022/09/22 14:27:52 riastradh Exp $"
 
 #include <dev/scsipi/scsipi_all.h>
 #include <dev/scsipi/scsipiconf.h>
+#include <stdio.h>
 
 extern struct umass_wire_methods *umass_bbb_methods_pointer;
 extern struct umass_wire_methods *umass_bbb_methods_pointer_other;

@@ -306,11 +306,11 @@ hidms_intr(struct hidms *ms, void *ibuf, u_int len)
 
 		uintptr_t **processed_buf = calloc(sizeof(ibuf), 1);
 
-		processed_buf[0] = (uintptr_t*) dx;
-		processed_buf[1] = (uintptr_t*) dy;
-		processed_buf[2] = (uintptr_t*) dz;
-		processed_buf[3] = (uintptr_t*) dw;
-		processed_buf[4] = (uintptr_t*) buttons;
+		processed_buf[0] = (uintptr_t*) (long) dx;
+		processed_buf[1] = (uintptr_t*) (long) dy;
+		processed_buf[2] = (uintptr_t*) (long) dz;
+		processed_buf[3] = (uintptr_t*) (long) dw;
+		processed_buf[4] = (uintptr_t*) (long) buttons;
 
 		bool empty = ring_empty(mse_buffer_ring->used_ring);
 		int error = enqueue_used(mse_buffer_ring, (uintptr_t) processed_buf, sizeof(ibuf), (void *)0);

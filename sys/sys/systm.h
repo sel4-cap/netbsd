@@ -790,20 +790,12 @@ void assert_sleepable(void);
 #define aprint_debug(...)   printf(__VA_ARGS__)
 #define aprint_verbose(...) printf(__VA_ARGS__)
 #define aprint_error(...)   printf(__VA_ARGS__)
-#define aprint_normal_dev(dev, ...)     aprint_normal(__VA_ARGS__)
-#define aprint_verbose_dev(dev, ...)    aprint_verbose(__VA_ARGS__)
-#define aprint_debug_dev(dev, ...)      aprint_debug(__VA_ARGS__)
-#define aprint_error_dev(dev, ...)      aprint_error(__VA_ARGS__)
 #else
 #define aprint_naive(...)   0
 #define aprint_normal(...)  0
 #define aprint_debug(...)   0
 #define aprint_verbose(...) 0
 #define aprint_error(...)   0
-#define aprint_normal_dev(dev, ...)     aprint_normal(__VA_ARGS__)
-#define aprint_verbose_dev(dev, ...)    aprint_verbose(__VA_ARGS__)
-#define aprint_debug_dev(dev, ...)      aprint_debug(__VA_ARGS__)
-#define aprint_error_dev(dev, ...)      aprint_error(__VA_ARGS__)
 #endif
 // no-ops
 #define panic(...) 0
@@ -812,6 +804,12 @@ void assert_sleepable(void);
 #define KERNEL_LOCKED_P() 0
 
 #define ASSERT_SLEEPABLE() 0
+
+#define aprint_normal_dev(dev, ...)     aprint_normal(__VA_ARGS__)
+#define aprint_verbose_dev(dev, ...)    aprint_verbose(__VA_ARGS__)
+#define aprint_debug_dev(dev, ...)      aprint_debug(__VA_ARGS__)
+#define aprint_error_dev(dev, ...)      aprint_error(__VA_ARGS__)
+#define device_printf(dev, ...)			aprint_normal(__VA_ARGS__)
 
 #endif /* SEL4 */
 #endif	/* !_SYS_SYSTM_H_ */

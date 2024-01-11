@@ -90,6 +90,7 @@ __KERNEL_RCSID(0, "$NetBSD: sd.c,v 1.335 2022/08/28 10:26:37 mlelstv Exp $");
 
 #include <timer.h>
 #include <shared_ringbuffer.h>
+#include <stdio.h>
 
 
 extern uintptr_t umass_req_free;

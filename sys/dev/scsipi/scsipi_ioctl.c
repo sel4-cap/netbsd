@@ -65,6 +65,7 @@ __KERNEL_RCSID(0, "$NetBSD: scsipi_ioctl.c,v 1.73 2019/12/27 09:41:51 msaitoh Ex
 #endif
 
 #include <sys/kmem.h>
+#include <stdio.h>
 
 struct scsi_ioctl {
 	LIST_ENTRY(scsi_ioctl) si_list;
@@ -321,7 +322,7 @@ int
 scsipi_do_ioctl(struct scsipi_periph *periph, dev_t dev, u_long cmd,
     void *addr, int flag, struct lwp *l)
 {
-	int error;
+	int error = 0;
 
 	SC_DEBUG(periph, SCSIPI_DB2, ("scsipi_do_ioctl(0x%lx)\n", cmd));
 

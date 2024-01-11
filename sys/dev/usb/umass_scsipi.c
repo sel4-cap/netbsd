@@ -121,11 +121,11 @@ Static void umass_scsipi_sense_cb(struct umass_softc *, void *,
 
 Static struct umass_scsipi_softc *umass_scsipi_setup(struct umass_softc *);
 
-uintptr_t *get_umass_scsipi_cb() {
+void *get_umass_scsipi_cb() {
 	return &umass_scsipi_cb;
 }
 
-uintptr_t *get_umass_null_cb() {
+void *get_umass_null_cb() {
 	return &umass_null_cb;
 }
 

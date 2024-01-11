@@ -71,6 +71,7 @@ __KERNEL_RCSID(0, "$NetBSD: ofw_subr.c,v 1.60 2022/01/22 11:49:18 thorpej Exp $"
 #include <sys/device_calls.h>
 
 #include <dev/ofw/openfirm.h>
+#include <stdio.h>
 
 #define	OFW_MAX_STACK_BUF_SIZE	256
 #define	OFW_PATH_BUF_SIZE	512

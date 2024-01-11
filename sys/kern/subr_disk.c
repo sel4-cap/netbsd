@@ -152,7 +152,7 @@ diskerr(const struct buf *bp, const char *dname, const char *what, int pri,
 struct disk *
 disk_find(const char *name)
 {
-	struct io_stats *stat;
+	struct io_stats *stat = NULL;
 
 #ifndef SEL4
 	stat = iostat_find(name);
