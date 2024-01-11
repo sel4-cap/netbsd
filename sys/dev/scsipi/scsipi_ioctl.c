@@ -305,7 +305,9 @@ done:
 	if (error)
 		bp->b_resid = bp->b_bcount;
 	bp->b_error = error;
+#ifndef SEL4
 	biodone(bp);
+#endif
 	return;
 }
 

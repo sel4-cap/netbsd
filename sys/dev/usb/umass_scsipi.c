@@ -50,7 +50,7 @@ __KERNEL_RCSID(0, "$NetBSD: umass_scsipi.c,v 1.70 2021/12/31 14:24:16 riastradh 
 #include <sys/kernel.h>
 #include <sys/kmem.h>
 #include <sys/lwp.h>
-#include <tinyalloc.h>
+#include <stdlib.h>
 #include <sys/systm.h>
 
 /* SCSI & ATAPI */
@@ -78,7 +78,7 @@ __KERNEL_RCSID(0, "$NetBSD: umass_scsipi.c,v 1.70 2021/12/31 14:24:16 riastradh 
 #include <dev/usb/umassvar.h>
 #include <dev/usb/umass_scsipi.h>
 #include <microkit.h>
-#include <printf.h>
+#include <stdio.h>
 #include <shared_ringbuffer.h>
 #include <xhci_api.h>
 
@@ -375,6 +375,7 @@ umass_scsipi_request(struct scsipi_channel *chan,
 Static void
 umass_scsipi_minphys(struct buf *bp)
 {
+#ifndef SEL4
 #ifdef DIAGNOSTIC
 	if (bp->b_bcount <= 0) {
 		printf("umass_scsipi_minphys count(%d) <= 0\n",
@@ -385,6 +386,7 @@ umass_scsipi_minphys(struct buf *bp)
 	if (bp->b_bcount > UMASS_MAX_TRANSFER_SIZE)
 		bp->b_bcount = UMASS_MAX_TRANSFER_SIZE;
 	minphys(bp);
+#endif
 }
 #ifndef SEL4
 int
@@ -443,9 +445,9 @@ umass_null_cb(struct umass_softc *sc, void *priv, int residue, int status)
 
 	int dev_id = usbd_get_sel4_id(sc->sc_udev);
 	printf("returning from dev %d\n", dev_id);
-	int* buf = ta_alloc(sizeof(dev_id));
+	int* buf = malloc(sizeof(dev_id));
 	*buf = dev_id;
-	enqueue_free(umass_buffer_ring, buf, sizeof(buf), (void*)0);
+	enqueue_free(umass_buffer_ring, (uintptr_t)buf, sizeof(buf), (void*)0);
 	// Read / Write complete
 	microkit_notify(UMASS_COMPLETE);
 }

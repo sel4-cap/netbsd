@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-#include <printf.h>
+#include <stdio.h>
 __KERNEL_RCSID(0, "$NetBSD: fdt_subr.c,v 1.39 2021/01/24 15:43:22 thorpej Exp $");
 
 #ifndef SEL4

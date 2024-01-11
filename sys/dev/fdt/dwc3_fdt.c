@@ -28,7 +28,7 @@
 
 #include <sys/cdefs.h>
 __KERNEL_RCSID(0, "$NetBSD: dwc3_fdt.c,v 1.20 2022/06/12 08:04:07 skrll Exp $");
-#include <printf.h>
+#include <stdio.h>
 
 #include <sys/param.h>
 #include <sys/bus.h>

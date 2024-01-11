@@ -52,6 +52,7 @@ __KERNEL_RCSID(0, "$NetBSD: usbdi_util.c,v 1.87 2022/04/17 13:16:52 riastradh Ex
 #include <dev/usb/usbdi_util.h>
 #include <dev/usb/usb_quirks.h>
 #include <dev/usb/usbhist.h>
+#include <stdio.h>
 
 #define	DPRINTF(FMT,A,B,C,D)	USBHIST_LOGN(usbdebug,1,FMT,A,B,C,D)
 #define	DPRINTFN(N,FMT,A,B,C,D)	USBHIST_LOGN(usbdebug,N,FMT,A,B,C,D)

@@ -65,6 +65,7 @@ __KERNEL_RCSID(0, "$NetBSD: scsiconf.c,v 1.303 2022/10/15 18:42:49 jmcneill Exp 
 #include <sys/queue.h>
 #include <sys/atomic.h>
 #include <sys/kmem.h>
+#include <stdio.h>
 
 #include <dev/scsipi/scsi_all.h>
 #include <dev/scsipi/scsipi_all.h>

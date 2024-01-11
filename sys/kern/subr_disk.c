@@ -80,7 +80,9 @@ __KERNEL_RCSID(0, "$NetBSD: subr_disk.c,v 1.137 2023/05/09 12:04:04 riastradh Ex
 #include <sys/sysctl.h>
 #include <lib/libkern/libkern.h>
 
-#include <printf.h>
+wchar_t tset;
+
+#include <stdio.h>
 
 /*
  * Disk error is the preface to plaintive error messages

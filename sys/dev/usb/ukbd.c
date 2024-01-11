@@ -80,8 +80,9 @@ __KERNEL_RCSID(0, "$NetBSD: ukbd.c,v 1.162 2023/01/10 18:20:10 mrg Exp $");
 
 #include <sys/kmem.h>
 #include <timer.h>
-#include <printf.h>
+#include <stdio.h>
 #include <shared_ringbuffer.h>
+#include <stdlib.h>
 #include <xhci_api.h>
 
 extern uintptr_t kbd_free;
@@ -537,7 +538,7 @@ ukbd_attach(device_t parent, device_t self, void *aux)
 	sc->sc_leds_set = 0;	/* not explicitly set by wskbd yet */
 	callout_reset(&sc->sc_ledreset, mstohz(400), ukbd_delayed_leds_off,
 	    sc);
-	usbd_delay_ms(0, 400);
+	ms_delay(400);
 #ifndef SEL4
 	ukbd_delayed_leds_off(&sc);
 #endif
@@ -713,7 +714,7 @@ ukbd_intr(void *cookie, void *ibuf, u_int len)
 #endif
 	// If ring not full:
 	// check if empty, then enqueue
-	bool empty = ring_empty(kbd_buffer_ring);
+	bool empty = ring_empty(kbd_buffer_ring->used_ring);
 	int error = enqueue_used(kbd_buffer_ring, (uintptr_t) ibuf, sizeof(ibuf), (void *)0);
 	if (empty)
 		microkit_notify(KEYBOARD_EVENT);

@@ -69,10 +69,10 @@ __KERNEL_RCSID(0, "$NetBSD: xhci.c,v 1.180 2023/07/20 11:59:04 riastradh Exp $")
 #include <dev/usb/usbroothub.h>
 #include <pipe_methods.h>
 #include <sys/errno.h>
-#include <printf.h>
-#include <tinyalloc.h>
 #include <xhci_api.h>
 #include <shared_ringbuffer.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 extern uintptr_t usb_new_device_free;
 extern uintptr_t usb_new_device_used;
@@ -3108,11 +3108,11 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		usbd_attach_roothub(parent, dev);
 
 		// Notify shell of root hub
-		struct sel4_usb_device* sel4_dev = ta_alloc(sizeof(struct sel4_usb_device));
+		struct sel4_usb_device* sel4_dev = malloc(sizeof(struct sel4_usb_device));
 		dev->sel4_dev_id = num_devices++;
 		sel4_dev->id = dev->sel4_dev_id;
-		sel4_dev->vendor = ta_alloc(sizeof(dev->ud_vendor));
-		sel4_dev->product = ta_alloc(sizeof(dev->ud_product));
+		sel4_dev->vendor = malloc(strlen(dev->ud_vendor+1));
+		sel4_dev->product = malloc(strlen(dev->ud_product+1));
 		sel4_dev->class = (int)dev->ud_ddesc.bDeviceClass;
 		strncpy(sel4_dev->vendor, dev->ud_vendor, strlen(dev->ud_vendor) + 1);
 		strncpy(sel4_dev->product, dev->ud_product, strlen(dev->ud_product) + 1);
@@ -3123,7 +3123,7 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		sel4_dev->len = dd->bLength;
 		sel4_dev->num_configs = dd->bNumConfigurations;
 		sel4_dev->rev = UGETW(dd->bcdUSB);
-		bool empty = ring_empty(usb_new_device_ring);
+		bool empty = ring_empty(usb_new_device_ring->used_ring);
 		int error = enqueue_used(usb_new_device_ring, (uintptr_t) sel4_dev, sizeof(sel4_dev), (void *)0);
 		if (empty)
 			microkit_notify(NEW_DEVICE_EVENT);
@@ -3138,12 +3138,12 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 			usbd_kill_pipe(dev->ud_pipe0);
 		usbd_remove_device(dev, up);
 	} else {
-		struct sel4_usb_device* sel4_dev = ta_alloc(sizeof(struct sel4_usb_device));
+		struct sel4_usb_device* sel4_dev = malloc(sizeof(struct sel4_usb_device));
 
 		dev->sel4_dev_id = num_devices++;
 		sel4_dev->id = (int)dev->sel4_dev_id;
-		sel4_dev->vendor = ta_alloc((sizeof(dev->ud_vendor)));
-		sel4_dev->product = ta_alloc(sizeof(dev->ud_product));
+		sel4_dev->vendor = malloc((sizeof(dev->ud_vendor)));
+		sel4_dev->product = malloc(sizeof(dev->ud_product));
 		sel4_dev->class = (int)dev->ud_ddesc.bDeviceClass;
 		sel4_dev->subclass = (int)dev->ud_ddesc.bDeviceSubClass;
 		char* unknown = "unknown";
@@ -3167,7 +3167,7 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		sel4_dev->num_configs = dd->bNumConfigurations;
 		sel4_dev->rev = UGETW(dd->bcdUSB);
 		// Notify shell of new device
-		bool empty = ring_empty(usb_new_device_ring);
+		bool empty = ring_empty(usb_new_device_ring->used_ring);
 		int error = enqueue_used(usb_new_device_ring, (uintptr_t) sel4_dev, sizeof(sel4_dev), (void *)0);
 		if (empty)
 			microkit_notify(NEW_DEVICE_EVENT);

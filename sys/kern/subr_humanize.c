@@ -29,9 +29,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
 __KERNEL_RCSID(0, "$NetBSD: subr_humanize.c,v 1.2 2019/03/12 00:25:44 kre Exp $");
 
+#include <sys/cdefs.h>
+#include <lib/libkern/libkern.h>
 #include <sys/types.h>
 #include <sys/systm.h>
 

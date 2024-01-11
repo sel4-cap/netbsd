@@ -36,6 +36,8 @@
 #ifndef	_SYS_CDEFS_H_
 #define	_SYS_CDEFS_H_
 
+#include <sys/cdefs_helper.h>
+
 #define NBBY		8 //from sys/types.h
 /*
  * Macro to test if we're using a GNU C compiler of a specific vintage

@@ -313,7 +313,7 @@ Static void umass_cbi_state(struct usbd_xfer *, void *, usbd_status);
 Static int umass_cbi_adsc(struct umass_softc *, char *, int, int,
     struct usbd_xfer *);
 
-const struct umass_wire_methods umass_bbb_methods = {
+struct umass_wire_methods umass_bbb_methods = {
 	.wire_xfer = umass_bbb_transfer,
 	.wire_reset = umass_bbb_reset,
 	.wire_state = umass_bbb_state

@@ -47,6 +47,8 @@ __KERNEL_RCSID(0, "$NetBSD: hidms.c,v 1.6 2021/08/07 16:19:11 thorpej Exp $");
 #include <sys/kmem.h>
 
 #include <shared_ringbuffer.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <xhci_api.h>
 
 extern uintptr_t mse_free;
@@ -302,7 +304,7 @@ hidms_intr(struct hidms *ms, void *ibuf, u_int len)
 			dx, dy, dz, dw, buttons));
 		ms->hidms_buttons = buttons;
 
-		uintptr_t **processed_buf = ta_calloc(sizeof(ibuf), 1);
+		uintptr_t **processed_buf = calloc(sizeof(ibuf), 1);
 
 		processed_buf[0] = (uintptr_t*) dx;
 		processed_buf[1] = (uintptr_t*) dy;
@@ -310,7 +312,7 @@ hidms_intr(struct hidms *ms, void *ibuf, u_int len)
 		processed_buf[3] = (uintptr_t*) dw;
 		processed_buf[4] = (uintptr_t*) buttons;
 
-		bool empty = ring_empty(mse_buffer_ring);
+		bool empty = ring_empty(mse_buffer_ring->used_ring);
 		int error = enqueue_used(mse_buffer_ring, (uintptr_t) processed_buf, sizeof(ibuf), (void *)0);
 		if (empty)
 			microkit_notify(MOUSE_EVENT);

@@ -116,6 +116,7 @@ __KERNEL_RCSID(0, "$NetBSD: subr_autoconf.c,v 1.306.4.2 2023/08/01 14:53:54 mart
 // #include <sys/rndsource.h>
 
 #include <machine/limits.h>
+#include <stdio.h>
 
 /*
  * Autoconfiguration subroutines.
@@ -2690,48 +2691,48 @@ out:	mutex_exit(&config_misc_lock);
 // 	config_dump_garbage(&af->af_garbage);
 // }
 
-// /*
-//  * device_lookup:
-//  *
-//  *	Look up a device instance for a given driver.
-//  *
-//  *	Caller is responsible for ensuring the device's state is
-//  *	stable, either by holding a reference already obtained with
-//  *	device_lookup_acquire or by otherwise ensuring the device is
-//  *	attached and can't be detached (e.g., holding an open device
-//  *	node and ensuring *_detach calls vdevgone).
-//  *
-//  *	XXX Find a way to assert this.
-//  *
-//  *	Safe for use up to and including interrupt context at IPL_VM.
-//  *	Never sleeps.
-//  */
-// device_t
-// device_lookup(cfdriver_t cd, int unit)
-// {
-// 	device_t dv;
+/*
+ * device_lookup:
+ *
+ *	Look up a device instance for a given driver.
+ *
+ *	Caller is responsible for ensuring the device's state is
+ *	stable, either by holding a reference already obtained with
+ *	device_lookup_acquire or by otherwise ensuring the device is
+ *	attached and can't be detached (e.g., holding an open device
+ *	node and ensuring *_detach calls vdevgone).
+ *
+ *	XXX Find a way to assert this.
+ *
+ *	Safe for use up to and including interrupt context at IPL_VM.
+ *	Never sleeps.
+ */
+device_t
+device_lookup(cfdriver_t cd, int unit)
+{
+	device_t dv;
 
-// 	mutex_enter(&alldevs_lock);
-// 	if (unit < 0 || unit >= cd->cd_ndevs)
-// 		dv = NULL;
-// 	else if ((dv = cd->cd_devs[unit]) != NULL && dv->dv_del_gen != 0)
-// 		dv = NULL;
-// 	mutex_exit(&alldevs_lock);
+	mutex_enter(&alldevs_lock);
+	if (unit < 0 || unit >= cd->cd_ndevs)
+		dv = NULL;
+	else if ((dv = cd->cd_devs[unit]) != NULL && dv->dv_del_gen != 0)
+		dv = NULL;
+	mutex_exit(&alldevs_lock);
 
-// 	return dv;
-// }
+	return dv;
+}
 
-// /*
-//  * device_lookup_private:
-//  *
-//  *	Look up a softc instance for a given driver.
-//  */
-// void *
-// device_lookup_private(cfdriver_t cd, int unit)
-// {
+/*
+ * device_lookup_private:
+ *
+ *	Look up a softc instance for a given driver.
+ */
+void *
+device_lookup_private(cfdriver_t cd, int unit)
+{
 
-// 	return device_private(device_lookup(cd, unit));
-// }
+	return device_private(device_lookup(cd, unit));
+}
 
 // /*
 //  * device_lookup_acquire:

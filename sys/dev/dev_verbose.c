@@ -31,7 +31,7 @@ __KERNEL_RCSID(0, "$NetBSD: dev_verbose.c,v 1.4 2021/06/29 21:03:36 pgoyette Exp
 #include <sys/systm.h>
 #elif defined SEL4
 #include <sys/systm.h>
-#include <printf.h>
+#include <stdio.h>
 #else
 #include <stdio.h>
 #include <string.h>

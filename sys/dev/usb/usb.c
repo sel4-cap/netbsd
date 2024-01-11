@@ -83,7 +83,7 @@ __KERNEL_RCSID(0, "$NetBSD: usb.c,v 1.200 2022/03/13 11:28:52 riastradh Exp $");
 
 #include "ioconf.h"
 #include <wrapper.h>
-#include <printf.h>
+#include <stdio.h>
 
 #if defined(USB_DEBUG)
 
@@ -540,10 +540,12 @@ usb_doattach(device_t self)
 	 */
 	config_pending_incr(self);
 
-	if (!pmf_device_register(self, NULL, NULL))
+	if (!pmf_device_register(self, NULL, NULL)) {
 		aprint_error_dev(self, "couldn't establish power handler\n");
-	else
+	}
+	else {
 		sc->sc_pmf_registered = true;
+	}
 
 	return;
 }
@@ -797,6 +799,7 @@ usb_event_thread(void *arg)
 void
 usb_task_thread(void *arg)
 {
+#ifndef SEL4
 	struct usb_task *task;
 	struct usb_taskq *taskq;
 	bool mpsafe;
@@ -839,6 +842,7 @@ usb_task_thread(void *arg)
 		}
 	}
 	mutex_exit(&taskq->lock);
+#endif
 }
 
 #ifndef SEL4

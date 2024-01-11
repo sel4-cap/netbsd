@@ -61,6 +61,7 @@ __KERNEL_RCSID(0, "$NetBSD: usbdi.c,v 1.247 2022/09/13 10:32:58 riastradh Exp $"
 #include <dev/usb/usbhist.h>
 #include <pipe_methods.h>
 #include <sys/errno.h>
+#include <stdio.h>
 
 #include <dev/usb/umassvar.h>
 

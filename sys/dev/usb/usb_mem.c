@@ -53,6 +53,7 @@ __KERNEL_RCSID(0, "$NetBSD: usb_mem.c,v 1.84 2021/12/21 09:51:22 skrll Exp $");
 #include <sys/once.h>
 #include <sys/queue.h>
 #include <sys/systm.h>
+#include <stdio.h>
 
 #include <dev/usb/usb.h>
 #include <dev/usb/usbdi.h>

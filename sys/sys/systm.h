@@ -55,6 +55,7 @@
 #endif
 
 #include <machine/endian.h>
+#include <stddef.h>
 
 #include <sys/types.h>
 #include <sys/stdarg.h>
@@ -771,10 +772,19 @@ void assert_sleepable(void);
 #endif /* defined(DEBUG) */
 
 #else
-#include <printf.h>
 #include <lib/libkern/libkern.h>
 
 #ifdef SEL4_USB_DEBUG
+// extern char *pd_name;
+// static void printpd(const char *fmt, ...)
+// {
+// 	printf("%s: ", pd_name);
+// 	va_list ap;
+
+// 	va_start(ap, fmt);
+// 	printf(fmt, ap);
+// 	va_end(ap);
+// }
 #define aprint_naive(...)   printf(__VA_ARGS__)
 #define aprint_normal(...)  printf(__VA_ARGS__)
 #define aprint_debug(...)   printf(__VA_ARGS__)

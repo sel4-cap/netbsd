@@ -654,6 +654,7 @@ sdopen(dev_t dev, int flag, int fmt, struct lwp *l)
 static int
 sd_lastclose(device_t self)
 {
+#ifndef SEL4
 	struct sd_softc *sd = device_private(self);
 	struct dk_softc *dksc = &sd->sc_dksc;
 	struct scsipi_periph *periph = sd->sc_periph;
@@ -684,6 +685,7 @@ sd_lastclose(device_t self)
 	scsipi_wait_drain(periph);
 
 	scsipi_adapter_delref(adapt);
+#endif
 
 	return 0;
 }
@@ -1020,7 +1022,11 @@ static int
 sdread(dev_t dev, struct uio *uio, int ioflag)
 {
 
+#ifndef SEL4
 	return (physio(sdstrategy, NULL, dev, B_READ, sdminphys, uio));
+#else
+	return -1;
+#endif
 }
 
 static int
@@ -1141,6 +1147,7 @@ sd_label(device_t self, struct disklabel *lp)
 static bool
 sd_shutdown(device_t self, int how)
 {
+#ifndef SEL4
 	struct sd_softc *sd = device_private(self);
 	struct dk_softc *dksc = &sd->sc_dksc;
 
@@ -1157,6 +1164,7 @@ sd_shutdown(device_t self, int how)
 		} else
 			sd->flags &= ~(SDF_FLUSHING|SDF_DIRTY);
 	}
+#endif
 	return true;
 }
 
