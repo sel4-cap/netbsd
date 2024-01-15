@@ -35,12 +35,9 @@
 #define _USBDI_H_
 
 #include <sys/types.h>
-#include <sys/queue.h>
 
 #include <dev/usb/usb.h>
 #include <sys/mutex.h>
-
-typedef struct device *device_t;
 
 struct usbd_bus;
 struct usbd_device;
@@ -329,7 +326,7 @@ int usbd_get_sel4_id(struct usbd_device *);
 
 void uhub_intr(struct usbd_xfer *, void *, usbd_status);
 void uhidev_intr(struct usbd_xfer *, void *, usbd_status);
-void	ukbd_intr(void *, void *, u_int);
+void ukbd_intr(void *, void *, u_int);
 void ums_intr(void *, void *, u_int);
 void uts_intr(void *, void *, u_int);
 void uhid_intr(void *, void *, u_int);

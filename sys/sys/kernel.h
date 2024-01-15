@@ -39,11 +39,8 @@
 #ifndef _SYS_KERNEL_H_
 #define _SYS_KERNEL_H_
 
-#include "param.h"
-extern int hz;			/* system clock's frequency */
-extern int cold;		/* still working on startup */
-
 #if defined(_KERNEL) || defined(_STANDALONE)
+#include <sys/param.h>
 
 /* Global variables for the kernel. */
 

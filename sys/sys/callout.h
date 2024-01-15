@@ -121,7 +121,7 @@ bool	callout_active(callout_t *);
 bool	callout_invoking(callout_t *);
 void	callout_ack(callout_t *);
 void	callout_bind(callout_t *, struct cpu_info *);
-#elif defined SEL4
+#elif defined SEL4 //SEL4: noop callouts (unnecessary)
 #define	callout_startup(void) 0
 #define	callout_init_cpu(...) 0
 #define	callout_hardclock(void) 0

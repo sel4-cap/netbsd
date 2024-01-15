@@ -1,4 +1,4 @@
-/*	$NetBSD: time.h,v 1.5 2013/10/04 21:07:37 christos Exp $	*/
+/*	$NetBSD: time.h,v 1.80 2022/06/26 22:31:38 riastradh Exp $	*/
 
 /*
  * Copyright (c) 1982, 1986, 1993
@@ -31,8 +31,8 @@
  *	@(#)time.h	8.5 (Berkeley) 5/4/95
  */
 
-#ifndef _COMPAT_SYS_TIME_H_
-#define	_COMPAT_SYS_TIME_H_
+#ifndef _SYS_TIME_H_
+#define	_SYS_TIME_H_
 
 #include <sys/featuretest.h>
 #include <sys/types.h>
@@ -330,38 +330,28 @@ struct	itimerspec {
 #include <sys/cdefs.h>
 #include <time.h>
 
-#if !defined(_KERNEL) && !defined(_STANDALONE)
 __BEGIN_DECLS
+#ifndef __LIBC12_SOURCE__
 #if (_POSIX_C_SOURCE - 0) >= 200112L || \
     defined(_XOPEN_SOURCE) || defined(_NETBSD_SOURCE)
-int	getitimer(int, struct itimerval50 *);
-int	__compat_gettimeofday(struct timeval50 * __restrict, void *__restrict)
-    __dso_hidden;
-int	setitimer(int, const struct itimerval50 * __restrict,
-	    struct itimerval50 * __restrict);
-int	utimes(const char *, const struct timeval50 [2]);
-int	__getitimer50(int, struct itimerval *);
-int	__gettimeofday50(struct timeval * __restrict, void *__restrict);
-int	__setitimer50(int, const struct itimerval * __restrict,
-	    struct itimerval * __restrict);
-int	__utimes50(const char *, const struct timeval [2]);
+int	getitimer(int, struct itimerval *) __RENAME(__getitimer50);
+int	gettimeofday(struct timeval * __restrict, void *__restrict)
+    __RENAME(__gettimeofday50);
+int	setitimer(int, const struct itimerval * __restrict,
+	    struct itimerval * __restrict) __RENAME(__setitimer50);
+int	utimes(const char *, const struct timeval [2]) __RENAME(__utimes50);
 #endif /* _POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE || _NETBSD_SOURCE */
 
-#if defined(_NETBSD_SOURCE)
-int	adjtime(const struct timeval50 *, struct timeval50 *);
-int	futimes(int, const struct timeval50 [2]);
-int	lutimes(const char *, const struct timeval50 [2]);
-int	settimeofday(const struct timeval50 * __restrict,
-	    const void *__restrict);
-int	__adjtime50(const struct timeval *, struct timeval *);
-int	__futimes50(int, const struct timeval [2]);
-int	__lutimes50(const char *, const struct timeval [2]);
-int	__settimeofday50(const struct timeval * __restrict,
-	    const void *__restrict);
+#if defined(_NETBSD_SOURCE) || defined(HAVE_NBTOOL_CONFIG_H)
+int	adjtime(const struct timeval *, struct timeval *) __RENAME(__adjtime50);
+int	futimes(int, const struct timeval [2]) __RENAME(__futimes50);
+int	lutimes(const char *, const struct timeval [2]) __RENAME(__lutimes50);
+int	settimeofday(const struct timeval * __restrict,
+	    const void *__restrict) __RENAME(__settimeofday50);
 #endif /* _NETBSD_SOURCE */
+#endif /* __LIBC12_SOURCE__ */
 __END_DECLS
 
-#endif
 #endif	/* !_STANDALONE */
 #endif /* !_KERNEL */
 #endif /* SEL4 */

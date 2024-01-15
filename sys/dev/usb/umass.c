@@ -349,7 +349,6 @@ Static void umass_dump_buffer(struct umass_softc *, uint8_t *, int, int);
 static int
 umass_match(device_t parent, cfdata_t match, void *aux)
 {
-
 	struct usbif_attach_arg *uiaa = aux;
 	const struct umass_quirk *quirk;
 
@@ -592,8 +591,10 @@ umass_attach(device_t parent, device_t self, void *aux)
 			SDT_PROBE2(usb, umass, device, attach__done,  sc, err);
 			return;
 		}
-		// if (sc->maxlun > 0)
-		// 	sc->sc_busquirks |= PQUIRK_FORCELUNS;
+#ifndef SEL4
+		if (sc->maxlun > 0)
+			sc->sc_busquirks |= PQUIRK_FORCELUNS;
+#endif
 	} else {
 		sc->maxlun = 0;
 	}
@@ -894,8 +895,10 @@ umass_detach(device_t self, int flags)
 
 	scbus = sc->bus;
 	if (scbus != NULL) {
-		//if (scbus->sc_child != NULL)
-			//rv = config_detach(scbus->sc_child, flags);
+#ifndef SEL4
+		if (scbus->sc_child != NULL)
+			rv = config_detach(scbus->sc_child, flags);
+#endif
 
 		switch (sc->sc_cmd) {
 		case UMASS_CPROTO_RBC:
@@ -1558,11 +1561,10 @@ umass_bbb_state(struct usbd_xfer *xfer, void *priv,
 
 		} else if (sc->transfer_actlen > sc->transfer_datalen) {
 			/* Buffer overrun! Don't let this go by unnoticed */
-			// panic("%s: transferred %s %d bytes instead of %d bytes",
-			//     device_xname(sc->sc_dev),
-			//     sc->transfer_dir == DIR_IN ? "IN" : "OUT",
-			//     sc->transfer_actlen, sc->transfer_datalen);
-			printf("BUFFER OVERRUN!!!!!!!");
+			printf("%s: transferred %s %d bytes instead of %d bytes",
+			    device_xname(sc->sc_dev),
+			    sc->transfer_dir == DIR_IN ? "IN" : "OUT",
+			    sc->transfer_actlen, sc->transfer_datalen);
 #if 0
 		} else if (sc->transfer_datalen - sc->transfer_actlen
 			   != residue) {
@@ -1621,9 +1623,8 @@ umass_bbb_state(struct usbd_xfer *xfer, void *priv,
 
 	/***** Default *****/
 	default:
-		// panic("%s: Unknown state %d",
-		//       device_xname(sc->sc_dev), sc->transfer_state);
-		printf("Unknown state\n");
+		printf("%s: Unknown state %d",
+		      device_xname(sc->sc_dev), sc->transfer_state);
 	}
 }
 
@@ -2069,9 +2070,8 @@ umass_cbi_state(struct usbd_xfer *xfer, void *priv,
 
 	/***** Default *****/
 	default:
-		// panic("%s: Unknown state %d",
-		//       device_xname(sc->sc_dev), sc->transfer_state);
-		printf("Unknown state");
+		printf("%s: Unknown state %d",
+		      device_xname(sc->sc_dev), sc->transfer_state);
 	}
 }
 

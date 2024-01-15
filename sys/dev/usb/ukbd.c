@@ -1,4 +1,4 @@
-/*      $NetBSD: ukbd.c,v 1.162 2023/01/10 18:20:10 mrg Exp $        */
+/*      $NetBSD: ukbd.c,v 1.164 2023/09/02 17:43:16 riastradh Exp $        */
 
 /*
  * Copyright (c) 1998 The NetBSD Foundation, Inc.
@@ -35,7 +35,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: ukbd.c,v 1.162 2023/01/10 18:20:10 mrg Exp $");
+__KERNEL_RCSID(0, "$NetBSD: ukbd.c,v 1.164 2023/09/02 17:43:16 riastradh Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_ddb.h"
@@ -47,36 +47,36 @@ __KERNEL_RCSID(0, "$NetBSD: ukbd.c,v 1.162 2023/01/10 18:20:10 mrg Exp $");
 #endif /* _KERNEL_OPT */
 
 #include <sys/param.h>
-#include <sys/systm.h>
+
 #include <sys/callout.h>
+#include <sys/device.h>
+#include <sys/file.h>
+#include <sys/ioctl.h>
 #ifndef SEL4
 #include <sys/kernel.h>
 #endif
-#include <sys/device.h>
-#include <sys/ioctl.h>
-#include <sys/file.h>
-#include <sys/select.h>
-#include <sys/proc.h>
-#include <sys/vnode.h>
 #include <sys/poll.h>
+#include <sys/proc.h>
+#include <sys/select.h>
+#include <sys/systm.h>
+#include <sys/vnode.h>
 
+#include <dev/hid/hid.h>
+
+#include <dev/usb/uhidev.h>
+#include <dev/usb/ukbdvar.h>
 #include <dev/usb/usb.h>
-#include <dev/usb/usbhid.h>
-
+#include <dev/usb/usb_quirks.h>
+#include <dev/usb/usbdevs.h>
 #include <dev/usb/usbdi.h>
 #include <dev/usb/usbdi_util.h>
 #include <dev/usb/usbdivar.h>
-#include <dev/usb/usbdevs.h>
-#include <dev/usb/usb_quirks.h>
-#include <dev/usb/uhidev.h>
-#include <dev/usb/ukbdvar.h>
-#include <dev/hid/hid.h>
+#include <dev/usb/usbhid.h>
 
 #include <dev/wscons/wsconsio.h>
 #include <dev/wscons/wskbdvar.h>
 #include <dev/wscons/wsksymdef.h>
 #include <dev/wscons/wsksymvar.h>
-#include <sys/intr.h>
 
 #include <sys/kmem.h>
 #include <timer.h>
@@ -413,6 +413,7 @@ static const struct ukbd_type {
 	((const struct ukbd_type *)usb_lookup(ukbd_devs, v, p))
 
 static int ukbd_match(device_t, cfdata_t, void *);
+static void ukbd_attach(device_t, device_t, void *);
 static int ukbd_detach(device_t, int);
 static int ukbd_activate(device_t, enum devact);
 static void ukbd_childdet(device_t, device_t);
@@ -440,7 +441,7 @@ ukbd_match(device_t parent, cfdata_t match, void *aux)
 void
 ukbd_attach(device_t parent, device_t self, void *aux)
 {
-	struct ukbd_softc *sc = kmem_alloc(sizeof(struct ukbd_softc), 0);
+	struct ukbd_softc *sc = device_private(self);
 	struct uhidev_attach_arg *uha = aux;
 	uint32_t qflags;
 	const char *parseerr;
@@ -456,10 +457,12 @@ ukbd_attach(device_t parent, device_t self, void *aux)
 
 	aprint_naive("\n");
 
-	/* if (!pmf_device_register(self, NULL, NULL)) { */
-	/* 	aprint_normal("\n"); */
-	/* 	aprint_error_dev(self, "couldn't establish power handler\n"); */
-	/* } */
+#ifndef SEL4
+	if (!pmf_device_register(self, NULL, NULL)) {
+		aprint_normal("\n");
+		aprint_error_dev(self, "couldn't establish power handler\n");
+	}
+#endif
 
 	parseerr = ukbd_parse_desc(sc);
 	if (parseerr != NULL) {
@@ -505,12 +508,12 @@ ukbd_attach(device_t parent, device_t self, void *aux)
 		}
 	}
 
+#ifndef SEL4
 	if (sc->sc_console_keyboard) {
 		DPRINTF(("%s: console keyboard sc=%p\n", __func__, sc));
-#ifndef SEL4
 		wskbd_cnattach(&ukbd_consops, sc, &ukbd_keymapdata);
-#endif
 	}
+#endif
 	ukbd_enable(sc, 1); //SEL4: moved out to enable keyboard
 
 	a.console = sc->sc_console_keyboard;
@@ -939,37 +942,14 @@ ukbd_decode(struct ukbd_softc *sc, struct ukbd_data *ud)
 #endif
 #ifndef SEL4
 	s = spltty();
-#endif
-	// test output: should probably send this to a separate PD
 	for (i = 0; i < nkeys; i++) {
 		key = ibuf[i];
-#ifndef SEL4
 		wskbd_input(sc->sc_wskbddev,
 		    key&RELEASE ? WSCONS_EVENT_KEY_UP : WSCONS_EVENT_KEY_DOWN,
 		    key&CODEMASK);
-#endif
-		int index = 0;
-        int up = key&RELEASE ? WSCONS_EVENT_KEY_UP : WSCONS_EVENT_KEY_DOWN;
-        if (up == WSCONS_EVENT_KEY_DOWN) {
-            for (int i = 0; i < 274; i++) {
-                if (hidkbd_keydesc_us[i] == KC(key&CODEMASK)) {
-                    index = i;
-                    break;
-                }
-            }
-			keysym_t keypress = hidkbd_keydesc_us[index+1];
-			/* switch(keypress) { */
-			/* 	case KS_BackSpace: */
-			/* 		printf("%c %c", keypress, keypress); */
-			/* 		break; */
-			/* 	case KS_Return: */
-			/* 		printf("\n"); */
-			/* 		break; */
-			/* 	default: */
-			/* 		printf("%c", keypress); */
-			/* } */
-        }
 	}
+	splx(s);
+#endif
 }
 
 void
@@ -1119,11 +1099,12 @@ ukbd_cnpollc(void *v, int on)
 	if (on) {
 		sc->sc_spl = splusb();
 		pollenter++;
-	} else {
-		splx(sc->sc_spl);
-		pollenter--;
 	}
 	usbd_set_polling(dev, on);
+	if (!on) {
+		pollenter--;
+		splx(sc->sc_spl);
+	}
 }
 #endif
 

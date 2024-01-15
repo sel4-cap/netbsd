@@ -115,7 +115,6 @@ extern ring_handle_t *umass_buffer_ring;
 
 #define	SD_DEFAULT_BLKSIZE	512
 
-#ifndef SEL4
 static void	sdminphys(struct buf *);
 static void	sdstart(struct scsipi_periph *);
 static void	sdrestart(void *);
@@ -174,6 +173,7 @@ static const struct scsipi_inquiry_pattern sd_patterns[] = {
 	 "",         "",                 ""},
 };
 
+#ifndef SEL4
 static dev_type_open(sdopen);
 static dev_type_close(sdclose);
 static dev_type_read(sdread);
@@ -182,7 +182,6 @@ static dev_type_ioctl(sdioctl);
 static dev_type_strategy(sdstrategy);
 static dev_type_dump(sddump);
 static dev_type_size(sdsize);
-
 
 const struct bdevsw sd_bdevsw = {
 	.d_open = sdopen,
@@ -213,8 +212,10 @@ const struct cdevsw sd_cdevsw = {
 	.d_devtounit = disklabel_dev_unit,
 	.d_flag = D_DISK | D_MPSAFE
 };
+#endif
 
 static const struct dkdriver sddkdriver = {
+#ifndef SEL4
 	.d_open = sdopen,
 	.d_close = sdclose,
 	.d_strategy = sdstrategy,
@@ -225,6 +226,7 @@ static const struct dkdriver sddkdriver = {
 	.d_firstopen = sd_firstopen,
 	.d_lastclose = sd_lastclose,
 	.d_label = sd_label,
+#endif
 };
 
 static const struct scsipi_periphsw sd_switch = {
@@ -233,59 +235,9 @@ static const struct scsipi_periphsw sd_switch = {
 	NULL,			/* have no async handler */
 	sddone,			/* deal with stats at interrupt time */
 };
-#else 
-static int	sd_get_parms(struct sd_softc *, struct disk_parms *, int);
-static void	sd_set_geometry(struct sd_softc *);
-static int	sd_dumpblocks(device_t, void *, daddr_t, int);
-static int	sd_readblocks(device_t, void *, daddr_t, int);
 
-static int	sdmatch(device_t, cfdata_t, void *);
-static void	sdattach(device_t, device_t, void *);
-static int	sddetach(device_t, int);
-CFATTACH_DECL3_NEW(sd, sizeof(struct sd_softc), sdmatch, sdattach, sddetach,
-    NULL, NULL, NULL, DVF_DETACH_SHUTDOWN);
-
-static const struct scsipi_inquiry_pattern sd_patterns[] = {
-	{T_DIRECT, T_FIXED,
-	 "",         "",                 ""},
-	{T_DIRECT, T_REMOV,
-	 "",         "",                 ""},
-	{T_OPTICAL, T_FIXED,
-	 "",         "",                 ""},
-	{T_OPTICAL, T_REMOV,
-	 "",         "",                 ""},
-	{T_SIMPLE_DIRECT, T_FIXED,
-	 "",         "",                 ""},
-	{T_SIMPLE_DIRECT, T_REMOV,
-	 "",         "",                 ""},
-};
-
-static const struct dkdriver sddkdriver = {
-	// .d_open = sdopen,
-	// .d_close = sdclose,
-	// .d_strategy = sdstrategy,
-	// .d_minphys = sdminphys,
-	// .d_diskstart = sd_diskstart,
-	// .d_dumpblocks = sd_dumpblocks,
-	// .d_iosize = sd_iosize,
-	// .d_firstopen = sd_firstopen,
-	// .d_lastclose = sd_lastclose,
-	// .d_label = sd_label,
-};
-
-static const struct scsipi_periphsw sd_switch = {
-	// sd_interpret_sense,	/* check our error handler first */
-	// sdstart,		/* have a queue, served by this */
-	// NULL,			/* have no async handler */
-	// sddone,			/* deal with stats at interrupt time */
-};
-
-// device_t my_device;
 device_t device_list[127]; //max devices
 static int no_devices = 0;
-//void read_block(int, int);
-
-#endif
 
 struct sd_mode_sense_data {
 	/*
@@ -326,7 +278,7 @@ static void
 sdattach(device_t parent, device_t self, void *aux)
 {
 	device_list[no_devices++] = self;
-	printf("device %d: %p\n", no_devices-1, device_list[no_devices-1]);
+	aprint_debug("device %d: %p\n", no_devices-1, device_list[no_devices-1]);
 	struct sd_softc *sd = device_private(self);
 	struct dk_softc *dksc = &sd->sc_dksc;
 	struct scsipibus_attach_args *sa = aux;
@@ -401,12 +353,12 @@ sdattach(device_t parent, device_t self, void *aux)
 	error = scsipi_test_unit_ready(periph,
 	    XS_CTL_DISCOVERY | XS_CTL_IGNORE_ILLEGAL_REQUEST |
 	    XS_CTL_IGNORE_MEDIA_CHANGE | XS_CTL_SILENT_NODEV);
-	if (error) {
+	if (error)
 		result = SDGP_RESULT_OFFLINE;
-	}
 	else
 		result = sd_get_parms(sd, &sd->params, XS_CTL_DISCOVERY);
-	//aprint_normal_dev(dksc->sc_dev, "");
+
+	aprint_normal_dev(dksc->sc_dev, "");
 	switch (result) {
 	case SDGP_RESULT_OK:
 #ifndef SEL4
@@ -1033,7 +985,7 @@ sdread(dev_t dev, struct uio *uio, int ioflag)
 static int
 sdwrite(dev_t dev, struct uio *uio, int ioflag)
 {
-	
+
 #ifndef SEL4
 	return (physio(sdstrategy, NULL, dev, B_WRITE, sdminphys, uio));
 #endif
@@ -1376,10 +1328,10 @@ sd_dumpblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 	xs->data = va;
 	xs->datalen = nblk * sectorsize;
 	callout_init(&xs->xs_callout, 0);
+
 	/*
 	 * Pass all this info to the scsi driver.
 	 */
-
 	scsipi_adapter_request(chan, ADAPTER_REQ_RUN_XFER, xs);
 	if ((xs->xs_status & XS_STS_DONE) == 0 ||
 	    xs->error != XS_NOERROR)
@@ -1389,6 +1341,7 @@ sd_dumpblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 	printf("sd%d: dump addr 0x%x, blk %d\n", unit, va, blkno);
 	delay(500 * 1000);	/* half a second */
 #endif	/* SD_DUMP_NOT_TRUSTED */
+
 	return (0);
 }
 
@@ -1875,12 +1828,12 @@ sd_get_parms(struct sd_softc *sd, struct disk_parms *dp, int flags)
 	}
 
 	error = sd_get_capacity(sd, dp, flags);
-
 	if (error)
 		return (error);
 
 	if (sd->type == T_OPTICAL)
 		goto page0;
+
 #ifndef SEL4
 	if (sd->sc_periph->periph_flags & PERIPH_REMOVABLE) {
 		if (!sd_get_parms_page5(sd, dp, flags) ||
@@ -2082,8 +2035,7 @@ sd_set_geometry(struct sd_softc *sd)
 	disk_set_info(dksc->sc_dev, &dksc->sc_dkdev, sd->typename);
 }
 
-
-
+// SEL4: bonus functions
 static int
 sd_readblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 {

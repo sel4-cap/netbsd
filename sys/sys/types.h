@@ -97,7 +97,7 @@ typedef	uint64_t	u_int64_t;
 
 #include <machine/endian.h>
 
-// #if defined(_NETBSD_SOURCE)
+#if defined(_NETBSD_SOURCE) || defined(SEL4)
 typedef	unsigned char	u_char;
 typedef	unsigned short	u_short;
 typedef	unsigned int	u_int;
@@ -107,7 +107,7 @@ typedef unsigned char	unchar;		/* Sys V compatibility */
 typedef	unsigned short	ushort;		/* Sys V compatibility */
 typedef	unsigned int	uint;		/* Sys V compatibility */
 typedef unsigned long	ulong;		/* Sys V compatibility */
-// #endif
+#endif
 
 typedef	uint64_t	u_quad_t;	/* quads */
 typedef	int64_t		quad_t;

@@ -150,7 +150,7 @@ fail:
 #define UHUBHIST_CALLARGS(FMT,A,B,C,D) \
 				USBHIST_CALLARGS(uhubdebug,FMT,A,B,C,D)
 
-#ifndef SEL4 //SEL4 moved softc to usb.c
+#ifndef SEL4 //SEL4 moved softc to uhub.h (new file)
 struct uhub_softc {
 	device_t		 sc_dev;	/* base device */
 	struct usbd_device	*sc_hub;	/* USB device */
@@ -193,9 +193,7 @@ Static void uhub_intr(struct usbd_xfer *, void *, usbd_status);
  */
 
 static int uhub_match(device_t, cfdata_t, void *);
-#ifndef SEL4
 static void uhub_attach(device_t, device_t, void *);
-#endif
 static int uhub_rescan(device_t, const char *, const int *);
 static void uhub_childdet(device_t, device_t);
 static int uhub_detach(device_t, int);
@@ -225,6 +223,7 @@ usbd_get_hub_desc(struct usbd_device *dev, usb_hub_descriptor_t *hd, int speed)
 
 	/* don't issue UDESC_HUB to SS hub, or it would stall */
 	if (dev->ud_depth != 0 && USB_IS_SS(dev->ud_speed)) {
+		// SEL4: allocated in shared mem
 		usb_hub_ss_descriptor_t *hssd = kmem_zalloc(sizeof(usb_hub_ss_descriptor_t), 0);
 		int rmvlen;
 
@@ -303,11 +302,10 @@ uhub_match(device_t parent, cfdata_t match, void *aux)
 	 */
 	if (uaa->uaa_class == UDCLASS_HUB)
 		return matchvalue;
-		
 	return UMATCH_NONE;
 }
 
-void
+static void
 uhub_attach(device_t parent, device_t self, void *aux)
 {
 	struct uhub_softc *sc = device_private(self);

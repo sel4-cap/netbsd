@@ -1,4 +1,4 @@
-/*	$NetBSD: param.h,v 1.730 2023/07/30 20:34:44 christos Exp $	*/
+/*	$NetBSD: param.h,v 1.733 2023/10/04 20:29:59 ad Exp $	*/
 
 /*-
  * Copyright (c) 1982, 1986, 1989, 1993
@@ -67,7 +67,7 @@
  *	2.99.9		(299000900)
  */
 
-#define	__NetBSD_Version__	1099000700	/* NetBSD 10.99.7 */
+#define	__NetBSD_Version__	1099001000	/* NetBSD 10.99.10 */
 
 #define __NetBSD_Prereq__(M,m,p) (((((M) * 100000000) + \
     (m) * 1000000) + (p) * 100) <= __NetBSD_Version__)
@@ -155,10 +155,9 @@
 #endif
 
 /* More types and definitions used throughout the kernel. */
-#include <sys/errno.h>
-#ifdef _KERNEL
+#if defined(_KERNEL) || defined(SEL4)
 #include <sys/cdefs.h>
-
+#include <sys/errno.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/ucred.h>
@@ -188,7 +187,9 @@
 #endif /* _KERNEL */
 
 /* Signals. */
-// #include <sys/signal.h>
+#ifndef SEL4
+#include <sys/signal.h>
+#endif
 
 #define	DEV_BSHIFT	9			/* log2(DEV_BSIZE) */
 #define	DEV_BSIZE	(1 << DEV_BSHIFT)	/* 512 */
@@ -513,9 +514,8 @@
 #define	UBC_NWINS	1024
 #endif
 
+#if defined(_KERNEL) || defined(SEL4)
 extern int hz;
-#ifdef _KERNEL
-
 /*
  * macro to convert from milliseconds to hz without integer overflow
  * The 32 bit version uses only 32bit arithmetic; 0x20000 is safe for hz < 20000

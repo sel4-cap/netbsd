@@ -35,12 +35,7 @@
 #define INTRIDBUF 64
 #define INTRDEVNAMEBUF 256
 
-#define	SOFTINT_SERIAL	0x0002
-#define	SOFTINT_MPSAFE	0x0100
-
 #ifdef _KERNEL
-
-#define	spltty()	splvm()
 
 #include <sys/types.h>
 
@@ -105,6 +100,8 @@ extern u_int	softint_timing;
 #elif defined(SEL4)
 #define softint_schedule(x) 0
 #define softint_disestablish(x) 0
+#define	SOFTINT_SERIAL	0x0002
+#define	SOFTINT_MPSAFE	0x0100
 #endif	/* _KERNEL */
 
 #endif	/* _SYS_INTR_H_ */

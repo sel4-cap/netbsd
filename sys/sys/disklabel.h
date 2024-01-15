@@ -509,7 +509,7 @@ const char *convertdisklabel(struct disklabel *, void (*)(struct buf *),
 int	 bounds_check_with_label(struct disk *, struct buf *, int);
 int	 bounds_check_with_mediasize(struct buf *, int, uint64_t);
 const char *getfstypename(int);
-// int	disklabel_dev_unit(dev_t);
+int	disklabel_dev_unit(dev_t);
 #endif
 #endif /* _LOCORE */
 

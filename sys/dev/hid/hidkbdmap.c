@@ -1,4 +1,3 @@
-//TODO: vimdiff this file
 /*	$NetBSD: hidkbdmap.c,v 1.15 2021/09/22 17:37:32 nia Exp $	*/
 
 /*

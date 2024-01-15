@@ -1,4 +1,4 @@
-/*	$NetBSD: once.h,v 1.7 2019/03/19 08:16:51 ryo Exp $	*/
+/*	$NetBSD: once.h,v 1.9 2023/09/09 00:15:09 riastradh Exp $	*/
 
 /*-
  * Copyright (c)2005 YAMAMOTO Takashi,
@@ -42,7 +42,6 @@ typedef struct {
 void once_init(void);
 int _init_once(once_t *, int (*)(void));
 void _fini_once(once_t *, void (*)(void));
-
 
 #ifdef SEL4
 #define RUN_ONCE(o,fn) 0

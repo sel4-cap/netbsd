@@ -32,7 +32,13 @@
 #ifndef	_AARCH64_TYPES_H_
 #define _AARCH64_TYPES_H_
 
+#include <sys/common_int_types.h>
+
+typedef __uint64_t register_t;
+
 #ifdef __aarch64__
+
+
 
 #ifdef _KERNEL_OPT
 #include "opt_pmap.h"
@@ -90,7 +96,7 @@ typedef struct label_t {	/* Used by setjmp & longjmp */
 /*
  * This should have always been an 8-bit type.
  */
-typedef	unsigned char	__cpu_simple_lock_nv_t;
+// typedef	unsigned char	__cpu_simple_lock_nv_t;
 typedef __uint64_t __register_t;
 
 #define __SIMPLELOCK_LOCKED	1

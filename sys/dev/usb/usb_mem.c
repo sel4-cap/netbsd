@@ -368,7 +368,7 @@ usb_freemem(usb_dma_t *p)
 	KDASSERTMSG(usb_valid_block_p(p->udma_block, &usb_blk_fraglist),
 	    "%s: dma %p: invalid block pointer %p",
 	    __func__, p, p->udma_block);
-	usb_syncmem(p, 0, USB_MEM_SMALL, BUS_DMASYNC_POSTREAD);
+	//usb_syncmem(p, 0, USB_MEM_SMALL, BUS_DMASYNC_POSTREAD);
 	f = KERNADDR(p, 0);
 #ifdef USB_FRAG_DMA_WORKAROUND
 	f = (void *)((uintptr_t)f - USB_MEM_SMALL);
@@ -421,6 +421,7 @@ usb_dmaaddr(usb_dma_t *dma, unsigned int offset)
 void
 usb_syncmem(usb_dma_t *p, bus_addr_t offset, bus_size_t len, int ops)
 {
+
 	bus_dmamap_sync(p->udma_block->tag, p->udma_block->map,
 	    p->udma_offs + offset, len, ops);
 }

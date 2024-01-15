@@ -66,7 +66,9 @@ void	seldestroy(struct selinfo *);
 #else /* _KERNEL */
 
 #include <sys/sigtypes.h>
-// #include <sys/time.h>
+#ifndef SEL4
+#include <time.h>
+#endif
 
 __BEGIN_DECLS
 #ifndef SEL4

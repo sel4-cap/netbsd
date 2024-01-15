@@ -33,7 +33,7 @@
 #ifndef _SYS_SDT_H
 #define	_SYS_SDT_H
 
-#ifdef SEL4
+#ifdef SEL4 //SEL4: we do not want SDT
 #define SDT_PROBE_DEFINE(prov, mod, func, name) __nothing
 #define SDT_PROBE_DECLARE(prov, mod, func, name) __nothing
 #define SDT_PROVIDER_DEFINE(prov)

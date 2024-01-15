@@ -325,7 +325,6 @@ struct scsipi_channel {
 #else
 #define chan_mtx(ch) 0
 #endif
-
 #endif
 
 /* chan_flags */

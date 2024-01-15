@@ -144,13 +144,15 @@ int	uhidevdebug = 0;
 #define DPRINTFN(n,x)
 #endif
 
+#ifndef SEL4
+static void uhidev_intr(struct usbd_xfer *, void *, usbd_status);
+#endif
+
 static int uhidev_maxrepid(void *, int);
 static int uhidevprint(void *, const char *);
 
 static int uhidev_match(device_t, cfdata_t, void *);
-#ifndef SEL4
 static void uhidev_attach(device_t, device_t, void *);
-#endif
 static void uhidev_childdet(device_t, device_t);
 static int uhidev_detach(device_t, int);
 
@@ -176,7 +178,7 @@ uhidev_match(device_t parent, cfdata_t match, void *aux)
 	return UMATCH_IFACECLASS_GENERIC;
 }
 
-void
+static void
 uhidev_attach(device_t parent, device_t self, void *aux)
 {
 	struct uhidev_softc *sc = kmem_alloc(sizeof(struct uhidev_softc), 0);
@@ -193,7 +195,7 @@ uhidev_attach(device_t parent, device_t self, void *aux)
 	const void *descptr;
 	usbd_status err;
 	char *devinfop;
-	int locs[0];
+	int locs[UHIDBUSCF_NLOCS];
 
 	sc->sc_dev = self;
 	sc->sc_udev = uiaa->uiaa_device;
@@ -422,7 +424,7 @@ uhidev_attach(device_t parent, device_t self, void *aux)
 		if (hid_report_size(desc, size, hid_input, repid) == 0 &&
 		    hid_report_size(desc, size, hid_output, repid) == 0 &&
 		    hid_report_size(desc, size, hid_feature, repid) == 0) {
-			printf("rep %d null in sc_subdevs\n", repid);	/* already NULL in sc->sc_subdevs[repid] */
+			;	/* already NULL in sc->sc_subdevs[repid] */
 		} else {
 			uha.parent = scd;
 			uha.reportid = repid;
@@ -431,7 +433,7 @@ uhidev_attach(device_t parent, device_t self, void *aux)
 			dev = config_found(self, &uha, uhidevprint,
 			    CFARGS(.submatch = config_stdsubmatch,
 				   .locators = locs));
-			sc->sc_subdevs[repid].sc_dev = dev; //changed from self - supposed to be dev
+			sc->sc_subdevs[repid].sc_dev = dev;
 			if (dev == NULL)
 				continue;
 			/*
@@ -599,9 +601,11 @@ uhidev_intr(struct usbd_xfer *xfer, void *addr, usbd_status status)
 		return;
 	}
 	scd = &sc->sc_subdevs[rep];
+	DPRINTFN(5,("uhidev_intr: rep=%d, scd=%p state=%#x\n",
+		    rep, scd, scd->sc_state));
 #ifndef SEL4
-	 if (!(atomic_load_acquire(&scd->sc_state) & UHIDEV_OPEN))
-	 	return; 
+	if (!(atomic_load_acquire(&scd->sc_state) & UHIDEV_OPEN))
+		return;
 #endif
 #ifdef UHIDEV_DEBUG
 	if (scd->sc_in_rep_size != cc) {
@@ -624,6 +628,7 @@ void
 uhidev_get_report_desc(struct uhidev *scd, void **desc, int *size)
 {
 	struct uhidev_softc *sc = scd->sc_parent;
+
 	*desc = sc->sc_repdesc;
 	*size = sc->sc_repdesc_size;
 }

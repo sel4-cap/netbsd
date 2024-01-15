@@ -4,7 +4,6 @@
 #define	_SYS_DEVICE_IF_H
 
 #include <sys/stdint.h>
-#include <stddef.h>
 
 struct device;
 typedef struct device *device_t;
@@ -25,8 +24,6 @@ typedef uint64_t devgen_t;
 
 typedef struct device_lock *device_lock_t;
 typedef struct device_suspensor device_suspensor_t;
-#else
-typedef struct device_lock *device_lock_t;
 #endif
 
 #endif	/* _SYS_DEVICE_IF_H */

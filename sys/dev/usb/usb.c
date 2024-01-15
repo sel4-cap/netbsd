@@ -1,4 +1,4 @@
-/*	$NetBSD: usb.c,v 1.200 2022/03/13 11:28:52 riastradh Exp $	*/
+/*	$NetBSD: usb.c,v 1.202 2023/07/31 17:41:18 christos Exp $	*/
 
 /*
  * Copyright (c) 1998, 2002, 2008, 2012 The NetBSD Foundation, Inc.
@@ -37,7 +37,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: usb.c,v 1.200 2022/03/13 11:28:52 riastradh Exp $");
+__KERNEL_RCSID(0, "$NetBSD: usb.c,v 1.202 2023/07/31 17:41:18 christos Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_usb.h"
@@ -106,7 +106,11 @@ USBHIST_DEFINE(usbhist) = KERNHIST_INITIALIZER(usbhist, usbhistbuf);
  */
 int	usb_noexplore = 0;
 
-int	usbdebug = 0;
+#ifndef USB_DEBUG_DEFAULT
+#define USB_DEBUG_DEFAULT 0
+#endif
+
+int	usbdebug = USB_DEBUG_DEFAULT;
 SYSCTL_SETUP(sysctl_hw_usb_setup, "sysctl hw.usb setup")
 {
 	int err;
@@ -452,6 +456,7 @@ usb_once_init(void)
 		if (kthread_create(PRI_NONE, KTHREAD_MPSAFE, NULL,
 		    usb_task_thread, taskq, &taskq->task_thread_lwp,
 		    "%s", taskq->name)) {
+			printf("unable to create task thread: %s\n", taskq->name);
 			panic("usb_create_event_thread task");
 		}
 		/*
@@ -540,12 +545,10 @@ usb_doattach(device_t self)
 	 */
 	config_pending_incr(self);
 
-	if (!pmf_device_register(self, NULL, NULL)) {
+	if (!pmf_device_register(self, NULL, NULL))
 		aprint_error_dev(self, "couldn't establish power handler\n");
-	}
-	else {
+	else
 		sc->sc_pmf_registered = true;
-	}
 
 	return;
 }
@@ -558,6 +561,8 @@ usb_create_event_thread(device_t self)
 	if (kthread_create(PRI_NONE, 0, NULL,
 	    usb_event_thread, sc, &sc->sc_event_thread,
 	    "%s", device_xname(self))) {
+		printf("%s: unable to create event thread for\n",
+		       device_xname(self));
 		panic("usb_create_event_thread");
 	}
 }
@@ -889,7 +894,7 @@ int
 usbread(dev_t dev, struct uio *uio, int flag)
 {
 	struct usb_event *ue;
-	struct usb_event_old *ueo = NULL;	/* XXXGCC */
+	struct usb_event30 *ueo = NULL;	/* XXXGCC */
 	int useold = 0;
 	int error, n;
 
@@ -897,8 +902,8 @@ usbread(dev_t dev, struct uio *uio, int flag)
 		return ENXIO;
 
 	switch (uio->uio_resid) {
-	case sizeof(struct usb_event_old):
-		ueo = kmem_zalloc(sizeof(struct usb_event_old), KM_SLEEP);
+	case sizeof(struct usb_event30):
+		ueo = kmem_zalloc(sizeof(struct usb_event30), KM_SLEEP);
 		useold = 1;
 		/* FALLTHROUGH */
 	case sizeof(struct usb_event):
@@ -937,7 +942,7 @@ usbread(dev_t dev, struct uio *uio, int flag)
 	}
 	usb_free_event(ue);
 	if (ueo)
-		kmem_free(ueo, sizeof(struct usb_event_old));
+		kmem_free(ueo, sizeof(struct usb_event30));
 
 	return error;
 }
@@ -1088,10 +1093,10 @@ usbioctl(dev_t devt, u_long cmd, void *data, int flag, struct lwp *l)
 		break;
 	}
 
-	case USB_DEVICEINFO_OLD:
+	case USB_DEVICEINFO_30:
 	{
 		struct usbd_device *dev;
-		struct usb_device_info_old *di = (void *)data;
+		struct usb_device_info30 *di = (void *)data;
 		int addr = di->udi_addr;
 
 		if (addr < 1 || addr >= USB_MAX_DEVICES) {
@@ -1276,6 +1281,7 @@ usb_get_next_event(struct usb_event *ue)
 	ueq = SIMPLEQ_FIRST(&usb_events);
 #ifdef DIAGNOSTIC
 	if (ueq == NULL) {
+		printf("usb: usb_nevents got out of sync! %d\n", usb_nevents);
 		usb_nevents = 0;
 		return 0;
 	}

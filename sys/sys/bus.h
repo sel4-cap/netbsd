@@ -29,14 +29,11 @@
 #ifndef _SYS_BUS_H_
 #define	_SYS_BUS_H_
 
-typedef unsigned long paddr_t;
-
 #include <dma.h>
 
 #define __HAVE_NEW_STYLE_BUS_H
 #ifdef __HAVE_NEW_STYLE_BUS_H
 
-#include <sys/proc.h>
 #include <machine/bus_defs.h>
 
 struct bus_space_reservation {

@@ -1,4 +1,4 @@
-/*	$NetBSD: systm.h,v 1.302 2023/05/22 14:07:24 riastradh Exp $	*/
+/*	$NetBSD: systm.h,v 1.305 2023/09/09 16:01:09 christos Exp $	*/
 
 /*-
  * Copyright (c) 1982, 1988, 1991, 1993
@@ -237,6 +237,8 @@ enum hashtype {
 	} while (/*CONSTCOND*/0)
 
 void	hash_value(void *, size_t, const void *, size_t);
+void	hash_value_ensure_initialized(void);
+
 bool	get_expose_address(struct proc *);
 void	*hashinit(u_int, enum hashtype, bool, u_long *);
 void	hashdone(void *, enum hashtype, u_long);
@@ -771,20 +773,11 @@ void assert_sleepable(void);
 #define	ASSERT_SLEEPABLE()	do {} while (0)
 #endif /* defined(DEBUG) */
 
-#else
+#else //SEL4: debugging
+// TODO: add logging levels
 #include <lib/libkern/libkern.h>
 
-#ifdef SEL4_USB_DEBUG
-// extern char *pd_name;
-// static void printpd(const char *fmt, ...)
-// {
-// 	printf("%s: ", pd_name);
-// 	va_list ap;
-
-// 	va_start(ap, fmt);
-// 	printf(fmt, ap);
-// 	va_end(ap);
-// }
+#ifdef SEL4_USB_DEBUG 
 #define aprint_naive(...)   printf(__VA_ARGS__)
 #define aprint_normal(...)  printf(__VA_ARGS__)
 #define aprint_debug(...)   printf(__VA_ARGS__)

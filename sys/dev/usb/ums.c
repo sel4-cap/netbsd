@@ -1,4 +1,4 @@
-/*	$NetBSD: ums.c,v 1.103 2022/03/28 12:44:17 riastradh Exp $	*/
+/*	$NetBSD: ums.c,v 1.104 2023/07/20 20:00:34 mrg Exp $	*/
 
 /*
  * Copyright (c) 1998, 2017 The NetBSD Foundation, Inc.
@@ -35,7 +35,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: ums.c,v 1.103 2022/03/28 12:44:17 riastradh Exp $");
+__KERNEL_RCSID(0, "$NetBSD: ums.c,v 1.104 2023/07/20 20:00:34 mrg Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_usb.h"
@@ -61,6 +61,7 @@ __KERNEL_RCSID(0, "$NetBSD: ums.c,v 1.103 2022/03/28 12:44:17 riastradh Exp $");
 #include <dev/usb/usbdevs.h>
 #include <dev/usb/usb_quirks.h>
 #include <dev/usb/uhidev.h>
+#include <dev/usb/usbhist.h>
 #include <dev/hid/hid.h>
 #include <dev/hid/hidms.h>
 
@@ -73,7 +74,59 @@ int	umsdebug = 0;
 #define DPRINTFN(n,x)
 #endif
 
+#ifndef SEL4
+#ifdef USB_DEBUG
+#ifndef UMS_DEBUG
+#define umsdebug 0
+#else
+
+#ifndef UMS_DEBUG_DEFAULT
+#define UMS_DEBUG_DEFAULT 0
+#endif
+
+static int umsdebug = UMS_DEBUG_DEFAULT;
+
+SYSCTL_SETUP(sysctl_hw_ums_setup, "sysctl hw.ums setup")
+{
+	int err;
+	const struct sysctlnode *rnode;
+	const struct sysctlnode *cnode;
+
+	err = sysctl_createv(clog, 0, NULL, &rnode,
+	    CTLFLAG_PERMANENT, CTLTYPE_NODE, "ums",
+	    SYSCTL_DESCR("ums global controls"),
+	    NULL, 0, NULL, 0, CTL_HW, CTL_CREATE, CTL_EOL);
+
+	if (err)
+		goto fail;
+
+	/* control debugging printfs */
+	err = sysctl_createv(clog, 0, &rnode, &cnode,
+	    CTLFLAG_PERMANENT|CTLFLAG_READWRITE, CTLTYPE_INT,
+	    "debug", SYSCTL_DESCR("Enable debugging output"),
+	    NULL, 0, &umsdebug, sizeof(umsdebug), CTL_CREATE, CTL_EOL);
+	if (err)
+		goto fail;
+
+	return;
+fail:
+	aprint_error("%s: sysctl_createv failed (err = %d)\n", __func__, err);
+}
+
+#endif /* UMS_DEBUG */
+#endif /* USB_DEBUG */
+
+#define DPRINTF(FMT,A,B,C,D)	USBHIST_LOGN(umsdebug,1,FMT,A,B,C,D)
+#define DPRINTFN(N,FMT,A,B,C,D)	USBHIST_LOGN(umsdebug,N,FMT,A,B,C,D)
+#define UMSHIST_FUNC()		USBHIST_FUNC()
+#define UMSHIST_CALLED(name)	USBHIST_CALLED(umsdebug)
+#define UMSHIST_CALLARGS(FMT,A,B,C,D) \
+				USBHIST_CALLARGS(umsdebug,FMT,A,B,C,D)
+#define UMSHIST_CALLARGSN(N,FMT,A,B,C,D) \
+				USBHIST_CALLARGSN(umsdebug,N,FMT,A,B,C,D)
+
 #define UMSUNIT(s)	(minor(s))
+#endif
 
 struct ums_softc {
 	struct uhidev *sc_hdev;
@@ -105,9 +158,7 @@ static const struct wsmouse_accessops ums_accessops = {
 };
 
 static int ums_match(device_t, cfdata_t, void *);
-#ifndef SEL4
 static void ums_attach(device_t, device_t, void *);
-#endif
 static void ums_childdet(device_t, device_t);
 static int ums_detach(device_t, int);
 static int ums_activate(device_t, enum devact);
@@ -139,14 +190,13 @@ ums_match(device_t parent, cfdata_t match, void *aux)
 	    !hid_is_collection(desc, size, uha->reportid,
 			       HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_POINTER)) &&
 	    !hid_is_collection(desc, size, uha->reportid,
-            HID_USAGE2(HUP_DIGITIZERS, 0x0002))) {
+			       HID_USAGE2(HUP_DIGITIZERS, 0x0002)))
 		return UMATCH_NONE;
-    }
 
 	return UMATCH_IFACECLASS;
 }
 
-void
+static void
 ums_attach(device_t parent, device_t self, void *aux)
 {
 	struct ums_softc *sc = device_private(self);
@@ -346,6 +396,7 @@ ums_disable(void *v)
 	struct ums_softc *sc = v;
 
 	DPRINTFN(1,("ums_disable: sc=%p\n", sc));
+
 #ifdef DIAGNOSTIC
 	if (!sc->sc_enabled) {
 		printf("ums_disable: not enabled\n");

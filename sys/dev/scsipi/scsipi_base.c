@@ -57,7 +57,6 @@ __KERNEL_RCSID(0, "$NetBSD: scsipi_base.c,v 1.189 2022/04/09 23:38:32 riastradh 
 #include <dev/scsipi/scsipi_disk.h>
 #include <dev/scsipi/scsipiconf.h>
 #include <dev/scsipi/scsipi_base.h>
-#include <dev/scsipi/scsiconf.h>
 
 #include <dev/scsipi/scsi_all.h>
 #include <dev/scsipi/scsi_message.h>
@@ -598,8 +597,8 @@ scsipi_put_xs(struct scsipi_xfer *xs)
 
 	TAILQ_REMOVE(&periph->periph_xferq, xs, device_q);
 	callout_destroy(&xs->xs_callout);
-#ifndef SEL4
-	pool_put(&scsipi_xfer_pool, xs); // May need in future
+#ifndef SEL4 // May need in future
+	pool_put(&scsipi_xfer_pool, xs);
 #endif
 
 #ifdef DIAGNOSTIC
@@ -1198,11 +1197,9 @@ scsipi_inquiry3_ok(const struct scsipi_inquiry_data *ib)
 	for (size_t i = 0; i < __arraycount(scsipi_inquiry3_quirk); i++) {
 		const struct scsipi_inquiry3_pattern *q =
 		    &scsipi_inquiry3_quirk[i];
-#ifndef SEL4
 #define MATCH(field) \
     (q->field[0] ? memcmp(ib->field, q->field, sizeof(ib->field)) == 0 : 1)
 		if (MATCH(vendor) && MATCH(product) && MATCH(revision))
-#endif
 			return 0;
 	}
 	return 1;
@@ -2128,7 +2125,7 @@ scsipi_run_queue(struct scsipi_channel *chan)
 {
 	struct scsipi_xfer *xs;
 	struct scsipi_periph *periph;
-	
+
 	SDT_PROBE1(scsi, base, queue, batch__start,  chan);
 	for (;;) {
 		mutex_enter(chan_mtx(chan));
@@ -2776,7 +2773,6 @@ scsipi_adapter_addref(struct scsipi_adapter *adapt)
 		scsipi_adapter_unlock(adapt);
 	}
 #endif
-
 	return error;
 }
 

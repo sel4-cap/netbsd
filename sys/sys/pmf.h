@@ -29,8 +29,8 @@
 #ifndef _SYS_PMF_H
 #define _SYS_PMF_H
 
+#if defined(_KERNEL) || defined(_KMEMUSER) || defined(SEL4)
 
-#include <stdbool.h>
 #include <sys/types.h>
 #include <sys/device_if.h>
 
@@ -65,26 +65,7 @@ struct pmf_qual {
 };
 
 typedef struct pmf_qual pmf_qual_t;
-
-#if defined(_KERNEL) || defined(_KMEMUSER)
-struct pmf_qual {
-	const device_suspensor_t	*pq_suspensor;
-	devact_level_t			pq_actlvl;
-};
-
-typedef struct pmf_qual pmf_qual_t;
 #endif
-
-// bool		pmf_device_register1(device_t,
-// 		    bool (*)(device_t, const pmf_qual_t *),
-// 		    bool (*)(device_t, const pmf_qual_t *),
-// 		    bool (*)(device_t, int));
-#define pmf_device_register1(...) 0
-/* compatibility */
-#define pmf_device_register(__d, __s, __r) \
-	pmf_device_register1((__d), (__s), (__r), NULL)
-#define pmf_event_inject(...) 0
-
 
 #if defined(_KERNEL)
 extern const pmf_qual_t * const PMF_Q_NONE;
@@ -161,7 +142,11 @@ pmf_qual_descend_ok(const pmf_qual_t *pq)
 }
 
 #else
-#define		pmf_device_deregister(...) 0;
+#define	pmf_device_deregister(...) 0;
+#define	pmf_device_deregister1(...) 0;
+#define pmf_device_register(...) 0
+#define pmf_device_register1(...) 0
+#define pmf_event_inject(...) 0
 #endif /* !_KERNEL */
 
 #endif /* !_SYS_PMF_H */

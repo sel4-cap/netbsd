@@ -31,7 +31,7 @@
 
 #ifndef	_SYS_RNDSOURCE_H
 #define	_SYS_RNDSOURCE_H
-#ifndef SEL4
+#ifndef SEL4 //SEL4: not relevant
 #ifndef _KERNEL			/* XXX */
 #error <sys/rndsource.h> is meant for kernel consumers only.
 #endif

@@ -8,8 +8,6 @@
 #include <sys/select.h>
 #include <sys/proc.h>
 
-void uhub_attach(device_t, device_t, void *);
-
 struct uhub_softc {
 	device_t		 sc_dev;	/* base device */
 	struct usbd_device	*sc_hub;	/* USB device */

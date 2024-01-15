@@ -218,7 +218,7 @@ scsibusattach(device_t parent, device_t self, void *aux)
 		aprint_error_dev(sc->sc_dev, "failed to init channel\n");
 		return;
 	}
-	
+
 	/*
 	 * Create the discover thread
 	 */
@@ -1115,7 +1115,7 @@ scsi_probe_device(struct scsibus_softc *sc, int target, int lun)
 				       .locators = locs))) != NULL) {
 		scsipi_insert_periph(chan, periph);
 
-				/*
+		/*
 		 * Determine supported opcodes and timeouts if available.
 		 * Only do this on peripherals reporting SCSI version 3
 		 * or greater - this command isn't in the SCSI-2 spec. and
@@ -1139,7 +1139,7 @@ scsi_probe_device(struct scsibus_softc *sc, int target, int lun)
 		KERNEL_UNLOCK_ONE(NULL);
 		goto bad;
 	}
-	
+
 	return (docontinue);
 
 bad:

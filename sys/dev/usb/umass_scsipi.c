@@ -45,7 +45,7 @@ __KERNEL_RCSID(0, "$NetBSD: umass_scsipi.c,v 1.70 2021/12/31 14:24:16 riastradh 
 #include <sys/bufq.h>
 #include <sys/conf.h>
 #include <sys/device.h>
-#include <sys/disk.h>		/* XXX */ //CAUSES SEL4 ERRORS
+#include <sys/disk.h>		/* XXX */
 #include <sys/ioctl.h>
 #include <sys/kernel.h>
 #include <sys/kmem.h>
@@ -413,12 +413,14 @@ Static int
 umass_scsipi_getgeom(struct scsipi_periph *periph, struct disk_parms *dp,
 		     u_long sectors)
 {
-	// struct umass_softc *sc =
-	//     device_private(periph->periph_channel->chan_adapter->adapt_dev);
+#ifndef SEL4
+	struct umass_softc *sc =
+	    device_private(periph->periph_channel->chan_adapter->adapt_dev);
 
 	/* If it's not a floppy, we don't know what to do. */
-	// if (sc->sc_cmd != UMASS_CPROTO_UFI)
-	// 	return 0;
+	if (sc->sc_cmd != UMASS_CPROTO_UFI)
+		return 0;
+#endif
 
 	switch (sectors) {
 	case 1440:
@@ -542,17 +544,21 @@ umass_scsipi_sense_cb(struct umass_softc *sc, void *priv, int residue,
 	case STATUS_CMD_OK:
 	case STATUS_CMD_UNKNOWN:
 		/* getting sense data succeeded */
-		// extra = sizeof(xs->sense.scsi_sense)
-		//       - sizeof(xs->sense.scsi_sense.extra_bytes);
-		// if (residue <= extra)
-		// 		xs->error = XS_SENSE;
-		// else
-		// 		xs->error = XS_SHORTSENSE;
+#ifndef SEL4
+		extra = sizeof(xs->sense.scsi_sense)
+		      - sizeof(xs->sense.scsi_sense.extra_bytes);
+		if (residue <= extra)
+			xs->error = XS_SENSE;
+		else
+			xs->error = XS_SHORTSENSE;
 		break;
+#endif
 	default:
 		DPRINTFM(UDMASS_SCSI, "sc %#jx: Autosense failed, status %jd",
 		    (uintptr_t)sc, status, 0, 0);
-		//xs->error = XS_DRIVER_STUFFUP;
+#ifndef SEL4
+		xs->error = XS_DRIVER_STUFFUP;
+#endif
 		break;
 	}
 
@@ -569,7 +575,7 @@ umass_atapi_probe_device(struct atapibus_softc *atapi, int target)
 	UMASSHIST_FUNC(); UMASSHIST_CALLED();
 	struct scsipi_channel *chan = atapi->sc_channel;
 	struct scsipi_periph *periph;
-	//struct scsipibus_attach_args sa;
+	struct scsipibus_attach_args sa;
 	char vendor[33], product[65], revision[17];
 	struct scsipi_inquiry_data inqbuf;
 
@@ -580,45 +586,51 @@ umass_atapi_probe_device(struct atapibus_softc *atapi, int target)
 		return;
 
 	/* skip if already attached */
-	// if (scsipi_lookup_periph(chan, target, 0) != NULL) {
-	// 	return;
-	// }
+#ifndef SEL4
+	if (scsipi_lookup_periph(chan, target, 0) != NULL) {
+		return;
+	}
 
-	//periph = scsipi_alloc_periph(M_WAITOK);
+	periph = scsipi_alloc_periph(M_WAITOK);
+#endif
 	DIF(UDMASS_UPPER, periph->periph_dbflags |= 1); /* XXX 1 */
-	//periph->periph_channel = chan;
-	//periph->periph_switch = &atapi_probe_periphsw;
-	//periph->periph_target = target;
-	//periph->periph_quirks = chan->chan_defquirks;
+#ifndef SEL4
+	periph->periph_channel = chan;
+	periph->periph_switch = &atapi_probe_periphsw;
+	periph->periph_target = target;
+	periph->periph_quirks = chan->chan_defquirks;
+#endif
 
 	DPRINTFM(UDMASS_SCSI, "doing inquiry", 0, 0, 0, 0);
 	/* Now go ask the device all about itself. */
 	memset(&inqbuf, 0, sizeof(inqbuf));
-	// if (scsipi_inquire(periph, &inqbuf, XS_CTL_DISCOVERY) != 0) {
-	// 	DPRINTFM(UDMASS_SCSI, "scsipi_inquire failed", 0, 0, 0, 0);
-	// 	free(periph, M_DEVBUF);
-	// 	return;
-	// }
+#ifndef SEL4
+	if (scsipi_inquire(periph, &inqbuf, XS_CTL_DISCOVERY) != 0) {
+		DPRINTFM(UDMASS_SCSI, "scsipi_inquire failed", 0, 0, 0, 0);
+		free(periph, M_DEVBUF);
+		return;
+	}
 
-	// strnvisx(vendor, sizeof(vendor), inqbuf.vendor, 8,
-	//     VIS_TRIM|VIS_SAFE|VIS_OCTAL);
-	// strnvisx(product, sizeof(product), inqbuf.product, 16,
-	//     VIS_TRIM|VIS_SAFE|VIS_OCTAL);
-	// strnvisx(revision, sizeof(revision), inqbuf.revision, 4,
-	//     VIS_TRIM|VIS_SAFE|VIS_OCTAL);
+	strnvisx(vendor, sizeof(vendor), inqbuf.vendor, 8,
+	    VIS_TRIM|VIS_SAFE|VIS_OCTAL);
+	strnvisx(product, sizeof(product), inqbuf.product, 16,
+	    VIS_TRIM|VIS_SAFE|VIS_OCTAL);
+	strnvisx(revision, sizeof(revision), inqbuf.revision, 4,
+	    VIS_TRIM|VIS_SAFE|VIS_OCTAL);
 
-	// sa.sa_periph = periph;
-	// sa.sa_inqbuf.type = inqbuf.device;
-	// sa.sa_inqbuf.removable = inqbuf.dev_qual2 & SID_REMOVABLE ?
-	//     T_REMOV : T_FIXED;
-	//if (sa.sa_inqbuf.removable)
-		//periph->periph_flags |= PERIPH_REMOVABLE;
-	// sa.sa_inqbuf.vendor = vendor;
-	// sa.sa_inqbuf.product = product;
-	// sa.sa_inqbuf.revision = revision;
-	// sa.sa_inqptr = NULL;
+	sa.sa_periph = periph;
+	sa.sa_inqbuf.type = inqbuf.device;
+	sa.sa_inqbuf.removable = inqbuf.dev_qual2 & SID_REMOVABLE ?
+	    T_REMOV : T_FIXED;
+	if (sa.sa_inqbuf.removable)
+		periph->periph_flags |= PERIPH_REMOVABLE;
+	sa.sa_inqbuf.vendor = vendor;
+	sa.sa_inqbuf.product = product;
+	sa.sa_inqbuf.revision = revision;
+	sa.sa_inqptr = NULL;
 
-	// atapi_probe_device(atapi, target, periph, &sa);
+	atapi_probe_device(atapi, target, periph, &sa);
+#endif
 	/* atapi_probe_device() frees the periph when there is no device.*/
 }
 #endif

@@ -3070,10 +3070,9 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 			}
 			USETW(dev->ud_ep0desc.wMaxPacketSize,
 			    (1 << dd->bMaxPacketSize));
-		} else {
+		} else
 			USETW(dev->ud_ep0desc.wMaxPacketSize,
 			    dd->bMaxPacketSize);
-		}
 		DPRINTFN(4, "bMaxPacketSize %ju", dd->bMaxPacketSize, 0, 0, 0);
 		err = xhci_update_ep0_mps(sc, xs,
 		    UGETW(dev->ud_ep0desc.wMaxPacketSize));
@@ -3430,7 +3429,7 @@ xhci_do_command_locked(struct xhci_softc * const sc,
 			xhci_abort_command(sc);
 			err = USBD_TIMEOUT;
 			goto timedout;
-		} 
+		}
 	}
 #endif
 
@@ -4345,9 +4344,7 @@ xhci_roothub_ctrl_locked(struct usbd_bus *bus, usb_device_request_t *req,
 		if (v & XHCI_PS_CCS)	i |= UPS_CURRENT_CONNECT_STATUS;
 		if (v & XHCI_PS_PED)	i |= UPS_PORT_ENABLED;
 		if (v & XHCI_PS_OCA)	i |= UPS_OVERCURRENT_INDICATOR;
-#ifndef SEL4
-		if (v & XHCI_PS_SUSP)	i |= UPS_SUSPEND;
-#endif
+		//if (v & XHCI_PS_SUSP)	i |= UPS_SUSPEND;
 		if (v & XHCI_PS_PR)	i |= UPS_RESET;
 		if (v & XHCI_PS_PP) {
 			if (i & UPS_OTHER_SPEED)
@@ -4368,7 +4365,6 @@ xhci_roothub_ctrl_locked(struct usbd_bus *bus, usb_device_request_t *req,
 		if (v & XHCI_PS_WRC)	i |= UPS_C_BH_PORT_RESET;
 		if (v & XHCI_PS_PLC)	i |= UPS_C_PORT_LINK_STATE;
 		if (v & XHCI_PS_CEC)	i |= UPS_C_PORT_CONFIG_ERROR;
-
 		USETW(ps.wPortChange, i);
 		totlen = uimin(len, sizeof(ps));
 		memcpy(buf, &ps, totlen);
@@ -4662,7 +4658,7 @@ xhci_device_ctrl_start(struct usbd_xfer *xfer)
 
 out:	if (xfer->ux_status == USBD_NOT_STARTED) {
 		xfer->ux_status = USBD_IN_PROGRESS;
-		usbd_xfer_schedule_timeout(xfer); //SEL4 order changed
+		usbd_xfer_schedule_timeout(xfer); //SEL4 order changed (NECESSARY)
 	} else {
 		/*
 		 * We must be coming from xhci_pipe_restart -- timeout
@@ -5091,9 +5087,7 @@ xhci_device_intr_abort(struct usbd_xfer *xfer)
 static void
 xhci_device_intr_close(struct usbd_pipe *pipe)
 {
-#ifndef SEL4
-	struct xhci_softc * const sc = XHCI_PIPE2SC(pipe);
-#endif
+	//struct xhci_softc * const sc = XHCI_PIPE2SC(pipe);
 
 	XHCIHIST_FUNC();
 	XHCIHIST_CALLARGS("%#jx", (uintptr_t)pipe, 0, 0, 0);

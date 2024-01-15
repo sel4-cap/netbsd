@@ -65,9 +65,7 @@
 #include <sys/condvar.h>
 #include <sys/rwlock.h>
 #include <sys/mutex.h>
-#ifndef SEL4
 #include <sys/time.h>
-#endif
 #include <sys/acl.h>
 
 /* XXX: clean up includes later */

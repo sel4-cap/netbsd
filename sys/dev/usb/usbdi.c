@@ -399,7 +399,6 @@ usbd_transfer(struct usbd_xfer *xfer)
 	KASSERT(xfer->ux_status == USBD_NOT_STARTED);
 	SDT_PROBE1(usb, device, xfer, start,  xfer);
 
-
 #ifdef USB_DEBUG
 	if (usbdebug > 5)
 		usbd_dump_queue(pipe);
@@ -475,6 +474,7 @@ usbd_transfer(struct usbd_xfer *xfer)
 		err = pipe->up_methods->upm_transfer(xfer);
 	} while (0);
 	SDT_PROBE3(usb, device, pipe, transfer__done,  pipe, xfer, err);
+
 	usbd_unlock_pipe(pipe);
 
 	if (err != USBD_IN_PROGRESS && err) {
@@ -698,6 +698,16 @@ usbd_create_xfer(struct usbd_pipe *pipe, size_t len, unsigned int flags,
 			return ENOMEM;
 		}
 	}
+
+#ifndef SEL4 //xhci won't need this
+	if (xfer->ux_methods->upm_init) {
+		int err = xfer->ux_methods->upm_init(xfer);
+		if (err) {
+			usbd_free_xfer(xfer);
+			return err;
+		}
+	}
+#endif
 
 	*xp = xfer;
 	SDT_PROBE5(usb, device, xfer, create,
@@ -1247,7 +1257,9 @@ usb_transfer_complete(struct usbd_xfer *xfer)
 			if (!(pipe->up_flags & USBD_MPSAFE))
 				KERNEL_LOCK(1, curlwp);
 		}
+
 		xfer->ux_callback(xfer, xfer->ux_priv, xfer->ux_status);
+
 		if (!polling) {
 			if (!(pipe->up_flags & USBD_MPSAFE))
 				KERNEL_UNLOCK_ONE(curlwp);
@@ -1271,7 +1283,7 @@ usb_transfer_complete(struct usbd_xfer *xfer)
 		/* XXX should we stop the queue on all errors? */
 		if (erred && pipe->up_iface != NULL)	/* not control pipe */
 			pipe->up_running = 0;
-		}
+	}
 	if (pipe->up_running && pipe->up_serialise)
 		usbd_start_next(pipe);
 }
@@ -1334,7 +1346,6 @@ usbd_status
 usbd_do_request_len(struct usbd_device *dev, usb_device_request_t *req,
     size_t len, void *data, uint16_t flags, int *actlen, uint32_t timeout)
 {
-	
 	struct usbd_xfer *xfer;
 	usbd_status err;
 
@@ -1355,6 +1366,7 @@ usbd_do_request_len(struct usbd_device *dev, usb_device_request_t *req,
 		    dev, req, /*actlen*/0, flags, timeout, data, USBD_NOMEM);
 		return USBD_NOMEM;
 	}
+
 	usbd_setup_default_xfer(xfer, dev, 0, timeout, req, data,
 	    UGETW(req->wLength), flags, NULL);
 	KASSERT(xfer->ux_pipe == dev->ud_pipe0);
@@ -1450,8 +1462,7 @@ usbd_get_endpoint_descriptor(struct usbd_interface *iface, uint8_t address)
  * to notice it.  If the driver continuously tries to do I/O operations
  * this can generate a large number of messages.
  */
-// SEL4: not needed
-#ifndef SEL4
+#ifndef SEL4 // SEL4: not needed
 int
 usbd_ratecheck(struct timeval *last)
 {
@@ -1577,9 +1588,8 @@ usbd_xfer_trycomplete(struct usbd_xfer *xfer)
 	 * If software has completed it, either by synchronous abort or
 	 * by timeout, too late.
 	 */
-	if (xfer->ux_status != USBD_IN_PROGRESS) {
+	if (xfer->ux_status != USBD_IN_PROGRESS)
 		return false;
-	}
 
 	/*
 	 * We are completing the xfer.  Cancel the timeout if we can,
@@ -1668,25 +1678,25 @@ usbd_xfer_timeout(void *cookie)
 		(uintptr_t)xfer, xfer->ux_status, 0, 0);
 
 	/*
-	* Use usbd_xfer_probe_timeout to check whether the timeout is
-	* still valid, or to reschedule the callout if necessary.  If
-	* it is still valid, schedule the task.
-	*/
+	 * Use usbd_xfer_probe_timeout to check whether the timeout is
+	 * still valid, or to reschedule the callout if necessary.  If
+	 * it is still valid, schedule the task.
+	 */
 	if (usbd_xfer_probe_timeout(xfer)) {
-	USBHIST_LOG(usbdebug, "xfer %#jx schedule timeout task",
-		(uintptr_t)xfer, 0, 0, 0);
-	usb_add_task(dev, &xfer->ux_aborttask, USB_TASKQ_HC);
+		USBHIST_LOG(usbdebug, "xfer %#jx schedule timeout task",
+		    (uintptr_t)xfer, 0, 0, 0);
+		usb_add_task(dev, &xfer->ux_aborttask, USB_TASKQ_HC);
 	} else {
-	USBHIST_LOG(usbdebug, "xfer %#jx timeout cancelled",
-		(uintptr_t)xfer, 0, 0, 0);
+		USBHIST_LOG(usbdebug, "xfer %#jx timeout cancelled",
+		    (uintptr_t)xfer, 0, 0, 0);
 	}
 
 	/*
-	* Notify usbd_xfer_cancel_timeout_async that we may have
-	* scheduled the task.  This causes callout_invoking to return
-	* false in usbd_xfer_cancel_timeout_async so that it can tell
-	* which stage in the callout->task->abort process we're at.
-	*/
+	 * Notify usbd_xfer_cancel_timeout_async that we may have
+	 * scheduled the task.  This causes callout_invoking to return
+	 * false in usbd_xfer_cancel_timeout_async so that it can tell
+	 * which stage in the callout->task->abort process we're at.
+	 */
 	callout_ack(&xfer->ux_callout);
 
 	/* All done -- release the lock.  */

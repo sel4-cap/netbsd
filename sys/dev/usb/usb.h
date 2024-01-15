@@ -39,10 +39,7 @@
 
 #include <sys/ioctl.h>
 
-#ifdef SEL4
-#include <sys/device.h>
-#endif
-#if defined(_KERNEL)
+#if defined(_KERNEL) || defined(SEL4)
 
 #include <sys/device.h>
 
@@ -1045,13 +1042,6 @@ struct usb_event30 {
 
 void	usb_event_thread(void *); //moved from usb.c
 
-void uhidev_attach(device_t, device_t, void *);
-void ukbd_attach(device_t, device_t, void *);
-void ums_attach(device_t, device_t, void *);
-void uts_attach(device_t, device_t, void *);
-void uhid_attach(device_t, device_t, void *);
-//void umass_attach()
-
 //SEL4: structure to hold memory addresses for interrupts
 struct intr_ptrs_holder {
 	void *ums;
@@ -1068,4 +1058,3 @@ struct intr_ptrs_holder {
 extern struct intr_ptrs_holder *intr_ptrs;
 
 #endif /* _USB_H_ */
-

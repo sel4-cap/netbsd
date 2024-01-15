@@ -589,8 +589,8 @@ void	config_defer(device_t, void (*)(device_t));
 void	config_deferred(device_t);
 void	config_interrupts(device_t, void (*)(device_t));
 void	config_mountroot(device_t, void (*)(device_t));
-// void	config_pending_incr(device_t);
-// void	config_pending_decr(device_t);
+void	config_pending_incr(device_t);
+void	config_pending_decr(device_t);
 void	config_create_interruptthreads(void);
 void	config_create_mountrootthreads(void);
 
@@ -734,8 +734,6 @@ int	device_call_generic(device_t, const struct device_call_generic *);
 
 #define	device_call(dev, call)						\
 	device_call_generic((dev), &(call)->generic)
-
-#else
 
 #endif /* _KERNEL */
 

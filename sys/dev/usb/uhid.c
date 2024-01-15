@@ -161,9 +161,7 @@ static void uhid_intr(void *, void *, u_int);
 #endif
 
 static int	uhid_match(device_t, cfdata_t, void *);
-#ifndef SEL4 //SEL4 moved to usb.h
 static void	uhid_attach(device_t, device_t, void *);
-#endif
 static int	uhid_detach(device_t, int);
 
 CFATTACH_DECL_NEW(uhid, sizeof(struct uhid_softc), uhid_match, uhid_attach,
@@ -184,7 +182,7 @@ uhid_match(device_t parent, cfdata_t match, void *aux)
 		return UMATCH_IFACECLASS_GENERIC;
 }
 
-void
+static void
 uhid_attach(device_t parent, device_t self, void *aux)
 {
 	struct uhid_softc *sc = kmem_zalloc(sizeof(struct uhid_softc), 0);
@@ -267,7 +265,6 @@ uhid_intr(void *cookie, void *data, u_int len)
 #endif
 
 	mutex_enter(&sc->sc_lock);
-	DPRINTFN(5, ("uhid_intr: waking %p\n", &sc->sc_q));
 #ifndef SEL4
 	(void)b_to_q(data, len, &sc->sc_q);
 

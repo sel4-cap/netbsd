@@ -400,8 +400,8 @@ __END_DECLS
 /* Pre-C11 definitions */
 
 #include <sys/cdefs.h>
-#include <lib/libkern/libkern.h>
 
+#include <lib/libkern/libkern.h>
 
 #ifdef _LP64
 #define	__HAVE_ATOMIC64_LOADSTORE	1
@@ -562,7 +562,7 @@ __do_atomic_store(volatile void *p, const void *q, size_t size)
 
 #endif	/* __STDC_VERSION__ */
 
-#elif defined SEL4
+#elif defined SEL4 //SEL4: stubbed out atomic funcs
 #define atomic_cas_uint(...) 0
 #define	atomic_store_release(p,v) 0
 #define	atomic_load_acquire(p) 0

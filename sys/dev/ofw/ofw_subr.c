@@ -64,7 +64,6 @@ __KERNEL_RCSID(0, "$NetBSD: ofw_subr.c,v 1.60 2022/01/22 11:49:18 thorpej Exp $"
 
 #include <sys/param.h>
 #include <sys/device.h>
-#include <sys/device_impl.h>
 #include <sys/kmem.h>
 #include <sys/systm.h>
 
@@ -75,7 +74,6 @@ __KERNEL_RCSID(0, "$NetBSD: ofw_subr.c,v 1.60 2022/01/22 11:49:18 thorpej Exp $"
 
 #define	OFW_MAX_STACK_BUF_SIZE	256
 #define	OFW_PATH_BUF_SIZE	512
-#define FALSE 0
 
 /*
  * OpenFirmware device handle support.

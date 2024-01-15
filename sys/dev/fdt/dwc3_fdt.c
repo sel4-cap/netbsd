@@ -28,7 +28,6 @@
 
 #include <sys/cdefs.h>
 __KERNEL_RCSID(0, "$NetBSD: dwc3_fdt.c,v 1.20 2022/06/12 08:04:07 skrll Exp $");
-#include <stdio.h>
 
 #include <sys/param.h>
 #include <sys/bus.h>
@@ -46,10 +45,9 @@ __KERNEL_RCSID(0, "$NetBSD: dwc3_fdt.c,v 1.20 2022/06/12 08:04:07 skrll Exp $");
 
 #include <dev/fdt/fdtvar.h>
 
-#include <sys/device_impl.h>
 #include <wrapper.h>
 #include <timer.h>
-#include <sys/kmem.h>
+#include <stdio.h>
 
 #define	DWC3_GCTL			0xc110
 #define	 GCTL_PRTCAP			__BITS(13,12)
@@ -90,12 +88,6 @@ static int	dwc3_fdt_match(device_t, cfdata_t, void *);
 #ifndef SEL4
 static void	dwc3_fdt_attach(device_t, device_t, void *);
 #endif
-struct imx8mq_usbphy_softc {
-	device_t		sc_dev;
-	bus_space_tag_t		sc_bst;
-	bus_space_handle_t	sc_bsh;
-	int			sc_phandle;
-};
 
 CFATTACH_DECL2_NEW(dwc3_fdt, sizeof(struct xhci_softc),
 	dwc3_fdt_match, dwc3_fdt_attach, NULL,
@@ -123,7 +115,7 @@ dwc3_fdt_soft_reset(struct xhci_softc *sc)
 	/* Assert USB2 PHY reset */
 	SET4(sc, DWC3_GUSB2PHYCFG(0), GUSB2PHYCFG_PHYSOFTRST);
 
-	delay(20000);
+	delay(100000);
 
 	/* Clear USB3 PHY reset */
 	CLR4(sc, DWC3_GUSB3PIPECTL(0), GUSB3PIPECTL_PHYSOFTRST);
@@ -131,7 +123,7 @@ dwc3_fdt_soft_reset(struct xhci_softc *sc)
 	/* Clear USB2 PHY reset */
 	CLR4(sc, DWC3_GUSB2PHYCFG(0), GUSB2PHYCFG_PHYSOFTRST);
 
-	delay(20000);
+	delay(100000);
 
 	/* Take core out of reset */
 	CLR4(sc, DWC3_GCTL, GCTL_CORESOFTRESET);
@@ -141,7 +133,7 @@ static void
 dwc3_fdt_enable_phy(struct xhci_softc *sc, const int phandle, u_int rev)
 {
 	const char *max_speed, *phy_type;
-	u_int phyif_utmi_bits = 0;
+	u_int phyif_utmi_bits;
 	uint32_t val;
 
 	val = RD4(sc, DWC3_GUSB2PHYCFG(0));
@@ -236,13 +228,9 @@ static const struct device_compatible_entry compat_data_dwc3[] = {
 static int
 dwc3_fdt_match(device_t parent, cfdata_t cf, void *aux)
 {
-#ifndef SEL4
 	struct fdt_attach_args * const faa = aux;
 
 	return of_compatible_match(faa->faa_phandle, compat_data);
-#else
-	return 0;
-#endif
 }
 
 void
@@ -378,8 +366,10 @@ dwc3_fdt_attach(device_t parent, device_t self, void *aux)
 		aprint_error_dev(self, "init failed, error = %d\n", error);
 		return;
 	}
-	
-	// sc->sc_child = config_found(self, &sc->sc_bus, NULL, CFARGS_NONE);
-	// sc->sc_child2 = config_found(self, &sc->sc_bus2, NULL,
-	//     CFARGS_NONE);
+
+#ifndef SEL4 //USB attach done in xhci_stub
+	sc->sc_child = config_found(self, &sc->sc_bus, NULL, CFARGS_NONE);
+	sc->sc_child2 = config_found(self, &sc->sc_bus2, NULL,
+	    CFARGS_NONE);
+#endif
 }
