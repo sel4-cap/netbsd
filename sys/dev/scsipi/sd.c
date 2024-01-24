@@ -1020,6 +1020,7 @@ static int
 sdread(dev_t dev, struct uio *uio, int ioflag)
 {
 
+	printf("sdread~~~~~~~~~~~\n");
 	return (physio(sdstrategy, NULL, dev, B_READ, sdminphys, uio));
 }
 

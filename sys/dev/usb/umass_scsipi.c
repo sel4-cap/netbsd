@@ -382,6 +382,7 @@ umass_scsipi_minphys(struct buf *bp)
 		bp->b_bcount = UMASS_MAX_TRANSFER_SIZE;
 	}
 #endif
+	printf("~~~~~~~~~~~~~DOING MINPHYS~~~~~~~~~~\n");
 	if (bp->b_bcount > UMASS_MAX_TRANSFER_SIZE)
 		bp->b_bcount = UMASS_MAX_TRANSFER_SIZE;
 	minphys(bp);
