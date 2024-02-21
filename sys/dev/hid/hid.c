@@ -45,6 +45,7 @@ __KERNEL_RCSID(0, "$NetBSD: hid.c,v 1.5 2022/03/13 11:35:47 riastradh Exp $");
 
 #include <dev/usb/usb.h>
 #include <dev/usb/usbhid.h>
+#include <stdio.h>
 
 #include <dev/hid/hid.h>
 

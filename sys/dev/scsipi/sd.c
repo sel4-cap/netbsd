@@ -278,7 +278,6 @@ static void
 sdattach(device_t parent, device_t self, void *aux)
 {
 	device_list[no_devices++] = self;
-	aprint_debug("device %d: %p\n", no_devices-1, device_list[no_devices-1]);
 	struct sd_softc *sd = device_private(self);
 	struct dk_softc *dksc = &sd->sc_dksc;
 	struct scsipibus_attach_args *sa = aux;
@@ -361,10 +360,8 @@ sdattach(device_t parent, device_t self, void *aux)
 	aprint_normal_dev(dksc->sc_dev, "");
 	switch (result) {
 	case SDGP_RESULT_OK:
-#ifndef SEL4
 		format_bytes(pbuf, sizeof(pbuf),
 		    (u_int64_t)dp->disksize * dp->blksize);
-#endif
 	        aprint_normal(
 		"%s, %ld cyl, %ld head, %ld sec, %ld bytes/sect x %llu sectors",
 		    pbuf, dp->cyls, dp->heads, dp->sectors, dp->blksize,
@@ -2036,6 +2033,46 @@ sd_set_geometry(struct sd_softc *sd)
 }
 
 // SEL4: bonus functions
+uint16_t
+get_umass_cyls(int dev_id)
+{
+	struct sd_softc *sd = device_private(device_list[dev_id]);
+	struct disk_parms *dp = &sd->params;
+	return (dp->cyls);
+}
+
+uint16_t
+get_umass_heads(int dev_id)
+{
+	struct sd_softc *sd = device_private(device_list[dev_id]);
+	struct disk_parms *dp = &sd->params;
+	return (dp->heads);
+}
+
+uint16_t
+get_umass_blocks(int dev_id)
+{
+	struct sd_softc *sd = device_private(device_list[dev_id]);
+	struct disk_parms *dp = &sd->params;
+	return (dp->sectors); // SEL4: not sure if this is correct usage
+}
+
+uint16_t
+get_umass_blocksize(int dev_id)
+{
+	struct sd_softc *sd = device_private(device_list[dev_id]);
+	struct disk_parms *dp = &sd->params;
+	return (dp->blksize);
+}
+
+uint64_t
+get_umass_size(int dev_id)
+{
+	struct sd_softc *sd = device_private(device_list[dev_id]);
+	struct disk_parms *dp = &sd->params;
+	return (dp->disksize/dp->blksize);
+}
+
 static int
 sd_readblocks(device_t dev, void *va, daddr_t blkno, int nblk)
 {

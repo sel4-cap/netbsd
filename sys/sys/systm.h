@@ -775,6 +775,7 @@ void assert_sleepable(void);
 
 #else //SEL4: debugging
 // TODO: add logging levels
+#include <stdio.h>
 #include <lib/libkern/libkern.h>
 
 #ifdef SEL4_USB_DEBUG 

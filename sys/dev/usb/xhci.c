@@ -73,6 +73,9 @@ __KERNEL_RCSID(0, "$NetBSD: xhci.c,v 1.180 2023/07/20 11:59:04 riastradh Exp $")
 #include <shared_ringbuffer.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <dev/scsipi/scsiconf.h>
+
+int umass_id = 0;
 
 extern uintptr_t usb_new_device_free;
 extern uintptr_t usb_new_device_used;
@@ -3165,6 +3168,20 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		sel4_dev->num_configs = dd->bNumConfigurations;
 		sel4_dev->rev = UGETW(dd->bcdUSB);
 		// Notify shell of new device
+		if (sel4_dev->ifaceClass == 0x08) {
+			//mass storage dev
+			sel4_dev->umass_dev = malloc(sizeof(struct sel4_umass_device));
+			sel4_dev->umass_dev->umass_id = umass_id;
+			sel4_dev->umass_dev->locked = false;
+			sel4_dev->umass_dev->active_xfer = NULL;
+
+			sel4_dev->umass_dev->blocks = get_umass_blocks(umass_id);
+			sel4_dev->umass_dev->cylinders = get_umass_cyls(umass_id);
+			sel4_dev->umass_dev->heads = get_umass_heads(umass_id);
+			sel4_dev->umass_dev->blocksize = get_umass_blocksize(umass_id);
+			sel4_dev->umass_dev->size = get_umass_size(umass_id);
+			umass_id++;
+		}
 		bool empty = ring_empty(usb_new_device_ring->used_ring);
 		int error = enqueue_used(usb_new_device_ring, (uintptr_t) sel4_dev, sizeof(sel4_dev), (void *)0);
 		if (empty)
