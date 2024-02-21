@@ -3032,7 +3032,7 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		}
 
 		/* Allow device time to set new address */
-		usbd_delay_ms(dev, USB_SET_ADDRESS_SETTLE);
+		usbd_delay_ms(dev, USB_SET_ADDRESS_SETTLE * 50); //SEL4: device needs more time to settle
 
 		usb_syncmem(&xs->xs_dc_dma, 0, sc->sc_pgsz, BUS_DMASYNC_POSTREAD);
 		cp = xhci_slot_get_dcv(sc, xs, XHCI_DCI_SLOT);
