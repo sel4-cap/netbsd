@@ -236,7 +236,7 @@ umass_scsipi_setup(struct umass_softc *sc)
 	scbus->sc_adapter.adapt_request = umass_scsipi_request;
 	//scbus->sc_adapter.adapt_minphys = umass_scsipi_minphys;
 	//scbus->sc_adapter.adapt_ioctl = umass_scsipi_ioctl;
-	//scbus->sc_adapter.adapt_getgeom = umass_scsipi_getgeom;
+	scbus->sc_adapter.adapt_getgeom = umass_scsipi_getgeom;
 	scbus->sc_adapter.adapt_flags = SCSIPI_ADAPT_MPSAFE;
 
 	/* Fill in the channel. */
@@ -413,14 +413,12 @@ Static int
 umass_scsipi_getgeom(struct scsipi_periph *periph, struct disk_parms *dp,
 		     u_long sectors)
 {
-#ifndef SEL4
 	struct umass_softc *sc =
 	    device_private(periph->periph_channel->chan_adapter->adapt_dev);
 
 	/* If it's not a floppy, we don't know what to do. */
 	if (sc->sc_cmd != UMASS_CPROTO_UFI)
 		return 0;
-#endif
 
 	switch (sectors) {
 	case 1440:

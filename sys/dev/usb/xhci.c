@@ -3145,6 +3145,7 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 		sel4_dev->id = (int)dev->sel4_dev_id;
 		sel4_dev->vendor = malloc((sizeof(dev->ud_vendor)));
 		sel4_dev->product = malloc(sizeof(dev->ud_product));
+		sel4_dev->serial = malloc(sizeof(dev->ud_serial));
 		sel4_dev->class = (int)dev->ud_ddesc.bDeviceClass;
 		sel4_dev->subclass = (int)dev->ud_ddesc.bDeviceSubClass;
 		char* unknown = "unknown";
@@ -3156,6 +3157,10 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 			strncpy(sel4_dev->product, unknown, strlen(unknown));
 		else
 			strncpy(sel4_dev->product, dev->ud_product, strlen(dev->ud_product) + 1);
+		if (!dev->ud_serial)
+			strncpy(sel4_dev->serial, unknown, strlen(unknown));
+		else
+			strncpy(sel4_dev->serial, dev->ud_serial, strlen(dev->ud_serial) + 1);
 		sel4_dev->vendorid = (int)UGETW(dev->ud_ddesc.idVendor);
 		sel4_dev->productid = (int)UGETW(dev->ud_ddesc.idProduct);
 		sel4_dev->ifaceClass = dev->ud_ifaces[0].ui_idesc->bInterfaceClass;
@@ -3175,11 +3180,15 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 			sel4_dev->umass_dev->locked = false;
 			sel4_dev->umass_dev->active_xfer = NULL;
 
-			sel4_dev->umass_dev->blocks = get_umass_blocks(umass_id);
-			sel4_dev->umass_dev->cylinders = get_umass_cyls(umass_id);
-			sel4_dev->umass_dev->heads = get_umass_heads(umass_id);
-			sel4_dev->umass_dev->blocksize = get_umass_blocksize(umass_id);
-			sel4_dev->umass_dev->size = get_umass_size(umass_id);
+			sel4_dev->umass_dev->dev_info.blocks = get_umass_blocks(umass_id);
+			sel4_dev->umass_dev->dev_info.cylinders = get_umass_cyls(umass_id);
+			sel4_dev->umass_dev->dev_info.heads = get_umass_heads(umass_id);
+			sel4_dev->umass_dev->dev_info.blocksize = get_umass_blocksize(umass_id);
+			sel4_dev->umass_dev->dev_info.size = get_umass_size(umass_id);
+			if (!dev->ud_serial)
+				strncpy(sel4_dev->umass_dev->dev_info.serial_number, unknown, strlen(unknown));
+			else
+				strncpy(sel4_dev->umass_dev->dev_info.serial_number, dev->ud_serial, strlen(dev->ud_serial) + 1);
 			umass_id++;
 		}
 		bool empty = ring_empty(usb_new_device_ring->used_ring);
