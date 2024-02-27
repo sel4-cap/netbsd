@@ -3188,7 +3188,7 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 			if (!dev->ud_serial)
 				strncpy(sel4_dev->umass_dev->dev_info.serial_number, unknown, strlen(unknown));
 			else
-				strncpy(sel4_dev->umass_dev->dev_info.serial_number, dev->ud_serial, strlen(dev->ud_serial) + 1);
+				strncpy(sel4_dev->umass_dev->dev_info.serial_number, dev->ud_serial, 64);
 			umass_id++;
 		}
 		bool empty = ring_empty(usb_new_device_ring->used_ring);
