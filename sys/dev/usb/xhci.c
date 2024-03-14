@@ -3178,7 +3178,6 @@ xhci_new_device(device_t parent, struct usbd_bus *bus, int depth,
 			sel4_dev->umass_dev = malloc(sizeof(struct sel4_umass_device));
 			sel4_dev->umass_dev->umass_id = umass_id;
 			sel4_dev->umass_dev->locked = false;
-			sel4_dev->umass_dev->active_xfer = NULL;
 
 			sel4_dev->umass_dev->dev_info.blocks = get_umass_blocks(umass_id);
 			sel4_dev->umass_dev->dev_info.cylinders = get_umass_cyls(umass_id);

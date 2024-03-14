@@ -90,14 +90,15 @@ __KERNEL_RCSID(0, "$NetBSD: sd.c,v 1.335 2022/08/28 10:26:37 mlelstv Exp $");
 
 #include <timer.h>
 #include <shared_ringbuffer.h>
+#include <sddf/blk/shared_queue.h>
 #include <stdio.h>
 
 
-extern uintptr_t umass_req_free;
-extern uintptr_t umass_req_used;
+extern uintptr_t umass_resp;
+extern uintptr_t umass_req;
 
 /* Pointers to shared_ringbuffers */
-extern ring_handle_t *umass_buffer_ring;
+extern blk_queue_handle_t *umass_buffer_ring;
 
 
 #define HEXDUMP(a, b, c) \
@@ -402,7 +403,8 @@ sdattach(device_t parent, device_t self, void *aux)
 
 	/* Set up shared memory regions */
     umass_buffer_ring = kmem_alloc(sizeof(*umass_buffer_ring), 0);
-    ring_init(umass_buffer_ring, (ring_buffer_t *)umass_req_free, (ring_buffer_t *)umass_req_used, NULL, 1);
+    // ring_init(umass_buffer_ring, (ring_buffer_t *)umass_resp, (ring_buffer_t *)umass_req, NULL, 1);
+	blk_queue_init(umass_buffer_ring, umass_req, umass_resp, true, 64, 64);
 	printf("DEBUG|new mass storage attached\n");
 }
 

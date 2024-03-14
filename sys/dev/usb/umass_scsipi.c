@@ -82,7 +82,7 @@ __KERNEL_RCSID(0, "$NetBSD: umass_scsipi.c,v 1.70 2021/12/31 14:24:16 riastradh 
 #include <shared_ringbuffer.h>
 #include <xhci_api.h>
 
-extern ring_handle_t *umass_buffer_ring;
+extern blk_queue_handle_t *umass_buffer_ring;
 
 extern struct umass_wire_methods *umass_bbb_methods_pointer;
 extern struct umass_wire_methods *umass_bbb_methods_pointer_other;
@@ -444,10 +444,12 @@ umass_null_cb(struct umass_softc *sc, void *priv, int residue, int status)
 	UMASSHIST_FUNC(); UMASSHIST_CALLED();
 
 	int dev_id = usbd_get_sel4_id(sc->sc_udev);
-	printf("returning from dev %d\n", dev_id);
 	int* buf = malloc(sizeof(dev_id));
 	*buf = dev_id;
-	enqueue_free(umass_buffer_ring, (uintptr_t)buf, sizeof(buf), (void*)0);
+
+	// sending back dev_id, but not necessary in sddf
+	blk_enqueue_resp(umass_buffer_ring, SUCCESS, buf, sizeof(buf), 1, 1);
+
 	// Read / Write complete
 	microkit_notify(UMASS_COMPLETE);
 }
