@@ -404,7 +404,7 @@ sdattach(device_t parent, device_t self, void *aux)
 	/* Set up shared memory regions */
     umass_buffer_ring = kmem_alloc(sizeof(*umass_buffer_ring), 0);
     // ring_init(umass_buffer_ring, (ring_buffer_t *)umass_resp, (ring_buffer_t *)umass_req, NULL, 1);
-	blk_queue_init(umass_buffer_ring, umass_req, umass_resp, true, 64, 64);
+	blk_queue_init(umass_buffer_ring, umass_req, umass_resp, true, BLK_REQ_QUEUE_SIZE, BLK_RESP_QUEUE_SIZE);
 	printf("DEBUG|new mass storage attached\n");
 }
 

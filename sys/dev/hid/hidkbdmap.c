@@ -599,7 +599,7 @@ Static const keysym_t hidkbd_keydesc_it[] = {
     KC(230), KS_Mode_switch,	KS_Multi_key,
 };
 
-Static const keysym_t hidkbd_keydesc_uk[] = {
+const keysym_t hidkbd_keydesc_uk[] = {
 /*  pos      normal             shifted         altgr           shift-altgr */
     KC(30),  KS_1,              KS_exclam,      KS_plusminus,   KS_exclamdown,
     KC(31),  KS_2,              KS_quotedbl,    KS_twosuperior, KS_cent,
